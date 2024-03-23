@@ -21,7 +21,7 @@ const LoginUser = () => {
             const { token, redirectTo } = response.data;
             localStorage.setItem('token', token); // Store token in localStorage
             // Redirect to the chat page
-            window.location.href = "http://localhost:3000/chat";
+            // window.location.href = "http://localhost:3000/chat";
             console.log('Login successful:', response.data);
             // Optionally, you can perform additional actions after successful login, such as redirecting the user to another page
         } catch (error) {
