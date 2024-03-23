@@ -18,8 +18,9 @@ const LoginUser = () => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:8080/api/v1/login', { username, password });
-            const { token, redirectTo } = response.data;
+            const { token } = response.data;
             localStorage.setItem('token', token); // Store token in localStorage
+            localStorage.setItem('username', username); // Store username in localStorage
             // Redirect to the chat page
             window.location.href = "http://localhost:3000/chat";
             console.log('Login successful:', response.data);

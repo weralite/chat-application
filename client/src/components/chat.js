@@ -8,6 +8,7 @@ const Chat = () => {
     const [chatHistory, setChatHistory] = useState([]);
     const [socket, setSocket] = useState(null);
     const [token, setToken] = useState('');
+    const [username, setUsername] = useState('');
 
     useEffect(() => {
         // Retrieve token from local storage
@@ -19,9 +20,18 @@ const Chat = () => {
     }, []);
 
     useEffect(() => {
+        // Retrieve token from local storage
+        const storedUsername = localStorage.getItem('username');
+        if (storedUsername) {
+            console.log('username found:', storedUsername);
+            setUsername(storedUsername);
+        }
+    }, []);
+
+    useEffect(() => {
       // Connect to Socket.IO server
       const newSocket = io(ENDPOINT, {
-        query: { token }
+        query: { token, username }
     });
       setSocket(newSocket);
   
@@ -49,7 +59,7 @@ const Chat = () => {
             <div>
                 {chatHistory.map((chat, index) => (
                     <>
-                    <p>{token}</p>
+                    <p>{username}</p>
                     <p key={index}>{chat}</p>
                     </>
                 ))}
