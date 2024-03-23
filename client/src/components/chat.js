@@ -7,10 +7,22 @@ const Chat = () => {
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
     const [socket, setSocket] = useState(null);
+    const [token, setToken] = useState('');
+
+    useEffect(() => {
+        // Retrieve token from local storage
+        const storedToken = localStorage.getItem('token');
+        if (storedToken) {
+            console.log('Token found:', storedToken);
+            setToken(storedToken);
+        }
+    }, []);
 
     useEffect(() => {
       // Connect to Socket.IO server
-      const newSocket = io(ENDPOINT);
+      const newSocket = io(ENDPOINT, {
+        query: { token }
+    });
       setSocket(newSocket);
   
       // Cleanup function to disconnect socket on unmount

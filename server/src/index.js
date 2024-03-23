@@ -18,7 +18,8 @@ const io = socketIo(server, {
 // Handle socket connections
 io.on('connection', (socket) => {
   console.log('A client connected');
-
+  console.log('Client ID:', socket.id);
+  console.log('Client IP address:', socket.handshake.address);
   // Handle socket events (e.g., chat messages, user connections, etc.)
   socket.on('chatMessage', (message) => {
     console.log('Received message:', message);
