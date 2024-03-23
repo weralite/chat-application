@@ -1,9 +1,9 @@
 const express = require('express');
 const messageRouter = express.Router();
-const { getMessages, createMessage, deleteMessage } = require('../controllers/message.controller');
+const { getChatMessages, createMessage, deleteMessage } = require('../controllers/message.controller');
 
 
-messageRouter.get('/getMessage', getMessages);
+messageRouter.get('/getMessage', getChatMessages);
 
 messageRouter.post('/sendMessage', createMessage);
 

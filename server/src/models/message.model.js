@@ -1,23 +1,27 @@
 const mongoose = require('mongoose');
+const uuid = require('uuid');
 
-const messageSchema = new mongoose.Schema({
-    content: {
+function generateChatId() {
+  return uuid.v4();
+}
+
+const messageSchema = new mongoose.Schema(
+  {
+    sender: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    receiver: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    content: { type: String, required: true, minLength: 1, maxLength: 255 },
+    chatID: {
       type: String,
+      trim: true,
+      required: true,
+      default: generateChatId
     },
-    recieverID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    senderID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-  }
-  , {
+  },
+  {
     timestamps: true,
   }
-  );
+);
 
-    const Message = mongoose.model('Messages', messageSchema);
+const Message = mongoose.model('Messages', messageSchema);
 
-    module.exports = Message;
+module.exports = Message;
