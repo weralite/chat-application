@@ -31,9 +31,13 @@ const Chat = () => {
       };
     }, []);
 
+    
+
 
     const handleSendMessage = () => {
         if (message.trim() !== '') {
+            // Send the message to the server along with the token
+            socket.emit('sendMessage', { message, token });
             setChatHistory(prevChatHistory => [...prevChatHistory, message]);
             setMessage('');
         }
@@ -45,7 +49,7 @@ const Chat = () => {
             <div>
                 {chatHistory.map((chat, index) => (
                     <>
-                    <p>user</p>
+                    <p>{token}</p>
                     <p key={index}>{chat}</p>
                     </>
                 ))}
