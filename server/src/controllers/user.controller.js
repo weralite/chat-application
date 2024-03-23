@@ -20,5 +20,14 @@ async function createUser(req, res) {
 }
 
 
+async function getUsers(req, res) {
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error getting users: ", error);
+    res.status(500).send('An error occurred while getting users');
+  }
+}
 
-module.exports = { createUser };
+module.exports = { createUser, getUsers };
