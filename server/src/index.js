@@ -1,23 +1,38 @@
-const dotenv = require("dotenv")
-const { Server } = require("socket.io")
-const mongoose = require("mongoose")
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors'); // Import the cors package
 
-dotenv.config()
+const PORT = process.env.PORT || 8000;
 
-const io = new Server({
+// Create an HTTP server
+const server = http.createServer();
+
+// Initialize Socket.IO and attach it to the server
+const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
-    methods: ["GET", "POST"],
-  },
-})
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
 
-mongoose
-  .connect(process.env.MONGO_URI ?? "mongodb://127.0.0.1:27017/chat-test")
-  .then(() => {
-    console.log("db connected")
-    io.listen(7000) // Assuming you want to listen on port 3000
-    console.log("server started")
-  })
-  .catch((error) => {
-    console.error("Error connecting to MongoDB:", error)
-  })
+// Handle socket connections
+io.on('connection', (socket) => {
+  console.log('A client connected');
+
+  // Handle socket events (e.g., chat messages, user connections, etc.)
+  socket.on('chatMessage', (message) => {
+    console.log('Received message:', message);
+    // Broadcast the message to all connected clients
+    io.emit('chatMessage', message);
+  });
+
+  // Handle disconnections
+  socket.on('disconnect', () => {
+    console.log('A client disconnected');
+  });
+});
+
+// Start the server and listen for incoming WebSocket connections
+server.listen(PORT, () => {
+  console.log(`Socket.IO server running on port ${PORT}`);
+});
