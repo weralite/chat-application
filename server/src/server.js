@@ -15,6 +15,8 @@ const io = socketIo(server, {
     }
   });
 
+  let connectedUsers = {};
+
   io.use((socket, next) => {
     if (socket.handshake.query && socket.handshake.query.token){
         jwt.verify(socket.handshake.query.token, process.env.JWT_SECRET, function(err, decoded) {
@@ -34,7 +36,10 @@ const io = socketIo(server, {
 });
 
 io.on('connection', (socket) => {
-    console.log('New client connected');
+    const userId = socket.handshake.query.userId;
+    connectedUsers[userId] = true;
+    io.emit('userConnected', userId);
+    console.log('New client connected ' + userId);
 
     // You can handle Socket.IO events here
     socket.on('message', (data) => {
@@ -42,9 +47,17 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
+        delete connectedUsers[userId];
         console.log('Client disconnected');
+        io.emit('userDisconnected', userId);
     });
 });
+
+app.get('/isUserConnected/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const isConnected = !!connectedUsers[userId];
+    res.send(isConnected);
+  });
 
 
 server.listen(port, () => {
