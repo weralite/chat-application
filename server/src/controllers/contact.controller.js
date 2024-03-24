@@ -20,15 +20,14 @@ async function getContactsForUser(req, res) {
 
   try {
     const contacts = await Contact.find({ $or: [{ user1Id: userId }, { user2Id: userId }] });
-    const otherUserIds = contacts.map(contact => contact.user1Id.toString() === userId ? contact.user2Id : contact.user1Id);
-
-    const otherUsernames = await Promise.all(
-      otherUserIds.map(async id => {
-        const user = await User.findById(id);
-        return { id: user._id, username: user.username };
+    const otherUsers = await Promise.all(
+      contacts.map(async contact => {
+        const otherUserId = contact.user1Id.toString() === userId ? contact.user2Id : contact.user1Id;
+        const user = await User.findById(otherUserId);
+        return { id: user._id, username: user.username, blocked: contact.blocked };
       })
     );
-    res.status(200).json(otherUsernames);
+    res.status(200).json(otherUsers);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving contacts: ' + error.message });
   }
