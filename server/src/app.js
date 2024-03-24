@@ -4,6 +4,7 @@ const userRouter = require("./routes/user.route");
 const authRouter = require("./routes/auth.route");
 const messageRouter = require("./routes/message.route");
 const chatRouter = require("./routes/chat.route");
+const contactRouter = require("./routes/contact.route");
 
 const app = Express();
 
@@ -18,5 +19,6 @@ app.use("/api/v1", userRouter);
 app.use("/api/v1", authRouter);
 app.use("/api/v1", messageRouter);
 app.use("/api/v1", chatRouter);
+app.use("/api/v1", contactRouter);
 
 module.exports = app

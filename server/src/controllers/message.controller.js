@@ -2,27 +2,35 @@ const Message = require('../models/message.model');
 const Chat = require('../models/chat.model');
 
 async function createMessage(req, res) {
-    const { senderId, receiverId, content } = req.body;
-  
-    try {
-      const chat = await Chat.findOne({ participants: { $all: [senderId, receiverId] } });
-      if (!chat) {
-        return res.status(404).json({ message: 'Chat not found' });
-      }
-      const newMessage = new Message({
-        sender: senderId,
-        receiver: receiverId,
-        content: content,
-        chatID: chat.chatId,
-      });
-  
-      await newMessage.save();
-  
-      res.status(201).json(newMessage);
-    } catch (error) {
-      res.status(500).json({ message: 'Error sending message: ' + error.message });
+  const { senderId, receiverId, content } = req.body;
+
+  try {
+    const senderContact = await Contact.findOne({ userId: senderId, blocked: true });
+    const receiverContact = await Contact.findOne({ userId: receiverId, blocked: true });
+
+    if (senderContact || receiverContact) {
+      return res.status(403).json({ message: 'Contact is blocked' });
     }
+
+    const chat = await Chat.findOne({ participants: { $all: [senderId, receiverId] } });
+    if (!chat) {
+      return res.status(404).json({ message: 'Chat not found' });
+    }
+
+    const newMessage = new Message({
+      sender: senderId,
+      receiver: receiverId,
+      content: content,
+      chatID: chat.chatId,
+    });
+
+    await newMessage.save();
+
+    res.status(201).json(newMessage);
+  } catch (error) {
+    res.status(500).json({ message: 'Error sending message: ' + error.message });
   }
+}
 
 
   async function getChatMessages (req, res) {

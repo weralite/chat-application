@@ -68,9 +68,8 @@ const Chat = () => {
                     <h2>Contacts</h2>
 
                     <div className='chat-contacts-list'>
-                        <p>John Doe</p>
-                        <p>Jane Doe</p>
-                        <p>John Smith</p>
+                        <p>Abdulla</p>
+
                     </div>
 
                 </div>
@@ -82,14 +81,9 @@ const Chat = () => {
                     <div className='chat-textbox'>
                         <b>Ahmed </b>
                         <p>shoo brosh </p>
-                        <b>Ahmed </b>
-                        <p>shoo brosh </p>
-                        <b>Ahmed </b>
-                        <p>shoo brosh </p>
-                        <b>Ahmed </b>
-                        <p>shoo brosh </p>
-                        <b>Ahmed </b>
-                        <p>shoo brosh </p>
+                        <b>Abdulla </b>
+                        <p>shooooo </p>
+
 
                         {chatHistory.map((chat, index) => (
                             <>
