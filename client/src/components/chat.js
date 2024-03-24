@@ -13,6 +13,9 @@ const Chat = () => {
     const [token, setToken] = useState('');
     const [username, setUsername] = useState('');
     const [contacts, setContacts] = useState([]);
+    const [chatId, setChatId] = useState(null);
+    const [senderId, setSenderId] = useState(null);
+    const [receiverId, setReceiverId] = useState(null);
 
     useEffect(() => {
         console.log('Token changed:', token);
@@ -35,6 +38,11 @@ const Chat = () => {
             setUsername(storedUsername);
         }
     }, []);
+
+    useEffect(() => {
+        console.log('Sender ID:', senderId);
+        console.log('Receiver ID:', receiverId);
+    }, [senderId, receiverId]);
 
     useEffect(() => {
         // Connect to Socket.IO server
@@ -115,14 +123,35 @@ const Chat = () => {
     async function createChat(contactId) {
         try {
             const userId = localStorage.getItem('userId');
-            const response = await axios.post('/createchat', {
-              participants: [userId, contactId]
+            console.log(userId, contactId)
+            const response = await axios.post('http://localhost:8080/api/v1/chats/createchat', {
+                senderId: userId,
+                receiverId: contactId
             });
             console.log('Chat created:', response.data);
             const chat = response.data;
+            setChatId(chat.chatId);
+            const [firstParticipant, secondParticipant] = chat.participants;
+            setSenderId(firstParticipant === userId ? firstParticipant : secondParticipant);
+            setReceiverId(firstParticipant === userId ? secondParticipant : firstParticipant);
         }
         catch (error) {
             console.error(error);
+        }
+    }
+
+
+    async function sendMessage() {
+        try {
+            const response = await axios.post(`http://localhost:8080/api/v1/messages/sendMessage`, {
+                senderId: senderId,
+                receiverId: receiverId,
+                content: message,
+            });
+            setMessage('');
+            console.log('Message sent:', response.data);
+        } catch (error) {
+            console.error(error.message);
         }
     }
 
@@ -144,7 +173,7 @@ const Chat = () => {
                     <div className='chat-contacts-list'>
                         {contacts.map((contact, index) => (
 
-                            <div className='chat-contact' key={index}>
+                            <div className='chat-contact' key={index} onClick={() => createChat(contact.id)}>
                                 <p>{contact.username}</p>
                                 <p>Blocked: {contact.blocked ? 'Yes' : 'No'}</p>
                                 <p>Connected: {contact.connected ? 'Yes' : 'No'}</p>
@@ -169,7 +198,7 @@ const Chat = () => {
                             value={message}
                             onChange={e => setMessage(e.target.value)}
                         />
-                        <button className='chat-send-button' >Send</button>
+                        <button className='chat-send-button' onClick={sendMessage}>Send</button>
                     </div>
                 </div>
             </div>
