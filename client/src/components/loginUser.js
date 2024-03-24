@@ -32,8 +32,9 @@ const LoginUser = () => {
     };
 
     return (
-        <div>
+        <div className='chat-app'>
             <h1>Login User</h1>
+            
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"

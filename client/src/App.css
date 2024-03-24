@@ -1,38 +1,68 @@
-.App {
-  text-align: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h1 {
+  padding: 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+h2, h3, h4, h5, h6 {
+  font-size: 15px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+body {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: center; /* Horizontally center the chat app */
+  align-items: center; /* Vertically center the chat app */
+  height: 100vh; /* Set the height of the root container to the full viewport height */
 }
 
-.App-link {
-  color: #61dafb;
+.chat-app {
+  border: 1px solid #ccc;
+  min-width: 10rem;
+  max-width: 40rem;
+  height: 30rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.chat-wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+.chat-main-window {
+  padding: 5px;
+}
+
+.chat-textbox {
+  padding: 5px;
+}
+
+.chat-textbox {
+  height: 20rem;
+  width: 15rem;
+  border: 1px solid #ccc;
+  overflow-y: auto;
+}
+
+.chat-primary-contacts {
+  padding: 5px;
+}
+
+.chat-contacts-list {
+  height: 20rem;
+  overflow-y: auto;
+}
+
+.input-and-send-box {
+  width: 15rem;
+}
+
+.chat-input-box {
+  width: 12rem;
+}
+
+.chat-send-button {
+  width: 3rem;
 }
