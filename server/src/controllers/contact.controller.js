@@ -1,37 +1,48 @@
 const Contact = require('../models/contact.model');
+const User = require('../models/user.model');
+
 
 async function createContact(req, res) {
-    const { user1Id, user2Id } = req.body;
+  const { user1Id, user2Id } = req.body;
 
-    try {
-        const newContact = new Contact({ user1Id, user2Id });
-        await newContact.save();
-        res.status(201).json(newContact);
-    } catch (error) {
-        res.status(500).json({ message: 'Error creating contact: ' + error.message });
-    }
+  try {
+    const newContact = new Contact({ user1Id, user2Id });
+    await newContact.save();
+    res.status(201).json(newContact);
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating contact: ' + error.message });
+  }
 };
 
 async function getContactsForUser(req, res) {
-    const userId = req.params.userId;
+  const userId = req.query.userId;
+  console.log('User ID:', userId);
 
-    try {
-      const contacts = await Contact.find({ $or: [{ user1Id: userId }, { user2Id: userId }] });
-      res.status(200).json(contacts);
-    } catch (error) {
-      res.status(500).json({ message: 'Error retrieving contacts: ' + error.message });
-    }
+  try {
+    const contacts = await Contact.find({ $or: [{ user1Id: userId }, { user2Id: userId }] });
+    const otherUserIds = contacts.map(contact => contact.user1Id.toString() === userId ? contact.user2Id : contact.user1Id);
+
+    const otherUsernames = await Promise.all(
+      otherUserIds.map(async id => {
+        const user = await User.findById(id);
+        return { id: user._id, username: user.username };
+      })
+    );
+    res.status(200).json(otherUsernames);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving contacts: ' + error.message });
+  }
 };
 
 async function deleteContact(req, res) {
-    const contactId = req.params.contactId;
+  const contactId = req.params.contactId;
 
-    try {
-      await Contact.findByIdAndDelete(contactId);
-      res.status(200).json({ message: 'Contact deleted successfully' });
-    } catch (error) {
-      res.status(500).json({ message: 'Error deleting contact: ' + error.message });
-    }
+  try {
+    await Contact.findByIdAndDelete(contactId);
+    res.status(200).json({ message: 'Contact deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting contact: ' + error.message });
+  }
 };
 
 async function blockContact(req, res) {
@@ -53,8 +64,8 @@ async function blockContact(req, res) {
 };
 
 module.exports = {
-    createContact,
-    getContactsForUser,
-    deleteContact,
-    blockContact
+  createContact,
+  getContactsForUser,
+  deleteContact,
+  blockContact
 };

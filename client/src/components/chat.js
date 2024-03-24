@@ -4,12 +4,19 @@ import axios from 'axios';
 
 const ENDPOINT = 'http://localhost:8080';
 
+
+
 const Chat = () => {
     const [message, setMessage] = useState(''); 
     const [chatHistory, setChatHistory] = useState([]); 
     const [socket, setSocket] = useState(null);
     const [token, setToken] = useState('');
     const [username, setUsername] = useState('');
+    const [contacts, setContacts] = useState([]);
+    
+    useEffect(() => {
+        console.log('Token changed:', token);
+    }, [token]);
 
     useEffect(() => {
         // Retrieve token from local storage
@@ -31,8 +38,9 @@ const Chat = () => {
 
     useEffect(() => {
         // Connect to Socket.IO server
+        console.log('Sending to socket:', token); // Add this line
         const newSocket = io(ENDPOINT, {
-            query: { token, username }
+            query: { token }
         });
         setSocket(newSocket);
 
@@ -40,7 +48,15 @@ const Chat = () => {
         return () => {
             newSocket.disconnect();
         };
-    }, []);
+    }, [token]);
+
+    useEffect(() => {
+        if (token) {
+            getContacts();
+        }
+    }, [token]);
+
+  
 
     const handleSendMessage = () => {
         if (message.trim() !== '') {
@@ -51,23 +67,42 @@ const Chat = () => {
             setMessage('');
         }
     };
+
+    async function getContacts() {
+        try {
+            const userId = localStorage.getItem('userId');
+            console.log('User ID:', userId);
+          const response = await axios.get('http://localhost:8080/api/v1/contacts/getContactsForUser', {
+                params: {
+                    userId: userId
+                }
+            });
+            console.log('Contacts:', response.data);
+            setContacts(response.data);
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
+
+
     
-    useEffect(() => {
-        const fetchMessages = async () => {
-            try {
-                const response = await axios.get('http://localhost:8080/api/v1/chat', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                setChatHistory(response.data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchMessages = async () => {
+    //         try {
+    //             const response = await axios.get('http://localhost:8080/api/v1/messages/getMessage', {
+    //                 headers: {
+    //                     'Authorization': `Bearer ${localStorage.getItem('token')}`
+    //                 }
+    //             });
+    //             setChatHistory(response.data);
+    //         } catch (error) {
+    //             console.error(error);
+    //         }
+    //     };
     
-        fetchMessages();
-    }, []);
+    //     fetchMessages();
+    // }, []);
 
     return (
         <div className='chat-app'>
@@ -84,7 +119,12 @@ const Chat = () => {
                     <h2>Contacts</h2>
 
                     <div className='chat-contacts-list'>
-                        <p>Abdulla</p>
+                       {contacts.map((contact, index) => (
+                        
+                        <div className='chat-contact' key={index}>
+                            <p>{contact.username}</p>
+                        </div>
+                    ))}
 
                     </div>
 
@@ -105,7 +145,6 @@ const Chat = () => {
                             <>
                                 <p>{username}</p>
                                 <p key={index}>{chat}</p>
-                                <p>test </p>
                             </>
                         ))}
                     </div>
