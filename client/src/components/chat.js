@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import axios from 'axios';
 
-const ENDPOINT = 'http://localhost:8000';
+const ENDPOINT = 'http://localhost:8080';
 
 const Chat = () => {
-    const [message, setMessage] = useState('');
-    const [chatHistory, setChatHistory] = useState([]);
+    const [message, setMessage] = useState(''); 
+    const [chatHistory, setChatHistory] = useState([]); 
     const [socket, setSocket] = useState(null);
     const [token, setToken] = useState('');
     const [username, setUsername] = useState('');
@@ -41,17 +42,32 @@ const Chat = () => {
         };
     }, []);
 
-
-
-
     const handleSendMessage = () => {
         if (message.trim() !== '') {
             // Send the message to the server along with the token
             socket.emit('sendMessage', { message, token });
+            // Update the chat history to include the new message
             setChatHistory(prevChatHistory => [...prevChatHistory, message]);
             setMessage('');
         }
     };
+    
+    useEffect(() => {
+        const fetchMessages = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/v1/chat', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                setChatHistory(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+    
+        fetchMessages();
+    }, []);
 
     return (
         <div className='chat-app'>

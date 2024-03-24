@@ -15,10 +15,10 @@ app.use(cors({
     origin: ["http://localhost:3000", "http://127.0.0.1:3000"]
 }))
 
-app.use("/api/v1", userRouter);
-app.use("/api/v1", authRouter);
-app.use("/api/v1", messageRouter);
-app.use("/api/v1", chatRouter);
-app.use("/api/v1", contactRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/messages", messageRouter);
+app.use("/api/v1/chats", chatRouter);
+app.use("/api/v1/contacts", contactRouter);
 
 module.exports = app
