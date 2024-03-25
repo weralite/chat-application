@@ -5,20 +5,26 @@ import axios from 'axios';
 const ENDPOINT = 'http://localhost:8080';
 
 const Chat = () => {
-    const [messages, setMessages] = useState('');
+    const [messages, setMessages] = useState(''); // Forgot why this is here
     const [message, setMessage] = useState('');
-    const [chatHistory, setChatHistory] = useState([]);
+    const [chatHistory, setChatHistory] = useState([]); // Forgot why this is here
     const [socket, setSocket] = useState(null);
     const [token, setToken] = useState('');
     const [username, setUsername] = useState('');
-    const [contacts, setContacts] = useState([]);
+    const [contacts, setContacts] = useState([]); // Add function to set contacts via name
     const [chatId, setChatId] = useState(null);
     const [senderId, setSenderId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
-    const userId = localStorage.getItem('userId');
     const [contactIds, setContactIds] = useState([]);
+    const [reciever, setReciever] = useState(''); // Add function to fetch name from recieverID
+    const [sender, setSender] = useState(''); // Add function to fetch name from senderID
     const [activeChat, setActiveChat] = useState(null);
 
+    const userId = localStorage.getItem('userId');
+
+
+
+    // Handle contact click to enable a chat
     const handleContactClick = (contactId) => {
         // Set receiverId and senderId
         setReceiverId(contactId);
@@ -44,12 +50,14 @@ const Chat = () => {
 
     console.log('Active chat:', activeChat);
 
+
     const sendMessage = (content) => {
         if (activeChat) {
             socket.emit('send_message', { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content });
         }
     };
 
+    // Retrieve token and username from local storage
     useEffect(() => {
         // Retrieve token from local storage
         const storedToken = localStorage.getItem('token');
@@ -66,6 +74,7 @@ const Chat = () => {
         }
     }, []);
 
+    // Connect to Socket.IO server
     useEffect(() => {
         if (token) {
             // Connect to Socket.IO server
@@ -83,6 +92,7 @@ const Chat = () => {
         }
     }, [token]);
 
+    // Fetch contacts
     useEffect(() => {
         // If socket is not yet initialized, return
         if (!socket) return;
@@ -115,6 +125,7 @@ const Chat = () => {
 
     }, [socket]);
 
+    // Listen for 'receive_chats' event to set an active chat
     useEffect(() => {
         if (token && socket) {
             // Listen for 'receive_chat' event
@@ -125,6 +136,7 @@ const Chat = () => {
         }
     }, [token, socket]);
 
+    // Recieve messages
     useEffect(() => {
         if (socket) {
             socket.on('receive_messages', (receivedMessages) => {
@@ -141,7 +153,8 @@ const Chat = () => {
             });
         }
     }, [socket]);
-    
+
+    // Send messages
     useEffect(() => {
         if (socket) {
             socket.on('message_sent', (newMessage) => {
@@ -156,7 +169,7 @@ const Chat = () => {
                     return newChat;
                 });
             });
-    
+
             return () => {
                 socket.off('message_sent');
             };
