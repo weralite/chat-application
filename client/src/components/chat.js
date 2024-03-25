@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
 
@@ -15,11 +15,12 @@ const Chat = () => {
     const [chatId, setChatId] = useState(null);
     const [senderId, setSenderId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
-    const [reciever, setReciever] = useState(''); // Add function to fetch name from recieverID
+    const [receiver, setReceiver] = useState(''); // Add function to fetch name from recieverID
     const [sender, setSender] = useState(''); // Add function to fetch name from senderID
     const [activeChat, setActiveChat] = useState(null);
 
     const userId = localStorage.getItem('userId');
+    const chatEndRef = useRef(null);
 
 
 
@@ -36,6 +37,8 @@ const Chat = () => {
                 // Assuming chats is an array and the chat you're interested in is the first one
                 const chatId = chats.chatId;
                 setChatId(chatId); // Set chatId state
+                setSender(chats.senderUsername);
+                setReceiver(chats.receiverUsername);
                 socket.emit('get_messages', { chatId });
             });
         }
@@ -48,6 +51,8 @@ const Chat = () => {
     console.log('User ID:', userId);
 
     console.log('Active chat:', activeChat);
+
+    console.log('sender:', sender, 'receiver:', receiver)
 
 
     const sendMessage = (content) => {
@@ -176,6 +181,13 @@ const Chat = () => {
         }
     }, [socket]);
 
+    // Scroll to the end of the chat
+    useEffect(() => {
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [activeChat]);
+
     return (
         <div className='chat-app'>
             <h1>Chat Page</h1>
@@ -197,11 +209,12 @@ const Chat = () => {
                                 {activeChat && activeChat.messages && (
                                     activeChat.messages.map((message, index) => (
                                         <div key={index}>
-                                            <p>{message.sender.toString() === userId.toString() ? 'You' : 'Them'}</p>
+                                            <b>{message.sender.toString() === userId.toString() ? 'You' : receiver}</b>
                                             <p>{message.content}</p>
                                         </div>
                                     ))
                                 )}
+                                 <div ref={chatEndRef} />
                             </div>
                             <div className='input-and-send-box'>
                                 <input
