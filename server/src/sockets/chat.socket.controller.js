@@ -1,28 +1,35 @@
 const Chat = require('../models/chat.model');
+const User = require('../models/user.model');
 const generateChatId = require('../utils/generateChatID');
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
-        // Fetch chats when a client requests
         socket.on('get_chats', async ({ senderId, receiverId }) => {
             try {
-                const existingChat = await Chat.findOne({
+                let chat = await Chat.findOne({
                     participants: { $all: [senderId, receiverId] }
                 });
-                if (existingChat) {
-                    // If the chat already exists, return it
-                    console.log('Existing chat:', existingChat);
-                    socket.emit('receive_chats', existingChat);
-                } else {
-                    // If the chat doesn't exist, create a new one
+
+                if (!chat) {
                     const chatId = generateChatId(senderId, receiverId);
-                    const chat = new Chat({ participants: [senderId, receiverId], chatId });
+                    chat = new Chat({ participants: [senderId, receiverId], chatId });
                     await chat.save();
-                    socket.emit('receive_chats', chat);
                 }
+
+                const [sender, receiver] = await Promise.all([
+                    User.findById(senderId),
+                    User.findById(receiverId)
+                ]);
+
+                const chatWithUsernames = {
+                    ...chat._doc,
+                    senderUsername: sender ? sender.username : null,
+                    receiverUsername: receiver ? receiver.username : null
+                };
+
+                socket.emit('receive_chats', chatWithUsernames);
             } catch (error) {
                 console.error('Error fetching chats:', error);
-                // Emit an error message to the client if something goes wrong
                 socket.emit('error', 'Failed to fetch chats');
             }
         });

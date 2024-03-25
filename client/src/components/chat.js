@@ -204,7 +204,7 @@ const Chat = () => {
                 <div className='chat-main-window'>
                     {activeChat && (
                         <>
-                            <p>Chatting with {Array.isArray(activeChat.participants) && activeChat.participants.find(id => id !== userId)}</p>
+                            <p>Chatting with {receiver}</p>
                             <div className='chat-textbox'>
                                 {activeChat && activeChat.messages && (
                                     activeChat.messages.map((message, index) => (
