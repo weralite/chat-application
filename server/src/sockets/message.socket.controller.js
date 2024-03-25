@@ -30,6 +30,7 @@ module.exports = (io) => {
         
                 // Emit the 'message_sent' event to the client with the new message
                 socket.emit('message_sent', message);
+                socket.broadcast.emit('receive_messages', [message]);
             } catch (error) {
                 console.error('Error sending message:', error);
                 // Emit an error message to the client if something goes wrong
