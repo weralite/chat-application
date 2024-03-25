@@ -127,56 +127,42 @@ const Chat = () => {
 
     useEffect(() => {
         if (socket) {
-            // Listen for 'receive_messages' event
             socket.on('receive_messages', (receivedMessages) => {
-                // Update messages of active chat
-                setActiveChat(prevChat => (prevChat ? { ...prevChat, messages: receivedMessages } : { messages: receivedMessages }));
+                setActiveChat(prevChat => {
+                    console.log('Previous chat:', prevChat);
+                    console.log('Received messages:', receivedMessages);
+                    const newChat = {
+                        ...prevChat,
+                        messages: [...(prevChat?.messages || []), ...receivedMessages]
+                    };
+                    console.log('New chat:', newChat);
+                    return newChat;
+                });
             });
         }
     }, [socket]);
-
+    
     useEffect(() => {
-        // Check if socket is defined
         if (socket) {
-            // Listen for 'message_sent' event from the server
             socket.on('message_sent', (newMessage) => {
-                // Update the activeChat with the new message
-                setActiveChat(prevChat => ({
-                    ...prevChat,
-                    messages: [...prevChat.messages, newMessage]
-                }));
+                console.log('Message sent effect:', newMessage);
+                setActiveChat(prevChat => {
+                    console.log('Previous chat:', prevChat);
+                    const newChat = {
+                        ...prevChat,
+                        messages: [...(prevChat?.messages || []), newMessage]
+                    };
+                    console.log('New chat:', newChat);
+                    return newChat;
+                });
             });
     
-            // Clean up the event listener when the component unmounts
             return () => {
                 socket.off('message_sent');
             };
         }
     }, [socket]);
 
-    useEffect(() => {
-        // Check if socket is defined
-        if (socket) {
-            // Listen for 'receive_message' event from the server
-            socket.on('receive_message', (newMessage) => {
-                // Check if the new message is for the current chat
-                if (newMessage.chatId === activeChat.chatId) {
-                    // Update the activeChat with the new message
-                    setActiveChat(prevChat => ({
-                        ...prevChat,
-                        messages: [...prevChat.messages, newMessage]
-                    }));
-                }
-            });
-    
-            // Clean up the event listener when the component unmounts
-            return () => {
-                socket.off('receive_message');
-            };
-        }
-    }, [socket, activeChat]);
-
-  
     return (
         <div className='chat-app'>
             <h1>Chat Page</h1>
