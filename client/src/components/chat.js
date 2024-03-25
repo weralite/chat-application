@@ -15,7 +15,6 @@ const Chat = () => {
     const [chatId, setChatId] = useState(null);
     const [senderId, setSenderId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
-    const [contactIds, setContactIds] = useState([]);
     const [reciever, setReciever] = useState(''); // Add function to fetch name from recieverID
     const [sender, setSender] = useState(''); // Add function to fetch name from senderID
     const [activeChat, setActiveChat] = useState(null);
@@ -103,21 +102,22 @@ const Chat = () => {
         // Listen for 'receive_contacts' event to receive contacts from the server
         socket.on('receive_contacts', (receivedContacts) => {
             console.log('Contacts fetched:', receivedContacts);
-            // Filter contact IDs based on user ID
+            // Filter contact IDs and usernames based on user ID
             const currentUserID = localStorage.getItem('userId');
-            const otherContactIds = receivedContacts.reduce((acc, contact) => {
+            const contacts = receivedContacts.reduce((acc, contact) => {
                 if (contact.user1Id !== currentUserID) {
-                    acc.push(contact.user1Id);
+                    acc.push({ id: contact.user1Id, username: contact.Username1 });
                 } else if (contact.user2Id !== currentUserID) {
-                    acc.push(contact.user2Id);
+                    acc.push({ id: contact.user2Id, username: contact.Username2 });
                 }
                 return acc;
             }, []);
-            // Remove duplicates and set contact IDs to state
-            const uniqueContactIds = Array.from(new Set(otherContactIds));
-            setContactIds(uniqueContactIds);
+            // Remove duplicates based on id and set contacts to state
+            const uniqueContacts = Array.from(new Set(contacts.map(c => c.id)))
+                .map(id => contacts.find(c => c.id === id));
+            setContacts(uniqueContacts);
         });
-
+        
         // Cleanup on unmount
         return () => {
             socket.off('receive_contacts');
@@ -184,8 +184,8 @@ const Chat = () => {
                 <div className='chat-primary-contacts'>
                     <h2>Contacts</h2>
                     <ul>
-                        {contactIds.map((id) => (
-                            <li key={id} onClick={() => handleContactClick(id)}>{id}</li>
+                        {contacts.map((contact) => (
+                            <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}</li>
                         ))}
                     </ul>
                 </div>
