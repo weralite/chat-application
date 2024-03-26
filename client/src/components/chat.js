@@ -54,22 +54,40 @@ const Chat = () => {
     const sendMessage = (content) => {
         if (activeChat) {
             socket.emit('send_message', { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content });
+            console.log('Message sent:', { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content });
         }
     };
 
     // Update chats with new message
     const updateChatsWithNewMessage = (newMessage) => {
-        setChats((prevChats) => {
-          return prevChats.map((chat) => {
-            if (chat.chatId === newMessage.chatId) {
-              return { ...chat, lastMessage: newMessage };
-            } else {
-              return chat;
+        console.log('Updating chats with new message:', newMessage);
+      
+        if (newMessage.length > 0) {
+          console.log('New message chatId:', newMessage[0].chatId);
+      
+          setChats((prevChats) => {
+            // Find the chat that the new message belongs to
+            const chatIndex = prevChats.findIndex(chat => chat.chatId === newMessage[0].chatId);
+      
+            if (chatIndex !== -1) {
+              // If found, replace the lastMessage in this chat with the new message
+              const updatedChat = {
+                ...prevChats[chatIndex],
+                lastMessage: newMessage[0]
+              };
+      
+              // Create a completely new array and replace the old chat with the updated one
+              const updatedChats = prevChats.map((chat, index) => index === chatIndex ? updatedChat : chat);
+      
+              console.log('Updated chats:', updatedChats);
+              return updatedChats;
             }
+      
+            // If the chat was not found, return the previous chats array
+            return prevChats;
           });
-        });
+        }
       };
-
     // Close modal when clicked outside
     useEffect(() => {
         function handleClickOutside(event) {
@@ -165,7 +183,7 @@ const Chat = () => {
             setChats(chatsWithUsernamesAndLastMessage);
         });
 
-        socket.on('message_received', (newMessage) => {
+        socket.on('receive_messages', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
           });
         
@@ -176,7 +194,7 @@ const Chat = () => {
         // Cleanup on unmount
         return () => {
             socket.off('chats');
-            socket.off('message_received');
+            socket.off('receive_messages');
             socket.off('message_sent');
             socket.off('error');
         };
@@ -197,20 +215,25 @@ const Chat = () => {
     // Recieve messages
     useEffect(() => {
         if (socket) {
-            socket.on('receive_messages', (receivedMessages) => {
-                setActiveChat(prevChat => {
-                    console.log('Previous chat:', prevChat);
-                    console.log('Received messages:', receivedMessages);
-                    const newChat = {
-                        ...prevChat,
-                        messages: [...(prevChat?.messages || []), ...receivedMessages]
-                    };
-                    console.log('New chat:', newChat);
-                    return newChat;
-                });
+          socket.on('receive_messages', (receivedMessages) => {
+            setActiveChat((prevChat) => {
+              // If there's no active chat or the received messages don't belong to the active chat, don't update the active chat
+              if (!prevChat || receivedMessages[0].chatId !== prevChat.chatId) {
+                return prevChat;
+              }
+      
+              console.log('Previous chat:', prevChat);
+              console.log('Received messages:', receivedMessages);
+              const newChat = {
+                ...prevChat,
+                messages: [...(prevChat?.messages || []), ...receivedMessages],
+              };
+              console.log('New chat:', newChat);
+              return newChat;
             });
+          });
         }
-    }, [socket]);
+      }, [socket]);
 
     // Send messages
     useEffect(() => {
