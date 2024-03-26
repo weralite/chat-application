@@ -18,9 +18,13 @@ const Chat = () => {
     const [receiver, setReceiver] = useState(''); // Add function to fetch name from recieverID
     const [sender, setSender] = useState(''); // Add function to fetch name from senderID
     const [activeChat, setActiveChat] = useState(null);
+    const [isModalVisible, setModalVisible] = useState(false);
 
     const userId = localStorage.getItem('userId');
-    const chatEndRef = useRef(null);
+
+    const chatEndRef = useRef(null); // Keeping track of the end of the chat
+
+    const modalRef = useRef(null); // Keeping track of the modal
 
 
 
@@ -29,6 +33,7 @@ const Chat = () => {
         // Set receiverId and senderId
         setReceiverId(contactId);
         setSenderId(userId);
+        setModalVisible(false)
         if (socket) {
             socket.emit('get_chats', { senderId: userId, receiverId: contactId });
 
@@ -60,6 +65,19 @@ const Chat = () => {
             socket.emit('send_message', { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content });
         }
     };
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+          if (modalRef.current && !modalRef.current.contains(event.target)) {
+            setModalVisible(false);
+          }
+        }
+      
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+          document.removeEventListener("mousedown", handleClickOutside);
+        };
+      }, [modalRef]);
 
     // Retrieve token and username from local storage
     useEffect(() => {
@@ -122,7 +140,7 @@ const Chat = () => {
                 .map(id => contacts.find(c => c.id === id));
             setContacts(uniqueContacts);
         });
-        
+
         // Cleanup on unmount
         return () => {
             socket.off('receive_contacts');
@@ -130,38 +148,7 @@ const Chat = () => {
 
     }, [socket]);
 
-    // Listen for user connection and disconnection events
-    useEffect(() => {
-        if (!socket) return;
 
-        const handleUserConnected = (userId) => {
-            setContacts(prevContacts => prevContacts.map(contact => {
-                if (contact.id === userId) {
-                    return { ...contact, connected: true };
-                } else {
-                    return contact;
-                }
-            }));
-        };
-
-        const handleUserDisconnected = (userId) => {
-            setContacts(prevContacts => prevContacts.map(contact => {
-                if (contact.id === userId) {
-                    return { ...contact, connected: false };
-                } else {
-                    return contact;
-                }
-            }));
-        };
-
-        socket.on('userConnected', handleUserConnected);
-        socket.on('userDisconnected', handleUserDisconnected);
-
-        return () => {
-            socket.off('userConnected', handleUserConnected);
-            socket.off('userDisconnected', handleUserDisconnected);
-        };
-    }, [socket, contacts]);
 
     // Listen for 'receive_chats' event to set an active chat
     useEffect(() => {
@@ -226,14 +213,22 @@ const Chat = () => {
             <h1>Chat Page</h1>
             <h2>Logged in as: {username}</h2>
             <div className='chat-wrapper'>
-                <div className='chat-primary-contacts'>
-                    <h2>Contacts</h2>
-                    <ul>
-                        {contacts.map((contact) => (
-                            <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}</li>
-                        ))}
-                    </ul>
+            <div className='chat-primary-contacts'>
+            <h2 onClick={() => setModalVisible(true)}>Contacts</h2>
+        </div>
+        {isModalVisible && (
+         <div ref={modalRef} className={`contacts-modal ${isModalVisible ? 'visible' : ''}`}>
+            <div className='contacts-content'>
+                <ul>
+                    {contacts.map((contact) => (
+                        <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}</li>
+                    ))}
+                </ul>
+                <button onClick={() => setModalVisible(false)}>Close</button>
                 </div>
+            </div>
+        )}
+                <div className='chat-ongoing-chats'>Chats</div>
                 <div className='chat-main-window'>
                     {activeChat && (
                         <>
@@ -247,7 +242,7 @@ const Chat = () => {
                                         </div>
                                     ))
                                 )}
-                                 <div ref={chatEndRef} />
+                                <div ref={chatEndRef} />
                             </div>
                             <div className='input-and-send-box'>
                                 <input
