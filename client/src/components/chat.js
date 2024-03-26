@@ -53,11 +53,12 @@ const Chat = () => {
     // Send message
     const sendMessage = (content) => {
         if (activeChat) {
-            socket.emit('send_message', { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content });
-            console.log('Message sent:', { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content });
+          const message = { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content };
+          socket.emit('send_message', message);
+          console.log('Message sent:', message);
+          updateChatsWithNewMessage([message]); // Pass the new message as an array
         }
-    };
-
+      };
     // Update chats with new message
     const updateChatsWithNewMessage = (newMessage) => {
         console.log('Updating chats with new message:', newMessage);
@@ -217,8 +218,13 @@ const Chat = () => {
         if (socket) {
           socket.on('receive_messages', (receivedMessages) => {
             setActiveChat((prevChat) => {
+              // If there's no active chat, log a message to the console
+              if (!prevChat) {
+                console.log('prevChat is undefined');
+              }
+      
               // If there's no active chat or the received messages don't belong to the active chat, don't update the active chat
-              if (!prevChat || receivedMessages[0].chatId !== prevChat.chatId) {
+              if (!prevChat || (receivedMessages && receivedMessages.length > 0 && receivedMessages[0].chatId !== prevChat.chatId)) {
                 return prevChat;
               }
       

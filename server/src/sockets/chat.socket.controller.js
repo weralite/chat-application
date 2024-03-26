@@ -44,8 +44,14 @@ module.exports = (io) => {
               const chatsWithUsernamesAndLastMessage = await Promise.all(chats.map(async (chat) => {
                 const otherUserId = chat.participants.find(id => id !== userId);
                 const otherUser = await User.findById(otherUserId);
-                const lastMessage = await getLastMessageOfChat(chat.chatId);
-          
+                let lastMessage = await getLastMessageOfChat(chat.chatId);
+              
+                // If lastMessage is null, log a message to the console
+                if (!lastMessage) {
+                  console.log(`Last message for chat ${chat.chatId} is null`);
+                  lastMessage = {};
+                }
+              
                 return {
                   ...chat._doc,
                   otherUsername: otherUser ? otherUser.username : null,
