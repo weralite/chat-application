@@ -66,29 +66,28 @@ const Chat = () => {
         }
     };
 
+    // Close modal when clicked outside
     useEffect(() => {
         function handleClickOutside(event) {
-          if (modalRef.current && !modalRef.current.contains(event.target)) {
-            setModalVisible(false);
-          }
+            if (modalRef.current && !modalRef.current.contains(event.target)) {
+                setModalVisible(false);
+            }
         }
-      
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
-          document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
-      }, [modalRef]);
+    }, [modalRef]);
 
     // Retrieve token and username from local storage
     useEffect(() => {
-        // Retrieve token from local storage
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
             console.log('Token found:', storedToken);
             setToken(storedToken);
         }
 
-        // Retrieve username from local storage
         const storedUsername = localStorage.getItem('username');
         if (storedUsername) {
             console.log('username found:', storedUsername);
@@ -210,26 +209,32 @@ const Chat = () => {
 
     return (
         <div className='chat-app'>
-            <h1>Chat Page</h1>
-            <h2>Logged in as: {username}</h2>
             <div className='chat-wrapper'>
-            <div className='chat-primary-contacts'>
-            <h2 onClick={() => setModalVisible(true)}>Contacts</h2>
-        </div>
-        {isModalVisible && (
-         <div ref={modalRef} className={`contacts-modal ${isModalVisible ? 'visible' : ''}`}>
-            <div className='contacts-content'>
-                <ul>
-                    {contacts.map((contact) => (
-                        <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}</li>
-                    ))}
-                </ul>
-                <button onClick={() => setModalVisible(false)}>Close</button>
+                <div className='chat-ongoing-chats'>
+                    <p>chats</p>
+
+                    //// Add a function to display the chat history
                 </div>
-            </div>
-        )}
-                <div className='chat-ongoing-chats'>Chats</div>
                 <div className='chat-main-window'>
+                    <h1>Chat Page</h1>
+                    <div className='chat-primary-contacts'>
+                        <h2 onClick={() => setModalVisible(true)}>Contacts</h2>
+                    </div>
+                    {isModalVisible && (
+                        <div ref={modalRef} className={`contacts-modal ${isModalVisible ? 'visible' : ''}`}>
+                            <div className='contacts-content'>
+                                <ul>
+                                    {contacts.map((contact) => (
+                                        <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}</li>
+                                    ))}
+                                </ul>
+                                <button onClick={() => setModalVisible(false)}>Close</button>
+                            </div>
+                        </div>
+                    )}
+
+
+                    <h2>Logged in as: {username}</h2>
                     {activeChat && (
                         <>
                             <p>Chatting with {receiver}</p>

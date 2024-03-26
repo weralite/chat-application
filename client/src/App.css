@@ -5,7 +5,7 @@
 }
 
 h1 {
-  padding: 10px;
+  padding: 5px;
 }
 
 h2, h3, h4, h5, h6 {
@@ -57,12 +57,9 @@ body {
 
 .chat-primary-contacts {
   padding: 5px;
+  height: 2rem;
 }
 
-.chat-contacts-list {
-  height: 20rem;
-  overflow-y: auto;
-}
 
 .contacts-modal {
   position: fixed;
