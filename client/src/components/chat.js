@@ -53,42 +53,41 @@ const Chat = () => {
     // Send message
     const sendMessage = (content) => {
         if (activeChat) {
-          const message = { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content };
-          socket.emit('send_message', message);
-          console.log('Message sent:', message);
-          updateChatsWithNewMessage([message]); // Pass the new message as an array
+            const message = { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content };
+            socket.emit('send_message', message);
+            console.log('Message sent:', message);
+            updateChatsWithNewMessage([message]); // Pass the new message as an array
         }
-      };
+    };
     // Update chats with new message
-    const updateChatsWithNewMessage = (newMessage) => {
-        console.log('Updating chats with new message:', newMessage);
-      
-        if (newMessage.length > 0) {
-          console.log('New message chatId:', newMessage[0].chatId);
-      
-          setChats((prevChats) => {
-            // Find the chat that the new message belongs to
-            const chatIndex = prevChats.findIndex(chat => chat.chatId === newMessage[0].chatId);
-      
-            if (chatIndex !== -1) {
-              // If found, replace the lastMessage in this chat with the new message
-              const updatedChat = {
-                ...prevChats[chatIndex],
-                lastMessage: newMessage[0]
-              };
-      
-              // Create a completely new array and replace the old chat with the updated one
-              const updatedChats = prevChats.map((chat, index) => index === chatIndex ? updatedChat : chat);
-      
-              console.log('Updated chats:', updatedChats);
-              return updatedChats;
-            }
-      
-            // If the chat was not found, return the previous chats array
-            return prevChats;
-          });
+    const updateChatsWithNewMessage = (newMessages) => {
+        console.log('Updating chats with new message(s):', newMessages);
+
+        if (newMessages.length > 0) {
+            newMessages.forEach(newMessage => {
+                console.log('New message chatId:', newMessage.chatId);
+
+                setChats((prevChats) => {
+                    const chatIndex = prevChats.findIndex(chat => chat.chatId === newMessage.chatId);
+
+                    if (chatIndex !== -1) {
+                        const updatedChat = {
+                            ...prevChats[chatIndex],
+                            lastMessage: newMessage
+                        };
+
+                        const updatedChats = prevChats.map((chat, index) => index === chatIndex ? updatedChat : chat);
+
+                        console.log('Updated chats:', updatedChats);
+                        return updatedChats;
+                    }
+
+                    return prevChats;
+                });
+            });
         }
-      };
+    };
+
     // Close modal when clicked outside
     useEffect(() => {
         function handleClickOutside(event) {
@@ -186,11 +185,11 @@ const Chat = () => {
 
         socket.on('receive_messages', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
-          });
-        
-          socket.on('message_sent', (newMessage) => {
+        });
+
+        socket.on('message_sent', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
-          });
+        });
 
         // Cleanup on unmount
         return () => {
@@ -216,30 +215,30 @@ const Chat = () => {
     // Recieve messages
     useEffect(() => {
         if (socket) {
-          socket.on('receive_messages', (receivedMessages) => {
-            setActiveChat((prevChat) => {
-              // If there's no active chat, log a message to the console
-              if (!prevChat) {
-                console.log('prevChat is undefined');
-              }
-      
-              // If there's no active chat or the received messages don't belong to the active chat, don't update the active chat
-              if (!prevChat || (receivedMessages && receivedMessages.length > 0 && receivedMessages[0].chatId !== prevChat.chatId)) {
-                return prevChat;
-              }
-      
-              console.log('Previous chat:', prevChat);
-              console.log('Received messages:', receivedMessages);
-              const newChat = {
-                ...prevChat,
-                messages: [...(prevChat?.messages || []), ...receivedMessages],
-              };
-              console.log('New chat:', newChat);
-              return newChat;
+            socket.on('receive_messages', (receivedMessages) => {
+                setActiveChat((prevChat) => {
+                    // If there's no active chat, log a message to the console
+                    if (!prevChat) {
+                        console.log('prevChat is undefined');
+                    }
+
+                    // If there's no active chat or the received messages don't belong to the active chat, don't update the active chat
+                    if (!prevChat || (receivedMessages && receivedMessages.length > 0 && receivedMessages[0].chatId !== prevChat.chatId)) {
+                        return prevChat;
+                    }
+
+                    console.log('Previous chat:', prevChat);
+                    console.log('Received messages:', receivedMessages);
+                    const newChat = {
+                        ...prevChat,
+                        messages: [...(prevChat?.messages || []), ...receivedMessages],
+                    };
+                    console.log('New chat:', newChat);
+                    return newChat;
+                });
             });
-          });
         }
-      }, [socket]);
+    }, [socket]);
 
     // Send messages
     useEffect(() => {
@@ -275,10 +274,12 @@ const Chat = () => {
             <div className='chat-wrapper'>
                 <div className='chat-ongoing-chats'>
                     <p>chats</p>
-                    {chats.map((chat, index) => (
-                        <div key={index}>
-                            <div><b>{chat.otherUsername}</b> <p>{chat.lastMessage.content}</p></div>
-
+                    {chats.map((chat) => (
+                        <div key={chat.chatId}>
+                            <div>
+                                <b>{chat.otherUsername}</b>
+                                <p>{chat.lastMessage.content}</p>
+                            </div>
                         </div>
                     ))}
                     //// Add a function to display the chat history

@@ -36,36 +36,46 @@ module.exports = (io) => {
             }
         });
         socket.on('get_all_chats', async ({ userId }) => {
-            try {
+          try {
+              // Find all chats where the specified user is a participant
               const chats = await Chat.find({
-                participants: { $in: [userId] }
+                  participants: { $in: [userId] }
               });
-          
+      
+              // Fetch additional information for each chat
               const chatsWithUsernamesAndLastMessage = await Promise.all(chats.map(async (chat) => {
-                const otherUserId = chat.participants.find(id => id !== userId);
-                const otherUser = await User.findById(otherUserId);
-                let lastMessage = await getLastMessageOfChat(chat.chatId);
-              
-                // If lastMessage is null, log a message to the console
-                if (!lastMessage) {
-                  console.log(`Last message for chat ${chat.chatId} is null`);
-                  lastMessage = {};
-                }
-              
-                return {
-                  ...chat._doc,
-                  otherUsername: otherUser ? otherUser.username : null,
-                  lastMessage
-                };
+                  // Determine the other participant's user ID
+                  const otherUserId = chat.participants.find(participantId => participantId.toString() !== userId);
+                  console.log('Current User ID:', userId);
+                  console.log('Other User ID:', otherUserId);
+      
+                  // Find the other participant's user document
+                  const otherUser = await User.findById(otherUserId);
+                  console.log('Other User:', otherUser);
+      
+                  // Fetch the last message of the chat
+                  let lastMessage = await getLastMessageOfChat(chat.chatId);
+      
+                  // If lastMessage is null, log a message to the console
+                  if (!lastMessage) {
+                      console.log(`Last message for chat ${chat.chatId} is null`);
+                      lastMessage = {};
+                  }
+      
+                  return {
+                      ...chat._doc,
+                      otherUsername: otherUser ? otherUser.username : null,
+                      lastMessage
+                  };
               }));
-          
+      
               console.log('chatsWithUsernamesAndLastMessage', chatsWithUsernamesAndLastMessage);
               socket.emit('chats', chatsWithUsernamesAndLastMessage);
-            } catch (error) {
+          } catch (error) {
               console.error('Error fetching chats:', error);
               socket.emit('error', 'Failed to fetch chats');
-            }
-          });
+          }
+      });
 
     });
 };
