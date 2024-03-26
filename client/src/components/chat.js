@@ -130,6 +130,39 @@ const Chat = () => {
 
     }, [socket]);
 
+    // Listen for user connection and disconnection events
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleUserConnected = (userId) => {
+            setContacts(prevContacts => prevContacts.map(contact => {
+                if (contact.id === userId) {
+                    return { ...contact, connected: true };
+                } else {
+                    return contact;
+                }
+            }));
+        };
+
+        const handleUserDisconnected = (userId) => {
+            setContacts(prevContacts => prevContacts.map(contact => {
+                if (contact.id === userId) {
+                    return { ...contact, connected: false };
+                } else {
+                    return contact;
+                }
+            }));
+        };
+
+        socket.on('userConnected', handleUserConnected);
+        socket.on('userDisconnected', handleUserDisconnected);
+
+        return () => {
+            socket.off('userConnected', handleUserConnected);
+            socket.off('userDisconnected', handleUserDisconnected);
+        };
+    }, [socket, contacts]);
+
     // Listen for 'receive_chats' event to set an active chat
     useEffect(() => {
         if (token && socket) {
