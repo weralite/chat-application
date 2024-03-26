@@ -9,9 +9,7 @@ module.exports = (io) => {
             try {
                 // Retrieve contacts from the database
                 const messages = await Message.find({ chatId });
-                console.log(chatId, messages)
                 // Emit the contacts to the client
-                console.log('Messages fetched:', messages);
                 socket.emit('receive_messages', messages);
             } catch (error) {
                 console.error('Error fetching messages:', error);
@@ -26,7 +24,6 @@ module.exports = (io) => {
                 // Create a new message in the database
                 const message = new Message({ chatId, sender, receiver, content });
                 await message.save();
-                console.log('Message sent:', message);
         
                 // Emit the 'message_sent' event to the client with the new message
                 socket.emit('message_sent', message);
