@@ -5,13 +5,12 @@ import axios from 'axios';
 const ENDPOINT = 'http://localhost:8080';
 
 const Chat = () => {
-    const [messages, setMessages] = useState(''); // Forgot why this is here
     const [message, setMessage] = useState('');
-    const [chatHistory, setChatHistory] = useState([]); // Forgot why this is here
     const [socket, setSocket] = useState(null);
     const [token, setToken] = useState('');
     const [username, setUsername] = useState('');
     const [contacts, setContacts] = useState([]); // Add function to set contacts via name
+    const [chats, setChats] = useState([]); // Add function to set chats via name
     const [chatId, setChatId] = useState(null);
     const [senderId, setSenderId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
@@ -38,7 +37,6 @@ const Chat = () => {
             socket.emit('get_chats', { senderId: userId, receiverId: contactId });
 
             socket.once('receive_chats', (chats) => {
-                console.log('Chats fetched:', chats);
                 // Assuming chats is an array and the chat you're interested in is the first one
                 const chatId = chats.chatId;
                 setChatId(chatId); // Set chatId state
@@ -51,20 +49,26 @@ const Chat = () => {
         // Replace this with the actual function call
         // chat.socket.controller();
     };
-    console.log('Contact clicked:', receiverId, senderId);
 
-    console.log('User ID:', userId);
-
-    console.log('Active chat:', activeChat);
-
-    console.log('sender:', sender, 'receiver:', receiver)
-
-
+    // Send message
     const sendMessage = (content) => {
         if (activeChat) {
             socket.emit('send_message', { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content });
         }
     };
+
+    // Update chats with new message
+    const updateChatsWithNewMessage = (newMessage) => {
+        setChats((prevChats) => {
+          return prevChats.map((chat) => {
+            if (chat.chatId === newMessage.chatId) {
+              return { ...chat, lastMessage: newMessage };
+            } else {
+              return chat;
+            }
+          });
+        });
+      };
 
     // Close modal when clicked outside
     useEffect(() => {
@@ -147,7 +151,37 @@ const Chat = () => {
 
     }, [socket]);
 
+    // Fetch all chats and last msg on mount
+    useEffect(() => {
+        // If socket is not yet initialized, return
+        if (!socket) return;
 
+        // Emit 'get_all_chats' event to fetch chats
+        socket.emit('get_all_chats', { userId });
+
+        // Listen for 'chats' event to receive chats from the server
+        socket.on('chats', (chatsWithUsernamesAndLastMessage) => {
+            console.log('Chats fetched:', chatsWithUsernamesAndLastMessage);
+            setChats(chatsWithUsernamesAndLastMessage);
+        });
+
+        socket.on('message_received', (newMessage) => {
+            updateChatsWithNewMessage(newMessage);
+          });
+        
+          socket.on('message_sent', (newMessage) => {
+            updateChatsWithNewMessage(newMessage);
+          });
+
+        // Cleanup on unmount
+        return () => {
+            socket.off('chats');
+            socket.off('message_received');
+            socket.off('message_sent');
+            socket.off('error');
+        };
+
+    }, [socket, userId]);
 
     // Listen for 'receive_chats' event to set an active chat
     useEffect(() => {
@@ -212,7 +246,12 @@ const Chat = () => {
             <div className='chat-wrapper'>
                 <div className='chat-ongoing-chats'>
                     <p>chats</p>
+                    {chats.map((chat, index) => (
+                        <div key={index}>
+                            <div><b>{chat.otherUsername}</b> <p>{chat.lastMessage.content}</p></div>
 
+                        </div>
+                    ))}
                     //// Add a function to display the chat history
                 </div>
                 <div className='chat-main-window'>
