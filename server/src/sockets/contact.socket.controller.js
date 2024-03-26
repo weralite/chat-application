@@ -6,10 +6,10 @@ const User = require('../models/user.model');
 module.exports = (io) => {
     io.on('connection', (socket) => {
         // Fetch contacts when a client requests
-        socket.on('get_contacts', async () => {
+        socket.on('get_contacts', async (userId) => {
             try {
                 // Retrieve contacts from the database
-                const contacts = await Contact.find({}).lean();
+                const contacts = await Contact.find({ $or: [{ user1Id: userId }, { user2Id: userId }] }).lean();
                 // Fetch usernames for contact IDs
                 const contactsWithUsernames = await Promise.all(contacts.map(async (contact) => {
                     const user1 = await User.findById(contact.user1Id);

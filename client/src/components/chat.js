@@ -142,7 +142,7 @@ const Chat = () => {
         if (!socket) return;
 
         // Emit 'get_contacts' event to fetch contacts
-        socket.emit('get_contacts');
+        socket.emit('get_contacts', userId);
 
         // Listen for 'receive_contacts' event to receive contacts from the server
         socket.on('receive_contacts', (receivedContacts) => {
