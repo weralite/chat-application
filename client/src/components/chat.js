@@ -45,10 +45,9 @@ const Chat = () => {
                 socket.emit('get_messages', { chatId });
             });
         }
-        // Call chat.socket.controller function
-        // Replace this with the actual function call
-        // chat.socket.controller();
     };
+
+    
 
     // Send message
     const sendMessage = (content) => {
@@ -173,24 +172,32 @@ const Chat = () => {
     useEffect(() => {
         // If socket is not yet initialized, return
         if (!socket) return;
-
+    
         // Emit 'get_all_chats' event to fetch chats
         socket.emit('get_all_chats', { userId });
-
+    
         // Listen for 'chats' event to receive chats from the server
         socket.on('chats', (chatsWithUsernamesAndLastMessage) => {
             console.log('Chats fetched:', chatsWithUsernamesAndLastMessage);
             setChats(chatsWithUsernamesAndLastMessage);
         });
-
+    
         socket.on('receive_messages', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
+            if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
+                // New chat ID detected, fetch chats again
+                socket.emit('get_all_chats', { userId });
+            }
         });
-
+    
         socket.on('message_sent', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
+            if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
+                // New chat ID detected, fetch chats again
+                socket.emit('get_all_chats', { userId });
+            }
         });
-
+    
         // Cleanup on unmount
         return () => {
             socket.off('chats');
@@ -198,7 +205,7 @@ const Chat = () => {
             socket.off('message_sent');
             socket.off('error');
         };
-
+    
     }, [socket, userId]);
 
     // Listen for 'receive_chats' event to set an active chat
