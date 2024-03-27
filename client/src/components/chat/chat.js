@@ -45,6 +45,14 @@ const Chat = () => {
         setModalVisible(false);
     
         if (socket) {
+          
+
+            /// Ask GPT how to add socket.off('receive_messages') to this function without clearing messages and interrupting the chat
+
+            // socket.off('receive_messages');
+
+
+
             // Emit 'get_chats' event to server
             socket.emit('get_chats', { senderId: userId, receiverId: contactId });
     
@@ -55,7 +63,6 @@ const Chat = () => {
                 setSender(chats.senderUsername);
                 setReceiver(chats.receiverUsername);
                 socket.emit('get_messages', { chatId });
-    
                 // Listen for 'receive_messages' event
                 socket.on('receive_messages', (messages) => {
                     console.log('Received messages:', messages);
@@ -63,7 +70,8 @@ const Chat = () => {
                     if (messages) {
                         messages.forEach((message) => {
 
-                            // Check if the message is not read and update its status <---------- ADD TO ONLY SET STATUS READ WHEN BOTH USERS ARE IN THE CHAT
+                            // Check if the message is not read and update its statu
+                            /// ADD TO ONLY SET STATUS READ WHEN BOTH USERS ARE IN THE CHAT
                             if (message.status !== 'read') {
                                 handleMessageRead(message._id); // Mark message as read locally
                                 // Emit an event to the server to update the message status
