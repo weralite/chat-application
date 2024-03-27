@@ -19,6 +19,11 @@ const Chat = () => {
     const [sender, setSender] = useState(''); // Add function to fetch name from senderID
     const [activeChat, setActiveChat] = useState(null);
     const [isModalVisible, setModalVisible] = useState(false);
+    const [connectedUsers, setConnectedUsers] = useState([]);
+    const [receiverOnline, setReceiverOnline] = useState(false);
+
+    console.log('connectedUsers', connectedUsers)
+    console.log('receiverOnline', receiverOnline)
 
     const userId = localStorage.getItem('userId');
 
@@ -163,10 +168,16 @@ const Chat = () => {
 
         socket.on('connectedUsers', (users) => {
             // Handle the list of connected users received from the server
+            setConnectedUsers(users);
             console.log('Connected users:', users);
             // Update the UI with the list of connected users
         });
     }, [socket]);
+
+    useEffect(() => {
+        // Check if the receiver is in the list of connected users
+        setReceiverOnline(connectedUsers.includes(receiverId));
+    }, [connectedUsers, receiverId]);
 
     // Fetch contacts
     useEffect(() => {
@@ -351,6 +362,11 @@ const Chat = () => {
                     {activeChat && (
                         <>
                             <p>Chatting with {receiver}</p>
+                            {receiverOnline ? (
+                        <p>{receiver} is online</p>
+                    ) : (
+                        <p>{receiver} is offline</p>
+                    )}
                             <div className='chat-textbox'>
                                 {activeChat && activeChat.messages && (
                                     activeChat.messages.map((message, index) => (
