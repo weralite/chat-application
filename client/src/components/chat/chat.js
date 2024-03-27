@@ -21,6 +21,8 @@ const Chat = () => {
     const [connectedUsers, setConnectedUsers] = useState([]);
     const [receiverOnline, setReceiverOnline] = useState(false);
 
+    console.log('Active chat:', activeChat);
+
     const userId = localStorage.getItem('userId');
 
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
@@ -60,10 +62,8 @@ const Chat = () => {
                     // Process received messages
                     if (messages) {
                         messages.forEach((message) => {
-                            console.log('Message sender:', message.sender); // Log message sender
-                            console.log('Message status:', message.status); // Log message status
-    
-                            // Check if the message is not read and update its status
+
+                            // Check if the message is not read and update its status <---------- ADD TO ONLY SET STATUS READ WHEN BOTH USERS ARE IN THE CHAT
                             if (message.status !== 'read') {
                                 handleMessageRead(message._id); // Mark message as read locally
                                 // Emit an event to the server to update the message status
