@@ -25,7 +25,7 @@ const Chat = () => {
 
     const modalRef = useRef(null); // Keeping track of the modal
 
-
+    console.log('userId:', userId)
 
     // Handle contact click to enable a chat
     const handleContactClick = (contactId) => {
@@ -47,7 +47,28 @@ const Chat = () => {
         }
     };
 
+    const openChatByChatId = (chatId, participants) => {
+        const userId = localStorage.getItem('userId'); // Get the current user's ID
+        const senderId = participants.find(id => id == userId);
+        const receiverId = userId !== senderId ? userId : participants.find(id => id !== senderId);
+        
+        console.log('Opening chat by chatId:', chatId);
+        if (socket) {
+            // Emit 'get_chats' event with the senderId and receiverId
+            socket.emit('get_chats', { senderId, receiverId });
+            console.log('senderId:', senderId); 
+            console.log('receiverId:', receiverId);
     
+            socket.once('receive_chats', (chats) => {
+                // Assuming chats is an array and the chat you're interested in is the first one
+                const chatId = chats.chatId;
+                setChatId(chatId); // Set chatId state
+                setSender(chats.senderUsername);
+                setReceiver(chats.receiverUsername);
+                socket.emit('get_messages', { chatId });
+            });
+        }
+    };
 
     // Send message
     const sendMessage = (content) => {
@@ -61,6 +82,7 @@ const Chat = () => {
     // Update chats with new message
     const updateChatsWithNewMessage = (newMessages) => {
         console.log('Updating chats with new message(s):', newMessages);
+
 
         if (newMessages.length > 0) {
             newMessages.forEach(newMessage => {
@@ -105,13 +127,11 @@ const Chat = () => {
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
-            console.log('Token found:', storedToken);
             setToken(storedToken);
         }
 
         const storedUsername = localStorage.getItem('username');
         if (storedUsername) {
-            console.log('username found:', storedUsername);
             setUsername(storedUsername);
         }
     }, []);
@@ -121,7 +141,6 @@ const Chat = () => {
         if (token) {
             // Connect to Socket.IO server
             const userId = localStorage.getItem('userId');
-            console.log('Sending to socket:', token); // Add this line
             const newSocket = io(ENDPOINT, {
                 query: { token, userId }
             });
@@ -172,16 +191,16 @@ const Chat = () => {
     useEffect(() => {
         // If socket is not yet initialized, return
         if (!socket) return;
-    
+
         // Emit 'get_all_chats' event to fetch chats
         socket.emit('get_all_chats', { userId });
-    
+
         // Listen for 'chats' event to receive chats from the server
         socket.on('chats', (chatsWithUsernamesAndLastMessage) => {
             console.log('Chats fetched:', chatsWithUsernamesAndLastMessage);
             setChats(chatsWithUsernamesAndLastMessage);
         });
-    
+
         socket.on('receive_messages', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
             if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
@@ -189,7 +208,7 @@ const Chat = () => {
                 socket.emit('get_all_chats', { userId });
             }
         });
-    
+
         socket.on('message_sent', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
             if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
@@ -197,7 +216,7 @@ const Chat = () => {
                 socket.emit('get_all_chats', { userId });
             }
         });
-    
+
         // Cleanup on unmount
         return () => {
             socket.off('chats');
@@ -205,7 +224,7 @@ const Chat = () => {
             socket.off('message_sent');
             socket.off('error');
         };
-    
+
     }, [socket, userId]);
 
     // Listen for 'receive_chats' event to set an active chat
@@ -234,13 +253,10 @@ const Chat = () => {
                         return prevChat;
                     }
 
-                    console.log('Previous chat:', prevChat);
-                    console.log('Received messages:', receivedMessages);
                     const newChat = {
                         ...prevChat,
                         messages: [...(prevChat?.messages || []), ...receivedMessages],
                     };
-                    console.log('New chat:', newChat);
                     return newChat;
                 });
             });
@@ -251,14 +267,14 @@ const Chat = () => {
     useEffect(() => {
         if (socket) {
             socket.on('message_sent', (newMessage) => {
-                console.log('Message sent effect:', newMessage);
+
                 setActiveChat(prevChat => {
-                    console.log('Previous chat:', prevChat);
+
                     const newChat = {
                         ...prevChat,
                         messages: [...(prevChat?.messages || []), newMessage]
                     };
-                    console.log('New chat:', newChat);
+
                     return newChat;
                 });
             });
@@ -282,15 +298,15 @@ const Chat = () => {
                 <div className='chat-ongoing-chats'>
                     <p>chats</p>
                     {chats.map((chat) => (
-                        <div key={chat.chatId}>
+                        <div key={chat.chatId} onClick={() => openChatByChatId(chat.chatId, chat.participants)}>
                             <div>
                                 <b>{chat.otherUsername}</b>
                                 <p>{chat.lastMessage.content}</p>
                             </div>
                         </div>
                     ))}
-                    //// Add a function to display the chat history
                 </div>
+
                 <div className='chat-main-window'>
                     <h1>Chat Page</h1>
                     <div className='chat-primary-contacts'>
