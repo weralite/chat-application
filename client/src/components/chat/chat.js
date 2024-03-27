@@ -273,6 +273,7 @@ const Chat = () => {
         if (token && socket) {
             // Listen for 'receive_chat' event
             socket.on('receive_chats', (chat) => {
+                console.log('Chat rEEEEEEEEEEEEEEEEEEeceived:', chat);
                 // Set active chat state here
                 setActiveChat(chat);
             });
