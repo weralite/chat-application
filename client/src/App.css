@@ -23,7 +23,7 @@ body {
   border: 1px solid #ccc;
   min-width: 10rem;
   max-width: 40rem;
-  height: 30rem;
+  height: 40rem;
 }
 
 .chat-wrapper {
@@ -41,8 +41,8 @@ body {
 }
 
 .chat-textbox {
-  height: 20rem;
-  width: 15rem;
+  height: 25rem;
+  width: 18rem;
   border: 1px solid #ccc;
   overflow-y: auto;
 }

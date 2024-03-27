@@ -6,6 +6,7 @@ const { getChatsForUser, getLastMessageOfChat } = require('../utils/chat.utils')
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
+        
         socket.on('get_chats', async ({ senderId, receiverId }) => {
             console.log('get_chats', senderId, receiverId); // Debugging
             try {

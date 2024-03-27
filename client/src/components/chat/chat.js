@@ -160,6 +160,7 @@ const Chat = () => {
         }
     }, [token]);
 
+    // Listen for connected users
     useEffect(() => {
 
         if (!socket) return;
@@ -186,6 +187,7 @@ const Chat = () => {
         });
     }, [socket]);
 
+    // Check if receiver is online
     useEffect(() => {
         console.log('Connected Users:', connectedUsers);
         console.log('Receiver ID:', receiverId);
