@@ -8,7 +8,6 @@ module.exports = (io) => {
     io.on('connection', (socket) => {
         
         socket.on('get_chats', async ({ senderId, receiverId }) => {
-            console.log('get_chats', senderId, receiverId); // Debugging
             try {
                 let chat = await Chat.findOne({
                     participants: { $all: [senderId, receiverId] }
@@ -39,7 +38,6 @@ module.exports = (io) => {
         });
 
         socket.on('get_all_chats', async ({ userId }) => {
-            console.log('MYUSERID', userId); // Debugging
             try {
                 // Find all chats where the specified user is a participant
                 const chats = await Chat.find({
@@ -50,14 +48,8 @@ module.exports = (io) => {
                 const chatsWithUsernamesAndLastMessage = await Promise.all(chats.map(async (chat) => {
                     // Determine the other participant's user ID
                     const otherUserId = chat.participants.find(participantId => participantId.toString() !== userId);
-
-                    console.log('Current User ID:', userId);
-                    console.log('Other User ID:', otherUserId);
-
                     // Find the other participant's user document
                     const otherUser = await User.findById(otherUserId);
-                    console.log('Other User:', otherUser);
-
                     // Fetch the last message of the chat
                     let lastMessage = await getLastMessageOfChat(chat.chatId);
 
@@ -73,8 +65,6 @@ module.exports = (io) => {
                         lastMessage
                     };
                 }));
-
-                console.log('chatsWithUsernamesAndLastMessage', chatsWithUsernamesAndLastMessage);
                 socket.emit('chats', chatsWithUsernamesAndLastMessage);
             } catch (error) {
                 console.error('Error fetching chats:', error);

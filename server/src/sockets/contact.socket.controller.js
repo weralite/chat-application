@@ -21,7 +21,6 @@ module.exports = (io) => {
                     };
                 }));
                 // Emit the contacts with usernames to the client
-                console.log('Contacts with usernames fetched:', contactsWithUsernames);
                 socket.emit('receive_contacts', contactsWithUsernames);
             } catch (error) {
                 console.error('Error fetching contacts:', error);

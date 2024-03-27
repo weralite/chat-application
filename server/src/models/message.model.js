@@ -16,6 +16,11 @@ const messageSchema = new mongoose.Schema(
       required: true,
       default: generateChatId
     },
+    status: {
+      type: String,
+      enum: ['sent', 'delivered', 'read'], 
+      default: 'sent' // Default status is "sent" when a new message is created
+  }
   },
   {
     timestamps: true,
