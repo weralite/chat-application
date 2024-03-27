@@ -157,6 +157,17 @@ const Chat = () => {
         }
     }, [token]);
 
+    useEffect(() => {
+
+        if (!socket) return;
+
+        socket.on('connectedUsers', (users) => {
+            // Handle the list of connected users received from the server
+            console.log('Connected users:', users);
+            // Update the UI with the list of connected users
+        });
+    }, [socket]);
+
     // Fetch contacts
     useEffect(() => {
         // If socket is not yet initialized, return

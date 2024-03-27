@@ -50,7 +50,7 @@ io.on('connection', (socket) => {
     connectedUsers[userId] = true;
     console.log('New client connected: ' + userId);
     io.emit('userConnected', userId);
-
+    io.to(socket.id).emit('connectedUsers', Object.keys(connectedUsers));
 
 
     socket.on('disconnect', () => {
