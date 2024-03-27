@@ -48,16 +48,15 @@ io.on('connection', (socket) => {
         return;
     }
     connectedUsers[userId] = true;
-    console.log('New client connected: ' + userId);
     io.emit('userConnected', userId);
-    io.to(socket.id).emit('connectedUsers', Object.keys(connectedUsers));
+    io.emit('connectedUsers', Object.keys(connectedUsers));
 
 
     socket.on('disconnect', () => {
         if (connectedUsers[userId]) {
             delete connectedUsers[userId];
-            console.log('Client disconnected: ' + userId);
             io.emit('userDisconnected', userId);
+            io.emit('connectedUsers', Object.keys(connectedUsers));
         }
     });
 });

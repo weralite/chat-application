@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
-import axios from 'axios';
-import { get } from 'mongoose';
 
 const ENDPOINT = 'http://localhost:8080';
 
@@ -172,10 +170,25 @@ const Chat = () => {
             console.log('Connected users:', users);
             // Update the UI with the list of connected users
         });
+
+        socket.on('userConnected', (users) => {
+            // Handle the list of connected users received from the server
+            setConnectedUsers(users);
+            console.log('User connected', users);
+            // Update the UI with the list of connected users
+        });
+
+        socket.on('userDisconnected', (users) => {
+            // Handle the list of connected users received from the server
+            setConnectedUsers(users);
+            console.log('User disconnected', users);
+            // Update the UI with the list of connected users
+        });
     }, [socket]);
 
     useEffect(() => {
-        // Check if the receiver is in the list of connected users
+        console.log('Connected Users:', connectedUsers);
+        console.log('Receiver ID:', receiverId);
         setReceiverOnline(connectedUsers.includes(receiverId));
     }, [connectedUsers, receiverId]);
 

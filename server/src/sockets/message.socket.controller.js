@@ -2,6 +2,7 @@
 
 const Message = require('../models/message.model');
 
+
 module.exports = (io) => {
     io.on('connection', (socket) => {
         // Fetch contacts when a client requests
@@ -26,6 +27,13 @@ module.exports = (io) => {
                 console.log(message); // Log the entire message object
                 await message.save();
         
+                const isReceiverConnected = checkIfUserConnectedToChat(receiver, chatId);
+                console.log(`Is receiver connected: ${isReceiverConnected}`);
+                if (!isReceiverConnected) {
+                    // If the receiver is not connected, increment their unread message count
+                    incrementUnreadCount(receiver, chatId);
+                    console.log('Incremented unread count');
+                }
                 // Emit the 'message_sent' event to the client with the new message
                 socket.emit('message_sent', message);
                 socket.broadcast.emit('receive_messages', [message]);
