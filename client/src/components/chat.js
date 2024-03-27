@@ -28,7 +28,7 @@ const Chat = () => {
     console.log('recieveriD', receiverId)
     console.log('senderId', senderId)
 
-    
+
 
     // Handle contact click to enable a chat
     const handleContactClick = (contactId) => {
@@ -52,22 +52,22 @@ const Chat = () => {
 
     const openChatByChatId = (chatId, participants) => {
         const userId = localStorage.getItem('userId'); // Get the current user's ID
-    
+
         // Determine sender and receiver IDs
         const senderId = userId;
         const receiverId = participants.find(id => id !== userId);
-    
+
         console.log('Opening chat by chatId:', chatId);
         console.log('Participants:', participants);
         console.log('User ID:', userId);
         console.log('Sender ID:', senderId);
         console.log('Receiver ID:', receiverId);
-    
+
         if (socket) {
             // Emit 'get_chats' event with the senderId and receiverId
             socket.emit('get_chats', { senderId, receiverId });
             console.log('Emitting get_chats event with senderId:', senderId, 'and receiverId:', receiverId);
-    
+
             socket.once('receive_chats', (chats) => {
                 // Assuming chats is an array and the chat you're interested in is the first one
                 const chatId = chats.chatId;
@@ -79,7 +79,7 @@ const Chat = () => {
                 socket.emit('get_messages', { chatId });
             });
         }
-    
+
         // Update sender and receiver states
         setSenderId(senderId);
         setReceiverId(receiverId);
@@ -98,22 +98,16 @@ const Chat = () => {
     // Update chats with new message
     const updateChatsWithNewMessage = (newMessages) => {
         if (newMessages.length > 0) {
-            newMessages.forEach(newMessage => {
-                setChats((prevChats) => {
-                    const chatIndex = prevChats.findIndex(chat => chat.chatId === newMessage.chatId);
-
-                    if (chatIndex !== -1) {
-                        const updatedChat = {
-                            ...prevChats[chatIndex],
+            setChats((prevChats) => {
+                return prevChats.map((chat) => {
+                    const newMessage = newMessages.find((message) => message.chatId === chat.chatId);
+                    if (newMessage) {
+                        return {
+                            ...chat,
                             lastMessage: newMessage
                         };
-
-                        const updatedChats = prevChats.map((chat, index) => index === chatIndex ? updatedChat : chat);
-
-                        return updatedChats;
                     }
-
-                    return prevChats;
+                    return chat;
                 });
             });
         }
@@ -307,14 +301,19 @@ const Chat = () => {
             <div className='chat-wrapper'>
                 <div className='chat-ongoing-chats'>
                     <p>chats</p>
-                    {chats.map((chat) => (
-                        <div key={chat.chatId} onClick={() => openChatByChatId(chat.chatId, Object.values(chat.participants))}>
-                            <div>
-                                <b>{chat.otherUsername}</b>
-                                <p>{chat.lastMessage.content}</p>
-                            </div>
-                        </div>
-                    ))}
+                    {
+                        chats
+                            .slice()
+                            .sort((a, b) => new Date(b.lastMessage.createdAt) - new Date(a.lastMessage.createdAt))
+                            .map((chat) => (
+                                <div key={chat.chatId} onClick={() => openChatByChatId(chat.chatId, Object.values(chat.participants))}>
+                                    <div>
+                                        <b>{chat.otherUsername}</b>
+                                        <p>{chat.lastMessage.content}</p>
+                                    </div>
+                                </div>
+                            ))
+                    }
                 </div>
 
                 <div className='chat-main-window'>
@@ -337,7 +336,7 @@ const Chat = () => {
 
 
                     <h2>Logged in as: {username}</h2>
-                    
+
                     {activeChat && (
                         <>
                             <p>Chatting with {receiver}</p>

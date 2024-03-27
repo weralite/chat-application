@@ -38,6 +38,7 @@ module.exports = (io) => {
         });
 
         socket.on('get_all_chats', async ({ userId }) => {
+            console.log('MYUSERID', userId); // Debugging
             try {
                 // Find all chats where the specified user is a participant
                 const chats = await Chat.find({
@@ -47,7 +48,7 @@ module.exports = (io) => {
                 // Fetch additional information for each chat
                 const chatsWithUsernamesAndLastMessage = await Promise.all(chats.map(async (chat) => {
                     // Determine the other participant's user ID
-                    const otherUserId = chat.participants.find(participantId => participantId !== userId);
+                    const otherUserId = chat.participants.find(participantId => participantId.toString() !== userId);
 
                     console.log('Current User ID:', userId);
                     console.log('Other User ID:', otherUserId);
