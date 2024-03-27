@@ -47,7 +47,8 @@ module.exports = (io) => {
                 // Fetch additional information for each chat
                 const chatsWithUsernamesAndLastMessage = await Promise.all(chats.map(async (chat) => {
                     // Determine the other participant's user ID
-                    const otherUserId = chat.participants.find(participantId => participantId.toString() !== userId);
+                    const otherUserId = chat.participants.find(participantId => participantId !== userId);
+
                     console.log('Current User ID:', userId);
                     console.log('Other User ID:', otherUserId);
 

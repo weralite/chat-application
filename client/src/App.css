@@ -33,6 +33,7 @@ body {
 
 .chat-main-window {
   padding: 5px;
+  width: 20rem;
 }
 
 .chat-textbox {

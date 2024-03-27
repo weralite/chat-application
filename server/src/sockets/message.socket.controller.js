@@ -23,6 +23,7 @@ module.exports = (io) => {
             try {
                 // Create a new message in the database
                 const message = new Message({ chatId, sender, receiver, content });
+                console.log(message); // Log the entire message object
                 await message.save();
         
                 // Emit the 'message_sent' event to the client with the new message

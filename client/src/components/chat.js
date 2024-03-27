@@ -25,13 +25,14 @@ const Chat = () => {
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
 
     const modalRef = useRef(null); // Keeping track of the modal
+    console.log('recieveriD', receiverId)
+    console.log('senderId', senderId)
 
-    console.log('userId:', userId)
+    
 
     // Handle contact click to enable a chat
     const handleContactClick = (contactId) => {
         // Set receiverId and senderId
-        console.log('Contact ID:', contactId);
         setReceiverId(contactId);
         setSenderId(userId);
         setModalVisible(false)
@@ -51,8 +52,10 @@ const Chat = () => {
 
     const openChatByChatId = (chatId, participants) => {
         const userId = localStorage.getItem('userId'); // Get the current user's ID
-        const senderId = participants.find(id => id === userId);
-        const receiverId = userId !== senderId ? userId : participants.find(id => id !== senderId);
+    
+        // Determine sender and receiver IDs
+        const senderId = userId;
+        const receiverId = participants.find(id => id !== userId);
     
         console.log('Opening chat by chatId:', chatId);
         console.log('Participants:', participants);
@@ -63,6 +66,7 @@ const Chat = () => {
         if (socket) {
             // Emit 'get_chats' event with the senderId and receiverId
             socket.emit('get_chats', { senderId, receiverId });
+            console.log('Emitting get_chats event with senderId:', senderId, 'and receiverId:', receiverId);
     
             socket.once('receive_chats', (chats) => {
                 // Assuming chats is an array and the chat you're interested in is the first one
@@ -75,8 +79,12 @@ const Chat = () => {
                 socket.emit('get_messages', { chatId });
             });
         }
-    };
     
+        // Update sender and receiver states
+        setSenderId(senderId);
+        setReceiverId(receiverId);
+    };
+
 
     // Send message
     const sendMessage = (content) => {
@@ -89,13 +97,8 @@ const Chat = () => {
     };
     // Update chats with new message
     const updateChatsWithNewMessage = (newMessages) => {
-        console.log('Updating chats with new message(s):', newMessages);
-
-
         if (newMessages.length > 0) {
             newMessages.forEach(newMessage => {
-                console.log('New message chatId:', newMessage.chatId);
-
                 setChats((prevChats) => {
                     const chatIndex = prevChats.findIndex(chat => chat.chatId === newMessage.chatId);
 
@@ -107,7 +110,6 @@ const Chat = () => {
 
                         const updatedChats = prevChats.map((chat, index) => index === chatIndex ? updatedChat : chat);
 
-                        console.log('Updated chats:', updatedChats);
                         return updatedChats;
                     }
 
@@ -306,7 +308,7 @@ const Chat = () => {
                 <div className='chat-ongoing-chats'>
                     <p>chats</p>
                     {chats.map((chat) => (
-                        <div key={chat.chatId} onClick={() => openChatByChatId(chat.chatId, chat.participants)}>
+                        <div key={chat.chatId} onClick={() => openChatByChatId(chat.chatId, Object.values(chat.participants))}>
                             <div>
                                 <b>{chat.otherUsername}</b>
                                 <p>{chat.lastMessage.content}</p>
@@ -335,6 +337,7 @@ const Chat = () => {
 
 
                     <h2>Logged in as: {username}</h2>
+                    
                     {activeChat && (
                         <>
                             <p>Chatting with {receiver}</p>
