@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
+import { get } from 'mongoose';
 
 const ENDPOINT = 'http://localhost:8080';
 
@@ -30,6 +31,7 @@ const Chat = () => {
     // Handle contact click to enable a chat
     const handleContactClick = (contactId) => {
         // Set receiverId and senderId
+        console.log('Contact ID:', contactId);
         setReceiverId(contactId);
         setSenderId(userId);
         setModalVisible(false)
@@ -49,15 +51,18 @@ const Chat = () => {
 
     const openChatByChatId = (chatId, participants) => {
         const userId = localStorage.getItem('userId'); // Get the current user's ID
-        const senderId = participants.find(id => id == userId);
+        const senderId = participants.find(id => id === userId);
         const receiverId = userId !== senderId ? userId : participants.find(id => id !== senderId);
-        
+    
         console.log('Opening chat by chatId:', chatId);
+        console.log('Participants:', participants);
+        console.log('User ID:', userId);
+        console.log('Sender ID:', senderId);
+        console.log('Receiver ID:', receiverId);
+    
         if (socket) {
             // Emit 'get_chats' event with the senderId and receiverId
             socket.emit('get_chats', { senderId, receiverId });
-            console.log('senderId:', senderId); 
-            console.log('receiverId:', receiverId);
     
             socket.once('receive_chats', (chats) => {
                 // Assuming chats is an array and the chat you're interested in is the first one
@@ -65,10 +70,13 @@ const Chat = () => {
                 setChatId(chatId); // Set chatId state
                 setSender(chats.senderUsername);
                 setReceiver(chats.receiverUsername);
+                console.log('Sender:', chats.senderUsername);
+                console.log('Receiver:', chats.receiverUsername);
                 socket.emit('get_messages', { chatId });
             });
         }
     };
+    
 
     // Send message
     const sendMessage = (content) => {
