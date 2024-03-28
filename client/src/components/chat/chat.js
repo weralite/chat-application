@@ -13,6 +13,7 @@ const Chat = () => {
     const [chats, setChats] = useState([]); // Add function to set chats via name
     const [chatId, setChatId] = useState(null);
     const [senderId, setSenderId] = useState(null);
+    
     const [receiverId, setReceiverId] = useState(null);
     const [receiver, setReceiver] = useState(''); // Add function to fetch name from recieverID
     const [sender, setSender] = useState(''); // Add function to fetch name from senderID
@@ -21,7 +22,27 @@ const Chat = () => {
     const [connectedUsers, setConnectedUsers] = useState([]);
     const [receiverOnline, setReceiverOnline] = useState(false);
 
-    console.log('Active chat:', activeChat);
+    // console.log('Active chat:', activeChat);
+    // console.log('Recieve messages', socket.listeners('receive_messages').length);
+    // console.log('Get chats', socket.listeners('get_chats').length);
+    // console.log('Get messages', socket.listeners('get_messages').length);
+    // console.log('message_sent', socket.listeners('message_sent').length);
+    // console.log('send_message', socket.listeners('send_message').length);
+    // console.log('message_status_updated', socket.listeners('message_status_updated').length);
+    // console.log('message_read', socket.listeners('message_read').length);
+    // console.log('connectedUsers', socket.listeners('connectedUsers').length);
+    // console.log('userConnected', socket.listeners('userConnected').length);
+    // console.log('userDisconnected', socket.listeners('userDisconnected').length);
+    // console.log('get_contacts', socket.listeners('get_contacts').length);
+    // console.log('receive_contacts', socket.listeners('receive_contacts').length);
+    // console.log('get_all_chats', socket.listeners('get_all_chats').length);
+    // console.log('chats', socket.listeners('chats').length);
+    // console.log('receive_chats', socket.listeners('receive_chats').length);
+    // console.log('error', socket.listeners('error').length);
+
+
+
+
 
     const userId = localStorage.getItem('userId');
 
@@ -63,6 +84,7 @@ const Chat = () => {
                 setSender(chats.senderUsername);
                 setReceiver(chats.receiverUsername);
                 socket.emit('get_messages', { chatId });
+                
                 // Listen for 'receive_messages' event
                 socket.on('receive_messages', (messages) => {
                     console.log('Received messages:', messages);
@@ -83,32 +105,36 @@ const Chat = () => {
             });
         }
     };
-
     const openChatByChatId = (chatId, participants) => {
         const userId = localStorage.getItem('userId'); // Get the current user's ID
-
+    
         // Determine sender and receiver IDs
         const senderId = userId;
         const receiverId = participants.find(id => id !== userId);
-
+    
         if (socket) {
             // Emit 'get_chats' event with the senderId and receiverId
             socket.emit('get_chats', { senderId, receiverId });
-            socket.once('receive_chats', (chats) => {
+    
+            const onReceiveChats = (chats) => {
                 // Assuming chats is an array and the chat you're interested in is the first one
                 const chatId = chats.chatId;
                 setChatId(chatId); // Set chatId state
                 setSender(chats.senderUsername);
                 setReceiver(chats.receiverUsername);
                 socket.emit('get_messages', { chatId });
-            });
+    
+                // Remove the listener
+                socket.off('receive_chats', onReceiveChats);
+            };
+    
+            socket.once('receive_chats', onReceiveChats);
         }
-
+    
         // Update sender and receiver states
         setSenderId(senderId);
         setReceiverId(receiverId);
     };
-
 
     // Send message
     const sendMessage = (content) => {
@@ -249,15 +275,16 @@ const Chat = () => {
     useEffect(() => {
         // If socket is not yet initialized, return
         if (!socket) return;
-
+    
         // Emit 'get_all_chats' event to fetch chats
         socket.emit('get_all_chats', { userId });
-
+    
         // Listen for 'chats' event to receive chats from the server
         socket.on('chats', (chatsWithUsernamesAndLastMessage) => {
-            setChats(chatsWithUsernamesAndLastMessage);
+            const sortedChats = chatsWithUsernamesAndLastMessage.slice().sort((a, b) => new Date(b.lastMessage.createdAt) - new Date(a.lastMessage.createdAt));
+            setChats(sortedChats);
         });
-
+    
         socket.on('receive_messages', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
             if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
@@ -265,7 +292,7 @@ const Chat = () => {
                 socket.emit('get_all_chats', { userId });
             }
         });
-
+    
         socket.on('message_sent', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
             if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
@@ -273,7 +300,7 @@ const Chat = () => {
                 socket.emit('get_all_chats', { userId });
             }
         });
-
+    
         // Cleanup on unmount
         return () => {
             socket.off('chats');
@@ -281,7 +308,7 @@ const Chat = () => {
             socket.off('message_sent');
             socket.off('error');
         };
-
+    
     }, [socket, userId]);
 
     // Listen for 'receive_chats' event to set an active chat
@@ -342,6 +369,7 @@ const Chat = () => {
         }
     }, [socket]);
 
+    // Update message status
     useEffect(() => {
         // Listen for the 'message_sent' event
         if (socket) {
@@ -378,6 +406,7 @@ const Chat = () => {
             });
         }
     }, [socket]);
+
     // Scroll to the end of the chat
     useEffect(() => {
         if (chatEndRef.current) {
