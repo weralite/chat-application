@@ -64,6 +64,7 @@ console.log('Active chat:', activeChat);
         // Process received messages
         if (messages) {
             messages.forEach((message) => {
+                console.log('Meeeeeessage:', message);
                 if (message.status !== 'read') {
                     handleMessageRead(message._id);
                     socket.emit('update_message_status', { messageId: message._id, status: 'read' });
@@ -132,8 +133,6 @@ console.log('Active chat:', activeChat);
 
     // Send message
     const sendMessage = (content) => {
-        console.log('activeChat:', activeChat);
-        console.log('activechatid:', activeChat.chatId);
         if (activeChat) {
             const message = { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content };
             socket.emit('send_message', message);
