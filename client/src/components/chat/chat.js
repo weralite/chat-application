@@ -43,7 +43,6 @@ const Chat = () => {
 
 
 
-
     const userId = localStorage.getItem('userId');
 
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
@@ -57,54 +56,42 @@ const Chat = () => {
         socket.emit('message_read', messageId);
     }
 
-    // Handle contact click to enable a chat
+    const handleReceivedMessages = (messages) => {
+        console.log('Received messages:', messages);
+        // Process received messages
+        if (messages) {
+            messages.forEach((message) => {
+                if (message.status !== 'read') {
+                    handleMessageRead(message._id);
+                    socket.emit('update_message_status', { messageId: message._id, status: 'read' });
+                }
+            });
+        }
+    };
+    
+    const handleReceiveChats = (chats) => {
+        const chatId = chats.chatId;
+        setChatId(chatId); // Set chatId state
+        setSender(chats.senderUsername);
+        setReceiver(chats.receiverUsername);
+        socket.emit('get_messages', { chatId });
+    
+        // Listen for 'receive_messages' event
+        socket.on('receive_messages', handleReceivedMessages);
+    };
+    
     const handleContactClick = (contactId) => {
-        console.log('Handling contact click for contact ID:', contactId);
-        // Set receiverId and senderId
         setReceiverId(contactId);
         setSenderId(userId);
         setModalVisible(false);
     
-        if (socket) {
-          
-
-            /// Ask GPT how to add socket.off('receive_messages') to this function without clearing messages and interrupting the chat
-
-            // socket.off('receive_messages');
-
-
-
-            // Emit 'get_chats' event to server
-            socket.emit('get_chats', { senderId: userId, receiverId: contactId });
+        if (!socket) return;
     
-            // Listen for 'receive_chats' event
-            socket.once('receive_chats', (chats) => {
-                const chatId = chats.chatId;
-                setChatId(chatId); // Set chatId state
-                setSender(chats.senderUsername);
-                setReceiver(chats.receiverUsername);
-                socket.emit('get_messages', { chatId });
-                
-                // Listen for 'receive_messages' event
-                socket.on('receive_messages', (messages) => {
-                    console.log('Received messages:', messages);
-                    // Process received messages
-                    if (messages) {
-                        messages.forEach((message) => {
-
-                            // Check if the message is not read and update its statu
-                            /// ADD TO ONLY SET STATUS READ WHEN BOTH USERS ARE IN THE CHAT
-                            if (message.status !== 'read') {
-                                handleMessageRead(message._id); // Mark message as read locally
-                                // Emit an event to the server to update the message status
-                                socket.emit('update_message_status', { messageId: message._id, status: 'read' });
-                            }
-                        });
-                    }
-                });
-            });
-        }
+        socket.emit('get_chats', { senderId: userId, receiverId: contactId });
+        socket.once('receive_chats', handleReceiveChats);
     };
+
+    
     const openChatByChatId = (chatId, participants) => {
         const userId = localStorage.getItem('userId'); // Get the current user's ID
     
@@ -241,9 +228,8 @@ const Chat = () => {
     // Fetch contacts
     useEffect(() => {
         // If socket is not yet initialized, return
-        if (!socket) return;
-
-        // Emit 'get_contacts' event to fetch contacts
+        if (socket) {
+              // Emit 'get_contacts' event to fetch contacts
         socket.emit('get_contacts', userId);
 
         // Listen for 'receive_contacts' event to receive contacts from the server
@@ -263,12 +249,7 @@ const Chat = () => {
                 .map(id => contacts.find(c => c.id === id));
             setContacts(uniqueContacts);
         });
-
-        // Cleanup on unmount
-        return () => {
-            socket.off('receive_contacts');
-        };
-
+        }
     }, [socket]);
 
     // Fetch all chats and last msg on mount
