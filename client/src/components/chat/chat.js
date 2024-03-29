@@ -13,7 +13,6 @@ const Chat = () => {
     const [chats, setChats] = useState([]); // Add function to set chats via name
     const [chatId, setChatId] = useState(null);
     const [senderId, setSenderId] = useState(null);
-    
     const [receiverId, setReceiverId] = useState(null);
     const [receiver, setReceiver] = useState(''); // Add function to fetch name from recieverID
     const [sender, setSender] = useState(''); // Add function to fetch name from senderID
@@ -41,7 +40,7 @@ const Chat = () => {
     // console.log('error', socket.listeners('error').length);
 
 
-
+console.log('Active chat:', activeChat);
 
     const userId = localStorage.getItem('userId');
 
@@ -56,8 +55,12 @@ const Chat = () => {
         socket.emit('message_read', messageId);
     }
 
+
+  ///// ACTIVE CHAT IS NULL HERE
+
     const handleReceivedMessages = (messages) => {
         console.log('Received messages:', messages);
+        console.log('SI CHAT ACTIVE????:', activeChat);
         // Process received messages
         if (messages) {
             messages.forEach((message) => {
@@ -69,6 +72,10 @@ const Chat = () => {
         }
     };
     
+    ///// ACTIVE CHAT IS NULL HERE
+
+    /// TODO: Make sure to set active chat for there functions outside of the useEffect
+
     const handleReceiveChats = (chats) => {
         const chatId = chats.chatId;
         setChatId(chatId); // Set chatId state
@@ -125,6 +132,8 @@ const Chat = () => {
 
     // Send message
     const sendMessage = (content) => {
+        console.log('activeChat:', activeChat);
+        console.log('activechatid:', activeChat.chatId);
         if (activeChat) {
             const message = { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content };
             socket.emit('send_message', message);
@@ -252,7 +261,7 @@ const Chat = () => {
         }
     }, [socket]);
 
-    // Fetch all chats and last msg on mount
+    // Fetch all chats connected to the user and last msg on mount
     useEffect(() => {
         // If socket is not yet initialized, return
         if (!socket) return;
@@ -292,7 +301,7 @@ const Chat = () => {
     
     }, [socket, userId]);
 
-    // Listen for 'receive_chats' event to set an active chat
+    // Activates a chat when a chat is received from get_chats request
     useEffect(() => {
         if (token && socket) {
             // Listen for 'receive_chat' event
@@ -303,7 +312,7 @@ const Chat = () => {
         }
     }, [token, socket]);
 
-    // Recieve messages
+    // Recieve messages handler
     useEffect(() => {
         if (socket) {
             socket.on('receive_messages', (receivedMessages) => {
@@ -313,11 +322,12 @@ const Chat = () => {
                         console.log('prevChat is undefined');
                     }
 
-                    // If there's no active chat or the received messages don't belong to the active chat, don't update the active chat
+                   // When recieving a chat from a non active chat, do not force open the chat.
                     if (!prevChat || (receivedMessages && receivedMessages.length > 0 && receivedMessages[0].chatId !== prevChat.chatId)) {
                         return prevChat;
                     }
 
+                    // If there's an active chat, append the received messages to the chat
                     const newChat = {
                         ...prevChat,
                         messages: [...(prevChat?.messages || []), ...receivedMessages],
@@ -325,10 +335,13 @@ const Chat = () => {
                     return newChat;
                 });
             });
+            return () => {
+                socket.off('receive_messages');
+            };
         }
     }, [socket]);
 
-    // Send messages
+    // Update the active chat with sent messages
     useEffect(() => {
         if (socket) {
             socket.on('message_sent', (newMessage) => {
@@ -350,42 +363,40 @@ const Chat = () => {
         }
     }, [socket]);
 
-    // Update message status
+    // Update the active chat with updated message status
     useEffect(() => {
-        // Listen for the 'message_sent' event
-        if (socket) {
-            socket.on('message_sent', (newMessage) => {
-                setMessages((prevMessages) => [...prevMessages, newMessage]);
-            });
-        }
-
-        // Listen for the 'receive_messages' event
-        if (socket) {
-            socket.on('receive_messages', (receivedMessages) => {
-                setMessages(receivedMessages);
-            });
-        }
-
-        // Listen for the 'message_status_updated' event
         if (socket) {
             socket.on('message_status_updated', (updatedMessage) => {
-                console.log('Message status updated:', updatedMessage);
-                setActiveChat((prevActiveChat) => {
-                    if (prevActiveChat) {
-                        const newActiveChat = {
-                            ...prevActiveChat,
-                            messages: prevActiveChat.messages.map((message) =>
-                                message._id === updatedMessage._id ? updatedMessage : message
-                            ),
-                        };
-                        return newActiveChat;
-                    } else {
-                        // Return some default state if prevActiveChat is null
-                        return null;
+                console.log('Updated Message:', updatedMessage);
+                setActiveChat(prevChat => {
+                    console.log('Prev Chat:', prevChat);
+
+                    if (!prevChat) {
+                        console.log('prevChat is undefined');
                     }
+
+                   // When recieving a chat from a non active chat, do not force open the chat.
+                   if (!prevChat || (updatedMessage && updatedMessage.chatId !== prevChat.chatId)) {
+                    return prevChat;
+                }
+
+                    const newChat = {
+                        ...prevChat,
+                        messages: prevChat.messages.map(message => {
+                            if (message._id === updatedMessage._id) {
+                                return updatedMessage;
+                            }
+                            return message;
+                        })
+                    };
+                    return newChat;
                 });
             });
-        }
+
+            return () => {
+                socket.off('message_status_updated');
+            };
+        }   
     }, [socket]);
 
     // Scroll to the end of the chat
