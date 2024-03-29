@@ -402,8 +402,6 @@ const Chat = () => {
                     <p>chats</p>
                     {
                         chats
-                            .slice()
-                            .sort((a, b) => new Date(b.lastMessage.createdAt) - new Date(a.lastMessage.createdAt))
                             .map((chat) => (
                                 <div key={chat.chatId} onClick={() => openChatByChatId(chat.chatId, Object.values(chat.participants))}>
                                     <div>
