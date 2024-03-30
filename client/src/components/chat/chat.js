@@ -280,21 +280,19 @@ const Chat = () => {
             }
         });
 
-        /// Unclear what this did, saving it for now in case it's needed later
-
-        // socket.on('message_sent', (newMessage) => {
-        //     updateChatsWithNewMessage(newMessage);
-        //     if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
-        //         // New chat ID detected, fetch chats again
-        //         socket.emit('get_all_chats', { userId });
-        //     }
-        // });
+        socket.on('message_sent', (newMessage) => {
+            updateChatsWithNewMessage(newMessage);
+            if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
+                // New chat ID detected, fetch chats again
+                socket.emit('get_all_chats', { userId });
+            }
+        });
 
         // Cleanup on unmount
         return () => {
             socket.off('chats');
             socket.off('receive_messages');
-            // socket.off('message_sent');
+            socket.off('message_sent');
             socket.off('error');
         };
 
