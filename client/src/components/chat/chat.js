@@ -40,7 +40,7 @@ const Chat = () => {
     // console.log('error', socket.listeners('error').length);
 
 
-console.log('Active chat:', activeChat);
+    // console.log('Active chat:', activeChat);
 
     const userId = localStorage.getItem('userId');
 
@@ -50,67 +50,65 @@ console.log('Active chat:', activeChat);
 
 
 
+    // Emit 'message_read' event to mark a message as read
     function handleMessageRead(messageId) {
         console.log('Emitting message_read event for message ID:', messageId);
         socket.emit('message_read', messageId);
     }
 
-
-  ///// ACTIVE CHAT IS NULL HERE
-
-    const handleReceivedMessages = (messages) => {
-        console.log('Received messages:', messages);
-        console.log('SI CHAT ACTIVE????:', activeChat);
-        // Process received messages
-        if (messages) {
-            messages.forEach((message) => {
-                console.log('Meeeeeessage:', message);
-                if (message.status !== 'read') {
-                    handleMessageRead(message._id);
-                    socket.emit('update_message_status', { messageId: message._id, status: 'read' });
-                }
-            });
+    const handleReceivedMessages = (message) => {
+        // Process received message
+        if (message) {
+            console.log('Received message:', message);
+            const userId = localStorage.getItem('userId'); // Get the current user's ID
+            // Only mark the message as read if the current user is the receiver
+            if (message.status !== 'read' && message.receiver === userId) {
+                handleMessageRead(message._id);
+            }
         }
     };
-    
+
     ///// ACTIVE CHAT IS NULL HERE
 
     /// TODO: Make sure to set active chat for there functions outside of the useEffect
 
-    const handleReceiveChats = (chats) => {
-        const chatId = chats.chatId;
-        setChatId(chatId); // Set chatId state
-        setSender(chats.senderUsername);
-        setReceiver(chats.receiverUsername);
-        socket.emit('get_messages', { chatId });
-    
-        // Listen for 'receive_messages' event
-        socket.on('receive_messages', handleReceivedMessages);
-    };
-    
-    const handleContactClick = (contactId) => {
-        setReceiverId(contactId);
-        setSenderId(userId);
-        setModalVisible(false);
-    
-        if (!socket) return;
-    
-        socket.emit('get_chats', { senderId: userId, receiverId: contactId });
-        socket.once('receive_chats', handleReceiveChats);
-    };
+    // const handleReceiveChats = (chats) => {
+    //     const chatId = chats.chatId;
+    //     setChatId(chatId); // Set chatId state
+    //     setSender(chats.senderUsername);
+    //     setReceiver(chats.receiverUsername);
 
-    
+    //     if (socket && activeChat) {
+    //         console.log('ActivFDSFSDFSDe chat:', activeChat);
+    //         socket.emit('get_messages', { chatId });
+    //     }
+    // };
+
+    // const handleContactClick = (contactId) => {
+
+    //     setReceiverId(contactId);
+    //     setSenderId(userId);
+    //     setModalVisible(false);
+
+    //     if (socket) {
+    //         socket.emit('get_chats', { senderId: userId, receiverId: contactId });
+    //         socket.once('receive_chats', handleReceiveChats);
+    //     }
+
+    // };
+
+
     const openChatByChatId = (chatId, participants) => {
         const userId = localStorage.getItem('userId'); // Get the current user's ID
-    
+
         // Determine sender and receiver IDs
         const senderId = userId;
         const receiverId = participants.find(id => id !== userId);
-    
+
         if (socket) {
             // Emit 'get_chats' event with the senderId and receiverId
             socket.emit('get_chats', { senderId, receiverId });
-    
+
             const onReceiveChats = (chats) => {
                 // Assuming chats is an array and the chat you're interested in is the first one
                 const chatId = chats.chatId;
@@ -118,14 +116,14 @@ console.log('Active chat:', activeChat);
                 setSender(chats.senderUsername);
                 setReceiver(chats.receiverUsername);
                 socket.emit('get_messages', { chatId });
-    
+
                 // Remove the listener
                 socket.off('receive_chats', onReceiveChats);
             };
-    
+
             socket.once('receive_chats', onReceiveChats);
         }
-    
+
         // Update sender and receiver states
         setSenderId(senderId);
         setReceiverId(receiverId);
@@ -237,43 +235,43 @@ console.log('Active chat:', activeChat);
     useEffect(() => {
         // If socket is not yet initialized, return
         if (socket) {
-              // Emit 'get_contacts' event to fetch contacts
-        socket.emit('get_contacts', userId);
+            // Emit 'get_contacts' event to fetch contacts
+            socket.emit('get_contacts', userId);
 
-        // Listen for 'receive_contacts' event to receive contacts from the server
-        socket.on('receive_contacts', (receivedContacts) => {
-            // Filter contact IDs and usernames based on user ID
-            const currentUserID = localStorage.getItem('userId');
-            const contacts = receivedContacts.reduce((acc, contact) => {
-                if (contact.user1Id !== currentUserID) {
-                    acc.push({ id: contact.user1Id, username: contact.Username1 });
-                } else if (contact.user2Id !== currentUserID) {
-                    acc.push({ id: contact.user2Id, username: contact.Username2 });
-                }
-                return acc;
-            }, []);
-            // Remove duplicates based on id and set contacts to state
-            const uniqueContacts = Array.from(new Set(contacts.map(c => c.id)))
-                .map(id => contacts.find(c => c.id === id));
-            setContacts(uniqueContacts);
-        });
+            // Listen for 'receive_contacts' event to receive contacts from the server
+            socket.on('receive_contacts', (receivedContacts) => {
+                // Filter contact IDs and usernames based on user ID
+                const currentUserID = localStorage.getItem('userId');
+                const contacts = receivedContacts.reduce((acc, contact) => {
+                    if (contact.user1Id !== currentUserID) {
+                        acc.push({ id: contact.user1Id, username: contact.Username1 });
+                    } else if (contact.user2Id !== currentUserID) {
+                        acc.push({ id: contact.user2Id, username: contact.Username2 });
+                    }
+                    return acc;
+                }, []);
+                // Remove duplicates based on id and set contacts to state
+                const uniqueContacts = Array.from(new Set(contacts.map(c => c.id)))
+                    .map(id => contacts.find(c => c.id === id));
+                setContacts(uniqueContacts);
+            });
         }
     }, [socket]);
 
-    // Fetch all chats connected to the user and last msg on mount
+    // Gets chatlist of usernames and last message for logged in user
     useEffect(() => {
         // If socket is not yet initialized, return
         if (!socket) return;
-    
+
         // Emit 'get_all_chats' event to fetch chats
         socket.emit('get_all_chats', { userId });
-    
+
         // Listen for 'chats' event to receive chats from the server
         socket.on('chats', (chatsWithUsernamesAndLastMessage) => {
             const sortedChats = chatsWithUsernamesAndLastMessage.slice().sort((a, b) => new Date(b.lastMessage.createdAt) - new Date(a.lastMessage.createdAt));
             setChats(sortedChats);
         });
-    
+
         socket.on('receive_messages', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
             if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
@@ -281,7 +279,7 @@ console.log('Active chat:', activeChat);
                 socket.emit('get_all_chats', { userId });
             }
         });
-    
+
         socket.on('message_sent', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
             if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
@@ -289,7 +287,7 @@ console.log('Active chat:', activeChat);
                 socket.emit('get_all_chats', { userId });
             }
         });
-    
+
         // Cleanup on unmount
         return () => {
             socket.off('chats');
@@ -297,7 +295,7 @@ console.log('Active chat:', activeChat);
             socket.off('message_sent');
             socket.off('error');
         };
-    
+
     }, [socket, userId]);
 
     // Activates a chat when a chat is received from get_chats request
@@ -313,7 +311,7 @@ console.log('Active chat:', activeChat);
 
     // Recieve messages handler
     useEffect(() => {
-        if (socket) {
+        if (socket && activeChat) {
             socket.on('receive_messages', (receivedMessages) => {
                 setActiveChat((prevChat) => {
                     // If there's no active chat, log a message to the console
@@ -321,7 +319,7 @@ console.log('Active chat:', activeChat);
                         console.log('prevChat is undefined');
                     }
 
-                   // When recieving a chat from a non active chat, do not force open the chat.
+                    // When recieving a chat from a non active chat, do not force open the chat.
                     if (!prevChat || (receivedMessages && receivedMessages.length > 0 && receivedMessages[0].chatId !== prevChat.chatId)) {
                         return prevChat;
                     }
@@ -331,6 +329,9 @@ console.log('Active chat:', activeChat);
                         ...prevChat,
                         messages: [...(prevChat?.messages || []), ...receivedMessages],
                     };
+
+                    // Call handleReceivedMessages for each received message
+                    receivedMessages.forEach(handleReceivedMessages);
                     return newChat;
                 });
             });
@@ -338,11 +339,11 @@ console.log('Active chat:', activeChat);
                 socket.off('receive_messages');
             };
         }
-    }, [socket]);
+    }, [socket, activeChat, handleReceivedMessages]);
 
     // Update the active chat with sent messages
     useEffect(() => {
-        if (socket) {
+        if (socket && activeChat) {
             socket.on('message_sent', (newMessage) => {
 
                 setActiveChat(prevChat => {
@@ -360,13 +361,14 @@ console.log('Active chat:', activeChat);
                 socket.off('message_sent');
             };
         }
-    }, [socket]);
+    }, [socket, activeChat]);
 
     // Update the active chat with updated message status
     useEffect(() => {
-        if (socket) {
+        if (socket && activeChat) {
             socket.on('message_status_updated', (updatedMessage) => {
                 console.log('Updated Message:', updatedMessage);
+                console.log('Active Chat:', activeChat);
                 setActiveChat(prevChat => {
                     console.log('Prev Chat:', prevChat);
 
@@ -374,10 +376,10 @@ console.log('Active chat:', activeChat);
                         console.log('prevChat is undefined');
                     }
 
-                   // When recieving a chat from a non active chat, do not force open the chat.
-                   if (!prevChat || (updatedMessage && updatedMessage.chatId !== prevChat.chatId)) {
-                    return prevChat;
-                }
+                    // When recieving a chat from a non active chat, do not force open the chat.
+                    if (!prevChat || (updatedMessage && updatedMessage.chatId !== prevChat.chatId)) {
+                        return prevChat;
+                    }
 
                     const newChat = {
                         ...prevChat,
@@ -395,8 +397,8 @@ console.log('Active chat:', activeChat);
             return () => {
                 socket.off('message_status_updated');
             };
-        }   
-    }, [socket]);
+        }
+    }, [socket, activeChat]);
 
     // Scroll to the end of the chat
     useEffect(() => {
@@ -433,7 +435,7 @@ console.log('Active chat:', activeChat);
                             <div className='contacts-content'>
                                 <ul>
                                     {contacts.map((contact) => (
-                                        <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}</li>
+                                        <li key={contact.id}>{contact.username}</li>
                                     ))}
                                 </ul>
                                 <button onClick={() => setModalVisible(false)}>Close</button>
