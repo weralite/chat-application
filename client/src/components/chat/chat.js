@@ -68,19 +68,6 @@ const Chat = () => {
         }
     };
 
-
-    // const handleReceiveChats = (chats) => {
-    //     const chatId = chats.chatId;
-    //     setChatId(chatId); // Set chatId state
-    //     setSender(chats.senderUsername);
-    //     setReceiver(chats.receiverUsername);
-
-    //     if (socket && activeChat) {
-    //         console.log('ActivFDSFSDFSDe chat:', activeChat);
-    //         socket.emit('get_messages', { chatId });
-    //     }
-    // };
-
     const handleContactClick = (contactId) => {
     const userId = localStorage.getItem('userId'); // Get the current user's ID
     const senderId = userId;
@@ -293,19 +280,21 @@ const Chat = () => {
             }
         });
 
-        socket.on('message_sent', (newMessage) => {
-            updateChatsWithNewMessage(newMessage);
-            if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
-                // New chat ID detected, fetch chats again
-                socket.emit('get_all_chats', { userId });
-            }
-        });
+        /// Unclear what this did, saving it for now in case it's needed later
+
+        // socket.on('message_sent', (newMessage) => {
+        //     updateChatsWithNewMessage(newMessage);
+        //     if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
+        //         // New chat ID detected, fetch chats again
+        //         socket.emit('get_all_chats', { userId });
+        //     }
+        // });
 
         // Cleanup on unmount
         return () => {
             socket.off('chats');
             socket.off('receive_messages');
-            socket.off('message_sent');
+            // socket.off('message_sent');
             socket.off('error');
         };
 
