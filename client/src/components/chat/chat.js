@@ -68,9 +68,6 @@ const Chat = () => {
         }
     };
 
-    ///// ACTIVE CHAT IS NULL HERE
-
-    /// TODO: Make sure to set active chat for there functions outside of the useEffect
 
     // const handleReceiveChats = (chats) => {
     //     const chatId = chats.chatId;
@@ -84,18 +81,34 @@ const Chat = () => {
     //     }
     // };
 
-    // const handleContactClick = (contactId) => {
+    const handleContactClick = (contactId) => {
+    const userId = localStorage.getItem('userId'); // Get the current user's ID
+    const senderId = userId;
+    const receiverId = contactId;
 
-    //     setReceiverId(contactId);
-    //     setSenderId(userId);
-    //     setModalVisible(false);
 
-    //     if (socket) {
-    //         socket.emit('get_chats', { senderId: userId, receiverId: contactId });
-    //         socket.once('receive_chats', handleReceiveChats);
-    //     }
+        setModalVisible(false);
 
-    // };
+        if (socket) {
+            socket.emit('get_chats', { senderId, receiverId });
+           
+            const onReceiveChats = (chats) => {
+                // Assuming chats is an array and the chat you're interested in is the first one
+                const chatId = chats.chatId;
+                setChatId(chatId); // Set chatId state
+                setSender(chats.senderUsername);
+                setReceiver(chats.receiverUsername);
+                socket.emit('get_messages', { chatId });
+
+                // Remove the listener
+                socket.off('receive_chats', onReceiveChats);
+            };
+
+            socket.once('receive_chats', onReceiveChats);
+        }
+        setSenderId(senderId);
+        setReceiverId(receiverId);
+    };
 
 
     const openChatByChatId = (chatId, participants) => {
@@ -435,7 +448,7 @@ const Chat = () => {
                             <div className='contacts-content'>
                                 <ul>
                                     {contacts.map((contact) => (
-                                        <li key={contact.id}>{contact.username}</li>
+                                        <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}</li>
                                     ))}
                                 </ul>
                                 <button onClick={() => setModalVisible(false)}>Close</button>
