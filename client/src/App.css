@@ -47,6 +47,10 @@ body {
   overflow-y: auto;
 }
 
+.find-chat-input {
+  width: 5rem;
+}
+
 .chat-ongoing-chats {
   height: 15rem;
   padding: 5px;
@@ -66,8 +70,8 @@ body {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 10rem;
-  height: 10rem;
+  width: 15rem;
+  height: 20rem;
   background: white;
   display: flex;
   justify-content: center;

@@ -52,14 +52,13 @@ const Chat = () => {
 
     // Emit 'message_read' event to mark a message as read
     function handleMessageRead(messageId) {
-        console.log('Emitting message_read event for message ID:', messageId);
         socket.emit('message_read', messageId);
     }
 
     const handleReceivedMessages = (message) => {
         // Process received message
         if (message) {
-            console.log('Received message:', message);
+            // updateChatsWithNewMessage([message]);
             const userId = localStorage.getItem('userId'); // Get the current user's ID
             // Only mark the message as read if the current user is the receiver
             if (message.status !== 'read' && message.receiver === userId) {
@@ -68,17 +67,26 @@ const Chat = () => {
         }
     };
 
+    // Send message
+    const sendMessage = (content) => {
+        if (activeChat) {
+            const message = { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content };
+            socket.emit('send_message', message);
+            // updateChatsWithNewMessage([message]); 
+        }
+    };
+
     const handleContactClick = (contactId) => {
-    const userId = localStorage.getItem('userId'); // Get the current user's ID
-    const senderId = userId;
-    const receiverId = contactId;
+        const userId = localStorage.getItem('userId'); // Get the current user's ID
+        const senderId = userId;
+        const receiverId = contactId;
 
 
         setModalVisible(false);
 
         if (socket) {
             socket.emit('get_chats', { senderId, receiverId });
-           
+
             const onReceiveChats = (chats) => {
                 // Assuming chats is an array and the chat you're interested in is the first one
                 const chatId = chats.chatId;
@@ -129,14 +137,7 @@ const Chat = () => {
         setReceiverId(receiverId);
     };
 
-    // Send message
-    const sendMessage = (content) => {
-        if (activeChat) {
-            const message = { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content };
-            socket.emit('send_message', message);
-            updateChatsWithNewMessage([message]); // Pass the new message as an array
-        }
-    };
+
     // Update chats with new message
     const updateChatsWithNewMessage = (newMessages) => {
         if (newMessages.length > 0) {
@@ -265,15 +266,16 @@ const Chat = () => {
 
         // Emit 'get_all_chats' event to fetch chats
         socket.emit('get_all_chats', { userId });
-
         // Listen for 'chats' event to receive chats from the server
         socket.on('chats', (chatsWithUsernamesAndLastMessage) => {
+            console.log('chatsWithUsernamesAndLastMessage', chatsWithUsernamesAndLastMessage);
             const sortedChats = chatsWithUsernamesAndLastMessage.slice().sort((a, b) => new Date(b.lastMessage.createdAt) - new Date(a.lastMessage.createdAt));
             setChats(sortedChats);
         });
 
         socket.on('receive_messages', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
+            console.log('non-active effect received', newMessage);
             if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
                 // New chat ID detected, fetch chats again
                 socket.emit('get_all_chats', { userId });
@@ -282,7 +284,9 @@ const Chat = () => {
 
         socket.on('message_sent', (newMessage) => {
             updateChatsWithNewMessage(newMessage);
+            console.log('non-active effect sent', newMessage);
             if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
+                console.log('newMessage SENT', newMessage);
                 // New chat ID detected, fetch chats again
                 socket.emit('get_all_chats', { userId });
             }
@@ -309,7 +313,7 @@ const Chat = () => {
         }
     }, [token, socket]);
 
-    // Recieve messages handler
+    // Update the active chat with received messages and message receipts
     useEffect(() => {
         if (socket && activeChat) {
             socket.on('receive_messages', (receivedMessages) => {
@@ -367,16 +371,13 @@ const Chat = () => {
     useEffect(() => {
         if (socket && activeChat) {
             socket.on('message_status_updated', (updatedMessage) => {
-                console.log('Updated Message:', updatedMessage);
-                console.log('Active Chat:', activeChat);
                 setActiveChat(prevChat => {
-                    console.log('Prev Chat:', prevChat);
-
+                    // If there's no active chat, log a message to the console
                     if (!prevChat) {
                         console.log('prevChat is undefined');
                     }
 
-                    // When recieving a chat from a non active chat, do not force open the chat.
+                    // When recieving a chat from a non active chat, do not force open an active chat.
                     if (!prevChat || (updatedMessage && updatedMessage.chatId !== prevChat.chatId)) {
                         return prevChat;
                     }
@@ -412,6 +413,7 @@ const Chat = () => {
             <div className='chat-wrapper'>
                 <div className='chat-ongoing-chats'>
                     <p>chats</p>
+                    <input className='find-chat-input' type='text' placeholder='Find chat' />
                     {
                         chats
                             .map((chat) => (
@@ -426,18 +428,21 @@ const Chat = () => {
                 </div>
 
                 <div className='chat-main-window'>
-                    <h1>Chat Page</h1>
+                    <h1>Chat</h1>
                     <div className='chat-primary-contacts'>
                         <h2 onClick={() => setModalVisible(true)}>Contacts</h2>
                     </div>
                     {isModalVisible && (
                         <div ref={modalRef} className={`contacts-modal ${isModalVisible ? 'visible' : ''}`}>
+                         
                             <div className='contacts-content'>
+                            <input type='text' placeholder='Search contacts' />
                                 <ul>
                                     {contacts.map((contact) => (
                                         <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}</li>
                                     ))}
                                 </ul>
+                                <button>Add contact</button>
                                 <button onClick={() => setModalVisible(false)}>Close</button>
                             </div>
                         </div>

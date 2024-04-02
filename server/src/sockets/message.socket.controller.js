@@ -45,7 +45,6 @@ module.exports = (io) => {
                 message.status = 'read';
                 await message.save();
                 socket.emit('message_status_updated', message);
-                console.log('message read', message);
                 socket.broadcast.emit('message_status_updated', message);
             } catch (error) {
                 console.error('Error updating message status:', error);
