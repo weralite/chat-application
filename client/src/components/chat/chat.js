@@ -45,7 +45,7 @@ const Chat = ({ socket, token, username }) => {
         if (activeChat) {
             const message = { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content };
             socket.emit('send_message', message);
-            updateChatsWithNewMessage([message]); 
+            updateChatsWithNewMessage([message]);
         }
     };
 
@@ -221,41 +221,42 @@ const Chat = ({ socket, token, username }) => {
         };
     }, [socket, userId, chats]);
 
-// Effect for updating chat list when new messages are received
-useEffect(() => {
-    if (!socket) return;
+    // Effect for updating chat list when new messages are received
+    useEffect(() => {
+        if (!socket) return;
 
-    const handleReceiveMessages = (newMessage) => {
-        updateChatsWithNewMessage(newMessage);
-        if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
-            socket.emit('get_all_chats', { userId });
-        }
-    };
+        const handleReceiveMessages = (newMessage) => {
+            updateChatsWithNewMessage(newMessage);
+            if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
+                socket.emit('get_all_chats', { userId });
+            }
+        };
 
-    socket.on('receive_messages', handleReceiveMessages);
+        socket.on('receive_messages', handleReceiveMessages);
 
-    return () => {
-        socket.off('receive_messages', handleReceiveMessages);
-    };
-}, [socket, userId, chats, updateChatsWithNewMessage]);
+        return () => {
+            socket.off('receive_messages', handleReceiveMessages);
+        };
+    }, [socket, userId, chats, updateChatsWithNewMessage]);
 
-// Effect for updating chat list when a message is sent
-useEffect(() => {
-    if (!socket) return;
+    // Effect for updating chat list when a message is sent
+    useEffect(() => {
+        if (!socket) return;
 
-    const handleMessageSent = (newMessage) => {
-        updateChatsWithNewMessage(newMessage);
-        if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
-            socket.emit('get_all_chats', { userId });
-        }
-    };
+        const handleMessageSent = (newMessage) => {
+            updateChatsWithNewMessage(newMessage);
+            if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
+                socket.emit('get_all_chats', { userId });
+            }
+        };
 
-    socket.on('message_sent', handleMessageSent);
+        socket.on('message_sent', handleMessageSent);
 
-    return () => {
-        socket.off('message_sent', handleMessageSent);
-    };
-}, [socket, userId, chats, updateChatsWithNewMessage]);
+        return () => {
+            socket.off('message_sent', handleMessageSent);
+        };
+    }, [socket, userId, chats, updateChatsWithNewMessage]);
+
 
     // Activates a chat when a chat is received from get_chats request
     useEffect(() => {
