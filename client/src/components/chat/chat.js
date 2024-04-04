@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
+import io from 'socket.io-client';
 import ChatList from './chatList';
 import ContactsModal from './contactsModal';
 import ChatArea from './chatArea';
 
+const ENDPOINT = 'http://localhost:8080';
 
-const Chat = ({ socket, token, username }) => {
+
+const Chat = () => {
+    const [socket, setSocket] = useState(null);
+    const [connectedUsers, setConnectedUsers] = useState([]);
+    const [receiverOnline, setReceiverOnline] = useState(false);
     const [message, setMessage] = useState('');
     const [contacts, setContacts] = useState([]); // Add function to set contacts via name
     const [chats, setChats] = useState([]); // Add function to set chats via name
@@ -15,8 +21,6 @@ const Chat = ({ socket, token, username }) => {
     const [sender, setSender] = useState(''); // Add function to fetch name from senderID
     const [activeChat, setActiveChat] = useState(null);
     const [isModalVisible, setModalVisible] = useState(false);
-    const [connectedUsers, setConnectedUsers] = useState([]);
-    const [receiverOnline, setReceiverOnline] = useState(false);
     const userId = localStorage.getItem('userId');
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
     const modalRef = useRef(null); // Keeping track of the modal
@@ -143,32 +147,29 @@ const Chat = ({ socket, token, username }) => {
     }, [modalRef]);
 
 
-    // Listen for connected users
     useEffect(() => {
+        const userId = localStorage.getItem('userId');
+        const newSocket = io(ENDPOINT, {
+            query: { token, userId }
+        });
+        setSocket(newSocket);
 
-        if (!socket) return;
-
-        socket.on('connectedUsers', (users) => {
-            // Handle the list of connected users received from the server
+        newSocket.on('connectedUsers', (users) => {
             setConnectedUsers(users);
-
-            // Update the UI with the list of connected users
         });
 
-        socket.on('userConnected', (users) => {
-            // Handle the list of connected users received from the server
-            setConnectedUsers(users);
-
-            // Update the UI with the list of connected users
+        newSocket.on('userConnected', (userId) => {
+            setConnectedUsers((users) => [...users, userId]);
         });
 
-        socket.on('userDisconnected', (users) => {
-            // Handle the list of connected users received from the server
-            setConnectedUsers(users);
-
-            // Update the UI with the list of connected users
+        newSocket.on('userDisconnected', (userId) => {
+            setConnectedUsers((users) => users.filter((user) => user !== userId));
         });
-    }, [socket]);
+
+        return () => {
+            newSocket.disconnect();
+        };
+    }, [token]);
 
     // Check if receiver is online
     useEffect(() => {
