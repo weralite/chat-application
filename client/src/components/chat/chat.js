@@ -9,8 +9,10 @@ const ENDPOINT = 'http://localhost:8080';
 
 const Chat = () => {
     const [socket, setSocket] = useState(null);
+    const [token, setToken] = useState('');
     const [connectedUsers, setConnectedUsers] = useState([]);
     const [receiverOnline, setReceiverOnline] = useState(false);
+    const [username, setUsername] = useState('');
     const [message, setMessage] = useState('');
     const [contacts, setContacts] = useState([]); // Add function to set contacts via name
     const [chats, setChats] = useState([]); // Add function to set chats via name
@@ -132,6 +134,68 @@ const Chat = () => {
         }
     };
 
+      // Retrieve token and username from local storage
+      useEffect(() => {
+        const storedToken = localStorage.getItem('token');
+        if (storedToken) {
+            setToken(storedToken);
+        }
+
+        const storedUsername = localStorage.getItem('username');
+        if (storedUsername) {
+            setUsername(storedUsername);
+        }
+    }, []);
+
+    // Connect to Socket.IO server
+    useEffect(() => {
+        if (token) {
+            // Connect to Socket.IO server
+            const userId = localStorage.getItem('userId');
+            const newSocket = io(ENDPOINT, {
+                query: { token, userId }
+            });
+            setSocket(newSocket);
+
+            // Cleanup function to disconnect socket on unmount
+            return () => {
+                newSocket.disconnect();
+            };
+        }
+    }, [token]);
+
+    // Listen for connected users
+    useEffect(() => {
+
+        if (!socket) return;
+
+        socket.on('connectedUsers', (users) => {
+            // Handle the list of connected users received from the server
+            setConnectedUsers(users);
+
+            // Update the UI with the list of connected users
+        });
+
+        socket.on('userConnected', (users) => {
+            // Handle the list of connected users received from the server
+            setConnectedUsers(users);
+
+            // Update the UI with the list of connected users
+        });
+
+        socket.on('userDisconnected', (users) => {
+            // Handle the list of connected users received from the server
+            setConnectedUsers(users);
+
+            // Update the UI with the list of connected users
+        });
+    }, [socket]);
+
+    // Check if receiver is online
+    useEffect(() => {
+        setReceiverOnline(connectedUsers.includes(receiverId));
+    }, [connectedUsers, receiverId]);
+
     // Close modal when clicked outside
     useEffect(() => {
         function handleClickOutside(event) {
@@ -145,36 +209,6 @@ const Chat = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [modalRef]);
-
-
-    useEffect(() => {
-        const userId = localStorage.getItem('userId');
-        const newSocket = io(ENDPOINT, {
-            query: { token, userId }
-        });
-        setSocket(newSocket);
-
-        newSocket.on('connectedUsers', (users) => {
-            setConnectedUsers(users);
-        });
-
-        newSocket.on('userConnected', (userId) => {
-            setConnectedUsers((users) => [...users, userId]);
-        });
-
-        newSocket.on('userDisconnected', (userId) => {
-            setConnectedUsers((users) => users.filter((user) => user !== userId));
-        });
-
-        return () => {
-            newSocket.disconnect();
-        };
-    }, [token]);
-
-    // Check if receiver is online
-    useEffect(() => {
-        setReceiverOnline(connectedUsers.includes(receiverId));
-    }, [connectedUsers, receiverId]);
 
     // Fetch contacts
     useEffect(() => {
