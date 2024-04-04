@@ -6,7 +6,7 @@ const { getChatsForUser, getLastMessageOfChat } = require('../utils/chat.utils')
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
-        
+
         socket.on('get_chats', async ({ senderId, receiverId }) => {
             try {
                 let chat = await Chat.findOne({
@@ -52,7 +52,7 @@ module.exports = (io) => {
                     const otherUser = await User.findById(otherUserId);
                     // Fetch the last message of the chat
                     let lastMessage = await getLastMessageOfChat(chat.chatId);
-                    console.log('Last message:', lastMessage);
+
 
                     // If lastMessage is null, log a message to the console
                     if (!lastMessage) {

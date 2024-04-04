@@ -27,6 +27,7 @@ module.exports = (io) => {
                 await message.save();
                 // Emit the 'message_sent' event to the client with the new message
                 socket.emit('message_sent', message);
+                console.log('message sent', message);
                 socket.broadcast.emit('receive_messages', [message]);
                 message.status = 'delivered';
                 await message.save();
@@ -51,31 +52,6 @@ module.exports = (io) => {
                 socket.emit('error', 'Failed to update message status');
             }
         });
-
-
-        // socket.on('message_read', async (messageId, activeChat) => {
-        //     try {
-        //         if (!activeChat) {
-        //             console.log('Active chat is null');
-        //             return;
-        //         }
-        //         const message = await Message.findById(messageId);
-        //         if (message.chatId !== activeChat.chatId) {
-        //             console.log('Message not in active chat');
-        //             console.log('activeChat:', activeChat);
-        //             console.log('message:', message);
-        //             return;
-        //         }
-        //         message.status = 'read';
-        //         await message.save();
-        //         socket.emit('message_status_updated', message);
-        //         console.log('message read', message);
-        //         socket.broadcast.emit('message_status_updated', message);
-        //     } catch (error) {
-        //         console.error('Error updating message status:', error);
-        //         socket.emit('error', 'Failed to update message status');
-        //     }
-        // });
 
     });
 
