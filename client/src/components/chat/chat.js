@@ -34,6 +34,7 @@ const Chat = () => {
         socket.emit('message_read', messageId);
     }
 
+    // Handle received messages
     const handleReceivedMessages = (message) => {
         // Process received message
         if (message) {
@@ -55,6 +56,7 @@ const Chat = () => {
         }
     };
 
+    // Open chat by clicking on a contact
     const handleContactClick = (contactId) => {
         const userId = localStorage.getItem('userId'); // Get the current user's ID
         const senderId = userId;
@@ -84,6 +86,7 @@ const Chat = () => {
         setReceiverId(receiverId);
     };
 
+    // Open chat by chat ID
     const openChatByChatId = (chatId, participants) => {
         const userId = localStorage.getItem('userId'); // Get the current user's ID
 
@@ -134,8 +137,8 @@ const Chat = () => {
         }
     };
 
-      // Retrieve token and username from local storage
-      useEffect(() => {
+    // Retrieve token and username from local storage
+    useEffect(() => {
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
             setToken(storedToken);
@@ -237,8 +240,6 @@ const Chat = () => {
         }
     }, [socket]);
 
-    // Inside your Chat component
-
     // Effect for fetching chats and updating chat list
     useEffect(() => {
         if (!socket) return;
@@ -291,7 +292,6 @@ const Chat = () => {
             socket.off('message_sent', handleMessageSent);
         };
     }, [socket, userId, chats, updateChatsWithNewMessage]);
-
 
     // Activates a chat when a chat is received from get_chats request
     useEffect(() => {
