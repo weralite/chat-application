@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import io from 'socket.io-client';
+import ChatList from './chatList';
+import ContactsModal from './contactsModal';
+import ChatArea from './chatArea';
 
-const ENDPOINT = 'http://localhost:8080';
 
-const Chat = () => {
+const Chat = ({ socket, token, username }) => {
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState([]); // To store chat receipts
-    const [socket, setSocket] = useState(null);
-    const [token, setToken] = useState('');
-    const [username, setUsername] = useState('');
     const [contacts, setContacts] = useState([]); // Add function to set contacts via name
     const [chats, setChats] = useState([]); // Add function to set chats via name
     const [chatId, setChatId] = useState(null);
@@ -20,38 +17,14 @@ const Chat = () => {
     const [isModalVisible, setModalVisible] = useState(false);
     const [connectedUsers, setConnectedUsers] = useState([]);
     const [receiverOnline, setReceiverOnline] = useState(false);
-
-    // console.log('Active chat:', activeChat);
-    // console.log('Recieve messages', socket.listeners('receive_messages').length);
-    // console.log('Get chats', socket.listeners('get_chats').length);
-    // console.log('Get messages', socket.listeners('get_messages').length);
-    // console.log('message_sent', socket.listeners('message_sent').length);
-    // console.log('send_message', socket.listeners('send_message').length);
-    // console.log('message_status_updated', socket.listeners('message_status_updated').length);
-    // console.log('message_read', socket.listeners('message_read').length);
-    // console.log('connectedUsers', socket.listeners('connectedUsers').length);
-    // console.log('userConnected', socket.listeners('userConnected').length);
-    // console.log('userDisconnected', socket.listeners('userDisconnected').length);
-    // console.log('get_contacts', socket.listeners('get_contacts').length);
-    // console.log('receive_contacts', socket.listeners('receive_contacts').length);
-    // console.log('get_all_chats', socket.listeners('get_all_chats').length);
-    // console.log('chats', socket.listeners('chats').length);
-    // console.log('receive_chats', socket.listeners('receive_chats').length);
-    // console.log('error', socket.listeners('error').length);
-
-
-    // console.log('Active chat:', activeChat);
-
     const userId = localStorage.getItem('userId');
-
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
-
     const modalRef = useRef(null); // Keeping track of the modal
 
 
 
     // Emit 'message_read' event to mark a message as read
-    function handleMessageRead(messageId) {
+    const handleMessageRead = (messageId) => {
         socket.emit('message_read', messageId);
     }
 
@@ -105,7 +78,6 @@ const Chat = () => {
         setReceiverId(receiverId);
     };
 
-
     const openChatByChatId = (chatId, participants) => {
         const userId = localStorage.getItem('userId'); // Get the current user's ID
 
@@ -136,7 +108,6 @@ const Chat = () => {
         setSenderId(senderId);
         setReceiverId(receiverId);
     };
-
 
     // Update chats with new message
     const updateChatsWithNewMessage = (newMessages) => {
@@ -170,35 +141,6 @@ const Chat = () => {
         };
     }, [modalRef]);
 
-    // Retrieve token and username from local storage
-    useEffect(() => {
-        const storedToken = localStorage.getItem('token');
-        if (storedToken) {
-            setToken(storedToken);
-        }
-
-        const storedUsername = localStorage.getItem('username');
-        if (storedUsername) {
-            setUsername(storedUsername);
-        }
-    }, []);
-
-    // Connect to Socket.IO server
-    useEffect(() => {
-        if (token) {
-            // Connect to Socket.IO server
-            const userId = localStorage.getItem('userId');
-            const newSocket = io(ENDPOINT, {
-                query: { token, userId }
-            });
-            setSocket(newSocket);
-
-            // Cleanup function to disconnect socket on unmount
-            return () => {
-                newSocket.disconnect();
-            };
-        }
-    }, [token]);
 
     // Listen for connected users
     useEffect(() => {
@@ -411,84 +353,35 @@ const Chat = () => {
     return (
         <div className='chat-app'>
             <div className='chat-wrapper'>
-                <div className='chat-ongoing-chats'>
-                    <p>chats</p>
-                    <input className='find-chat-input' type='text' placeholder='Find chat' />
-                    {
-                        chats
-                            .map((chat) => (
-                                <div key={chat.chatId} onClick={() => openChatByChatId(chat.chatId, Object.values(chat.participants))}>
-                                    <div>
-                                        <b>{chat.otherUsername}</b>
-                                        <p>{chat.lastMessage.content}</p>
-                                    </div>
-                                </div>
-                            ))
-                    }
-                </div>
+
+                <ChatList chats={chats} openChatByChatId={openChatByChatId} />
 
                 <div className='chat-main-window'>
                     <h1>Chat</h1>
                     <div className='chat-primary-contacts'>
                         <h2 onClick={() => setModalVisible(true)}>Contacts</h2>
                     </div>
-                    {isModalVisible && (
-                        <div ref={modalRef} className={`contacts-modal ${isModalVisible ? 'visible' : ''}`}>
-                         
-                            <div className='contacts-content'>
-                            <input type='text' placeholder='Search contacts' />
-                                <ul>
-                                    {contacts.map((contact) => (
-                                        <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}</li>
-                                    ))}
-                                </ul>
-                                <button>Add contact</button>
-                                <button onClick={() => setModalVisible(false)}>Close</button>
-                            </div>
-                        </div>
-                    )}
-
+                    <ContactsModal
+                        contacts={contacts}
+                        modalRef={modalRef}
+                        isModalVisible={isModalVisible}
+                        handleContactClick={handleContactClick}
+                        setModalVisible={setModalVisible}
+                    />
 
                     <h2>Logged in as: {username}</h2>
 
                     {activeChat && (
-                        <>
-                            <p>Chatting with {receiver}</p>
-                            {receiverOnline ? (
-                                <p>{receiver} is online</p>
-                            ) : (
-                                <p>{receiver} is offline</p>
-                            )}
-                            <div className='chat-textbox'>
-                                {activeChat && activeChat.messages && (
-                                    activeChat.messages.map((message, index) => (
-                                        <div key={index}>
-                                            <b>{message.sender.toString() === userId.toString() ? 'You' : receiver}</b>
-                                            <p>{message.content}</p>
-                                            <p>{message.status}</p>
-                                        </div>
-                                    ))
-                                )}
-                                <div ref={chatEndRef} />
-                            </div>
-                            <div className='input-and-send-box'>
-                                <input
-                                    className='chat-input-box'
-                                    type="text"
-                                    value={message}
-                                    onChange={e => setMessage(e.target.value)}
-                                />
-                                <button
-                                    className='chat-send-button'
-                                    onClick={() => {
-                                        sendMessage(message);
-                                        setMessage('');
-                                    }}
-                                >
-                                    Send
-                                </button>
-                            </div>
-                        </>
+                        <ChatArea
+                            activeChat={activeChat}
+                            receiver={receiver}
+                            receiverOnline={receiverOnline}
+                            userId={userId}
+                            message={message}
+                            setMessage={setMessage}
+                            sendMessage={sendMessage}
+                            chatEndRef={chatEndRef}
+                        />
                     )}
                 </div>
             </div>
