@@ -44,9 +44,8 @@ const Chat = ({ socket, token, username }) => {
     const sendMessage = (content) => {
         if (activeChat) {
             const message = { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content };
-            console.log('message:', message);
             socket.emit('send_message', message);
-            // updateChatsWithNewMessage([message]); 
+            updateChatsWithNewMessage([message]); 
         }
     };
 
@@ -117,6 +116,7 @@ const Chat = ({ socket, token, username }) => {
                 return prevChats.map((chat) => {
                     const newMessage = newMessages.find((message) => message.chatId === chat.chatId);
                     if (newMessage) {
+                        console.log('newMessage:', newMessage);
                         return {
                             ...chat,
                             lastMessage: newMessage
@@ -219,7 +219,7 @@ const Chat = ({ socket, token, username }) => {
         return () => {
             socket.off('chats', handleChats);
         };
-    }, [socket, userId]);
+    }, [socket, userId, chats]);
 
 // Inside your Chat component
 
