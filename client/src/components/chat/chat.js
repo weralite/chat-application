@@ -221,8 +221,6 @@ const Chat = ({ socket, token, username }) => {
         };
     }, [socket, userId, chats]);
 
-// Inside your Chat component
-
 // Effect for updating chat list when new messages are received
 useEffect(() => {
     if (!socket) return;
@@ -258,8 +256,6 @@ useEffect(() => {
         socket.off('message_sent', handleMessageSent);
     };
 }, [socket, userId, chats, updateChatsWithNewMessage]);
-
-
 
     // Activates a chat when a chat is received from get_chats request
     useEffect(() => {
