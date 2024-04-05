@@ -16,7 +16,6 @@ async function createContact(req, res) {
 
 async function getContactsForUser(req, res) {
   const userId = req.query.userId;
-  console.log('User ID:', userId);
 
   try {
     const contacts = await Contact.find({ $or: [{ user1Id: userId }, { user2Id: userId }] });
@@ -27,6 +26,7 @@ async function getContactsForUser(req, res) {
         return { id: user._id, username: user.username, blocked: contact.blocked };
       })
     );
+    
     res.status(200).json(otherUsers);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving contacts: ' + error.message });

@@ -4,7 +4,7 @@ const { createContact, getContactsForUser, deleteContact, blockContact } = requi
 
 
 contactRouter.post('/createContact', createContact);
-contactRouter.get('/getContactsForUser', getContactsForUser);
+contactRouter.get('/getContacts', getContactsForUser);
 contactRouter.delete('/deleteContact', deleteContact);
 contactRouter.put('/blockContact', blockContact);
 

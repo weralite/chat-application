@@ -17,7 +17,7 @@ const io = socketIo(server, {
         methods: ['GET', 'POST']
     }
 });
-contactsSocketController(io);
+
 chatSocketController(io);
 messageSocketController(io);
 
@@ -49,6 +49,7 @@ io.on('connection', (socket) => {
     }
     connectedUsers[userId] = true;
     io.emit('userConnected', userId);
+    console.log('User connected:', userId);
     io.emit('connectedUsers', Object.keys(connectedUsers));
 
 
@@ -56,6 +57,7 @@ io.on('connection', (socket) => {
         if (connectedUsers[userId]) {
             delete connectedUsers[userId];
             io.emit('userDisconnected', userId);
+            console.log('User disconnected:', userId);
             io.emit('connectedUsers', Object.keys(connectedUsers));
         }
     });
