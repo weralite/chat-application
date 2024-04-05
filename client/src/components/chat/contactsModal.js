@@ -11,6 +11,7 @@ const ContactsModal = ({ contacts, modalRef, isModalVisible, handleContactClick,
                         <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}</li>
                     ))}
                 </ul>
+    
                 <button>Add contact</button>
                 <button onClick={() => setModalVisible(false)}>Close</button>
             </div>

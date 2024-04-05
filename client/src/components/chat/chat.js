@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import io from 'socket.io-client';
 import ChatList from './chatList';
 import ContactsModal from './contactsModal';
@@ -27,7 +28,20 @@ const Chat = () => {
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
     const modalRef = useRef(null); // Keeping track of the modal
 
+    const fetchContacts = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/v1/contacts/getContactsForUser`, {
+                params: {
+                    userId: userId
+                }
+            });
+            const receivedContacts = response.data;
+            setContacts(receivedContacts);
 
+        } catch (error) {
+            console.error('Failed to fetch contacts:', error);
+        }
+    };
 
     // Emit 'message_read' event to mark a message as read
     const handleMessageRead = (messageId) => {
@@ -213,33 +227,6 @@ const Chat = () => {
         };
     }, [modalRef]);
 
-    // Fetch contacts
-    useEffect(() => {
-        // If socket is not yet initialized, return
-        if (socket) {
-            // Emit 'get_contacts' event to fetch contacts
-            socket.emit('get_contacts', userId);
-
-            // Listen for 'receive_contacts' event to receive contacts from the server
-            socket.on('receive_contacts', (receivedContacts) => {
-                // Filter contact IDs and usernames based on user ID
-                const currentUserID = localStorage.getItem('userId');
-                const contacts = receivedContacts.reduce((acc, contact) => {
-                    if (contact.user1Id !== currentUserID) {
-                        acc.push({ id: contact.user1Id, username: contact.Username1 });
-                    } else if (contact.user2Id !== currentUserID) {
-                        acc.push({ id: contact.user2Id, username: contact.Username2 });
-                    }
-                    return acc;
-                }, []);
-                // Remove duplicates based on id and set contacts to state
-                const uniqueContacts = Array.from(new Set(contacts.map(c => c.id)))
-                    .map(id => contacts.find(c => c.id === id));
-                setContacts(uniqueContacts);
-            });
-        }
-    }, [socket]);
-
     // Effect for fetching chats and updating chat list
     useEffect(() => {
         if (!socket) return;
@@ -408,7 +395,10 @@ const Chat = () => {
                 <div className='chat-main-window'>
                     <h1>Chat</h1>
                     <div className='chat-primary-contacts'>
-                        <h2 onClick={() => setModalVisible(true)}>Contacts</h2>
+                        <h2 onClick={() => {
+                            setModalVisible(true);
+                            fetchContacts(); // Fetch contacts when the modal is opened
+                        }}>Contacts</h2>
                     </div>
                     <ContactsModal
                         contacts={contacts}
