@@ -43,7 +43,7 @@ module.exports = (io) => {
                 const chats = await Chat.find({
                     participants: { $in: [userId] }
                 });
-
+                
                 // Fetch additional information for each chat
                 const chatsWithUsernamesAndLastMessage = await Promise.all(chats.map(async (chat) => {
                     // Determine the other participant's user ID
