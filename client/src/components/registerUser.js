@@ -6,6 +6,8 @@ const RegisterUser = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
+    const navigate = useNavigate();
+
     const handleUsernameInput = (e) => {
         setUsername(e.target.value);
     };
