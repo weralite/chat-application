@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterUser = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+
+    const navigate = useNavigate();
 
     const handleUsernameInput = (e) => {
         setUsername(e.target.value);
@@ -20,6 +23,7 @@ const RegisterUser = () => {
             console.log('Registration successful:', response.data);
             setUsername('');
             setPassword('');
+            navigate('/');
         } catch (error) {
             console.log('Registration failed');
         }

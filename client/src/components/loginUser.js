@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const LoginUser = () => {
     const [username, setUsername] = useState('');
@@ -22,15 +22,14 @@ const LoginUser = () => {
         try {
             const response = await axios.post('http://localhost:8080/api/v1/auth/login', { username, password });
             const { token, user } = response.data;
-            console.log('Storing token:', token);
+
             localStorage.setItem('token', token); // Store token in localStorage
             localStorage.setItem('username', username); // Store username in localStorage
             localStorage.setItem('userId', user._id); // Store user ID in localStorage
-            console.log('Login successful:', response.data);
+
             // Redirect to the chat page
             navigate('/chat');
-            // setToken(token); // Update token in context
-            // Optionally, you can perform additional actions after successful login, such as redirecting the user to another page
+            
         } catch (error) {
             console.log('Login failed:', error.response.data.message);
             setError(error.response.data.message);
@@ -56,6 +55,7 @@ const LoginUser = () => {
                 />
                 <button type="submit">Login</button>
             </form>
+            <p>No account? <Link to="/register">Register here</Link></p>
         </div>
     );
 };
