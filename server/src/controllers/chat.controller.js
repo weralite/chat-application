@@ -1,8 +1,6 @@
 const Chat = require('../models/chat.model');
-const Message = require('../models/message.model');
-const generateChatId = require('../utils/generateChatID');
 
-
+// Create a new chat
 async function createChat(req, res) {
   const { senderId, receiverId } = req.body;
 
@@ -16,10 +14,8 @@ async function createChat(req, res) {
       // If the chat already exists, return it
       res.status(200).json(existingChat);
     } else {
-      // If the chat doesn't exist, create a new one
-      const chatId = generateChatId(senderId, receiverId);
-      const chat = new Chat({ participants: [senderId, receiverId], chatId });
-
+      // If the chat does not exist, create a new chat
+      const chat = new Chat({ participants: [senderId, receiverId]});
       await chat.save();
 
       res.status(201).json(chat);
