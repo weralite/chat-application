@@ -1,5 +1,3 @@
-// contactsSocketController.js
-
 const Contact = require('../models/contact.model');
 const User = require('../models/user.model');
 

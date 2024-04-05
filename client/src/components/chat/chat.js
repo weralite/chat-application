@@ -17,6 +17,7 @@ const Chat = () => {
     const [message, setMessage] = useState('');
     const [contacts, setContacts] = useState([]); // Add function to set contacts via name
     const [chats, setChats] = useState([]); // Add function to set chats via name
+    const [chatList, setChatList] = useState([]); // Add function to set chatList via name
     const [chatId, setChatId] = useState(null);
     const [senderId, setSenderId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
@@ -64,7 +65,7 @@ const Chat = () => {
     // Send message
     const sendMessage = (content) => {
         if (activeChat) {
-            const message = { chatId: activeChat.chatId, sender: userId, receiver: receiverId, content };
+            const message = { chatId: activeChat._id, sender: userId, receiver: receiverId, content };
             socket.emit('send_message', message);
             updateChatsWithNewMessage([message]);
         }
@@ -72,6 +73,7 @@ const Chat = () => {
 
     // Open chat by clicking on a contact
     const handleContactClick = (contactId) => {
+
         const userId = localStorage.getItem('userId'); // Get the current user's ID
         const senderId = userId;
         const receiverId = contactId;
@@ -84,7 +86,7 @@ const Chat = () => {
 
             const onReceiveChats = (chats) => {
                 // Assuming chats is an array and the chat you're interested in is the first one
-                const chatId = chats.chatId;
+                const chatId = chats._id;
                 setChatId(chatId); // Set chatId state
                 setSender(chats.senderUsername);
                 setReceiver(chats.receiverUsername);
@@ -114,7 +116,7 @@ const Chat = () => {
 
             const onReceiveChats = (chats) => {
                 // Assuming chats is an array and the chat you're interested in is the first one
-                const chatId = chats.chatId;
+                const chatId = chats._id;
                 setChatId(chatId); // Set chatId state
                 setSender(chats.senderUsername);
                 setReceiver(chats.receiverUsername);
@@ -137,9 +139,8 @@ const Chat = () => {
         if (newMessages.length > 0) {
             setChats((prevChats) => {
                 return prevChats.map((chat) => {
-                    const newMessage = newMessages.find((message) => message.chatId === chat.chatId);
+                    const newMessage = newMessages.find((message) => message.chatId === chat._id);
                     if (newMessage) {
-                        console.log('newMessage:', newMessage);
                         return {
                             ...chat,
                             lastMessage: newMessage
@@ -227,13 +228,13 @@ const Chat = () => {
         };
     }, [modalRef]);
 
-    // Effect for fetching chats and updating chat list
+    // Effect for fetching chats and updating chat list --- REMOVED CHAT AS DEPENDENCY
     useEffect(() => {
         if (!socket) return;
 
         const handleChats = (chatsWithUsernamesAndLastMessage) => {
-            const sortedChats = chatsWithUsernamesAndLastMessage.slice().sort((a, b) => new Date(b.lastMessage.createdAt) - new Date(a.lastMessage.createdAt));
-            setChats(sortedChats);
+            console.log('chatsWithUsernamesAndLastMessage:', chatsWithUsernamesAndLastMessage);
+            setChatList(chatsWithUsernamesAndLastMessage);
         };
 
         socket.emit('get_all_chats', { userId });
@@ -242,7 +243,7 @@ const Chat = () => {
         return () => {
             socket.off('chats', handleChats);
         };
-    }, [socket, userId, chats]);
+    }, [socket, userId]);
 
     // Effect for updating chat list when new messages are received
     useEffect(() => {
@@ -250,7 +251,8 @@ const Chat = () => {
 
         const handleReceiveMessages = (newMessage) => {
             updateChatsWithNewMessage(newMessage);
-            if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
+            if (!chats.find(chat => chat._id === newMessage.chatId)) {
+                console.log('newMessage:', newMessage)
                 socket.emit('get_all_chats', { userId });
             }
         };
@@ -268,7 +270,7 @@ const Chat = () => {
 
         const handleMessageSent = (newMessage) => {
             updateChatsWithNewMessage(newMessage);
-            if (!chats.find(chat => chat.chatId === newMessage.chatId)) {
+            if (!chats.find(chat => chat._id === newMessage.chatId)) {
                 socket.emit('get_all_chats', { userId });
             }
         };
@@ -285,6 +287,7 @@ const Chat = () => {
         if (token && socket) {
             // Listen for 'receive_chat' event
             socket.on('receive_chats', (chat) => {
+                console.log('receive_chats:', chat);
                 // Set active chat state here
                 setActiveChat(chat);
             });
@@ -295,14 +298,16 @@ const Chat = () => {
     useEffect(() => {
         if (socket && activeChat) {
             socket.on('receive_messages', (receivedMessages) => {
+                console.log('receivedMessages:', receivedMessages);
                 setActiveChat((prevChat) => {
+                    
                     // If there's no active chat, log a message to the console
                     if (!prevChat) {
                         console.log('prevChat is undefined');
                     }
 
                     // When recieving a chat from a non active chat, do not force open the chat.
-                    if (!prevChat || (receivedMessages && receivedMessages.length > 0 && receivedMessages[0].chatId !== prevChat.chatId)) {
+                    if (!prevChat || (receivedMessages && receivedMessages.length > 0 && receivedMessages[0].chatId !== prevChat._id)) {
                         return prevChat;
                     }
 
@@ -329,7 +334,7 @@ const Chat = () => {
             socket.on('message_sent', (newMessage) => {
 
                 setActiveChat(prevChat => {
-
+            
                     const newChat = {
                         ...prevChat,
                         messages: [...(prevChat?.messages || []), newMessage]
@@ -356,7 +361,7 @@ const Chat = () => {
                     }
 
                     // When recieving a chat from a non active chat, do not force open an active chat.
-                    if (!prevChat || (updatedMessage && updatedMessage.chatId !== prevChat.chatId)) {
+                    if (!prevChat || (updatedMessage && updatedMessage.chatId !== prevChat._id)) {
                         return prevChat;
                     }
 
@@ -390,7 +395,7 @@ const Chat = () => {
         <div className='chat-app'>
             <div className='chat-wrapper'>
 
-                <ChatList chats={chats} openChatByChatId={openChatByChatId} />
+                <ChatList chatList={chatList} openChatByChatId={openChatByChatId} />
 
                 <div className='chat-main-window'>
                     <h1>Chat</h1>
@@ -411,6 +416,7 @@ const Chat = () => {
                     <h2>Logged in as: {username}</h2>
 
                     {activeChat && (
+                        
                         <ChatArea
                             activeChat={activeChat}
                             receiver={receiver}

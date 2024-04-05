@@ -1,29 +1,30 @@
 const Chat = require('../models/chat.model');
 const User = require('../models/user.model');
-const generateChatId = require('../utils/generateChatID');
-const { getChatsForUser, getLastMessageOfChat } = require('../utils/chat.utils');
-
+const Message = require('../models/message.model');
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
 
         socket.on('get_chats', async ({ senderId, receiverId }) => {
             try {
+                // Find a chat where both sender and receiver are participants
                 let chat = await Chat.findOne({
                     participants: { $all: [senderId, receiverId] }
                 });
 
                 if (!chat) {
-                    const chatId = generateChatId(senderId, receiverId);
-                    chat = new Chat({ participants: [senderId, receiverId], chatId });
+                    // Create a new chat with participants
+                    chat = new Chat({ participants: [senderId, receiverId] });
                     await chat.save();
                 }
 
+                // Fetch sender and receiver details
                 const [sender, receiver] = await Promise.all([
                     User.findById(senderId),
                     User.findById(receiverId)
                 ]);
 
+                // Prepare chat object with sender and receiver usernames
                 const chatWithUsernames = {
                     ...chat._doc,
                     senderUsername: sender ? sender.username : null,
@@ -37,13 +38,14 @@ module.exports = (io) => {
             }
         });
 
+
         socket.on('get_all_chats', async ({ userId }) => {
             try {
                 // Find all chats where the specified user is a participant
                 const chats = await Chat.find({
-                    participants: { $in: [userId] }
+                    participants: userId // Finding chats where the userId is included in participants
                 });
-                
+
                 // Fetch additional information for each chat
                 const chatsWithUsernamesAndLastMessage = await Promise.all(chats.map(async (chat) => {
                     // Determine the other participant's user ID
@@ -51,12 +53,11 @@ module.exports = (io) => {
                     // Find the other participant's user document
                     const otherUser = await User.findById(otherUserId);
                     // Fetch the last message of the chat
-                    let lastMessage = await getLastMessageOfChat(chat.chatId);
-
+                    let lastMessage = await Message.findOne({ chatId: chat._id }).sort({ createdAt: -1 });
 
                     // If lastMessage is null, log a message to the console
                     if (!lastMessage) {
-                        console.log(`Last message for chat ${chat.chatId} is null`);
+                        console.log(`Last message for chat ${chat._id} is null`);
                         lastMessage = {};
                     }
 

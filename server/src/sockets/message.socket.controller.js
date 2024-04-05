@@ -1,5 +1,3 @@
-//message.socket.controller.js
-
 const Message = require('../models/message.model');
 
 
