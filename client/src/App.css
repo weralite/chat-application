@@ -65,6 +65,17 @@ body {
   height: 2rem;
 }
 
+.chatlist-chatrow {
+  padding: 5px;
+  border-bottom: 1px solid #ccc;
+text-align: left;
+}
+
+.chat-message-status {
+  font-size: 10px;
+  font-style: italic;
+
+}
 
 .contacts-modal {
   position: fixed;

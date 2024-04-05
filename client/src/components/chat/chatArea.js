@@ -13,10 +13,10 @@ const ChatArea = ({ activeChat, receiver, receiverOnline, userId, message, setMe
             <div className='chat-textbox'>
                 {activeChat && activeChat.messages && (
                     activeChat.messages.map((message, index) => (
-                        <div key={index}>
+                        <div className='chat-message-container' key={index}>
                             <b>{message.sender.toString() === userId.toString() ? 'You' : receiver}</b>
                             <p>{message.content}</p>
-                            <p>{message.status}</p>
+                            <p className='chat-message-status'>{message.status} {message.updatedAt}</p>
                         </div>
                     ))
                 )}

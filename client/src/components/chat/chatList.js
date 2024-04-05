@@ -20,7 +20,7 @@ const ChatList = ({ chatList, openChatByChatId }) => {
             {
                 sortedChats.map((chat) => (
                     <div key={chat._id} onClick={() => openChatByChatId(chat._id, Object.values(chat.participants))}>
-                        <div>
+                        <div className='chatlist-chatrow'>
                             <b>{chat.otherUsername}</b>
                             <p>{chat.lastMessage.content}</p>
                         </div>
