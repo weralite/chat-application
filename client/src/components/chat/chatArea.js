@@ -2,6 +2,14 @@
 import React from 'react';
 
 const ChatArea = ({ activeChat, receiver, receiverOnline, userId, message, setMessage, sendMessage, chatEndRef }) => {
+
+    const formatTime = (dateTimeString) => {
+        const date = new Date(dateTimeString);
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+      };
+
     return (
         <>
             <p>Chatting with {receiver}</p>
@@ -16,7 +24,7 @@ const ChatArea = ({ activeChat, receiver, receiverOnline, userId, message, setMe
                         <div className='chat-message-container' key={index}>
                             <b>{message.sender.toString() === userId.toString() ? 'You' : receiver}</b>
                             <p>{message.content}</p>
-                            <p className='chat-message-status'>{message.status} {message.updatedAt}</p>
+                            <p className='chat-message-status'>{message.status} {formatTime(message.updatedAt)}</p>
                         </div>
                     ))
                 )}
