@@ -18,6 +18,7 @@ const Chat = () => {
     const [contacts, setContacts] = useState([]); // Add function to set contacts via name
     const [chats, setChats] = useState([]); // Add function to set chats via name
     const [chatList, setChatList] = useState([]); // Add function to set chatList via name
+    const [deliveredMessagesCount, setDeliveredMessagesCount] = useState(0);
     const [chatId, setChatId] = useState(null);
     const [senderId, setSenderId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
@@ -149,6 +150,8 @@ const Chat = () => {
                     return chat;
                 });
             });
+            const count = newMessages.filter(message => message.status === 'delivered' && message.senderId !== userId).length;
+            setDeliveredMessagesCount(count);
         }
     };
 
@@ -188,24 +191,15 @@ const Chat = () => {
         if (!socket) return;
 
         socket.on('connectedUsers', (users) => {
-            // Handle the list of connected users received from the server
             setConnectedUsers(users);
-
-            // Update the UI with the list of connected users
         });
 
         socket.on('userConnected', (users) => {
-            // Handle the list of connected users received from the server
             setConnectedUsers(users);
-
-            // Update the UI with the list of connected users
         });
 
         socket.on('userDisconnected', (users) => {
-            // Handle the list of connected users received from the server
             setConnectedUsers(users);
-
-            // Update the UI with the list of connected users
         });
     }, [socket]);
 
@@ -228,7 +222,7 @@ const Chat = () => {
         };
     }, [modalRef]);
 
-    // Effect for fetching chats and updating chat list --- REMOVED CHAT AS DEPENDENCY
+    // Effect for fetching chats and updating chat list
     useEffect(() => {
         if (!socket) return;
 
@@ -395,7 +389,11 @@ const Chat = () => {
         <div className='chat-app'>
             <div className='chat-wrapper'>
 
-                <ChatList chatList={chatList} openChatByChatId={openChatByChatId} />
+                <ChatList 
+                chatList={chatList} 
+                openChatByChatId={openChatByChatId} 
+                deliveredMessagesCount={deliveredMessagesCount} 
+                />
 
                 <div className='chat-main-window'>
                     <h1>Chat</h1>

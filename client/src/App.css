@@ -68,7 +68,16 @@ body {
 .chatlist-chatrow {
   padding: 5px;
   border-bottom: 1px solid #ccc;
-text-align: left;
+display: flex;
+}
+.chatrow-left {
+  width: 50%;
+  text-align: left;
+}
+
+.chatrow-right {
+  width: 50%;
+  text-align: right;
 }
 
 .chat-message-status {

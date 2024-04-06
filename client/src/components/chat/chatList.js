@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 
-const ChatList = ({ chatList, openChatByChatId }) => {
+const ChatList = ({ chatList, openChatByChatId, deliveredMessagesCount }) => {
     const [searchTerm, setSearchTerm] = useState('');
 
     // Sort the chat list based on the last message's timestamp
@@ -43,9 +43,14 @@ const ChatList = ({ chatList, openChatByChatId }) => {
                 .map((chat) => (
                     <div key={chat._id} onClick={() => openChatByChatId(chat._id, Object.values(chat.participants))}>
                         <div className='chatlist-chatrow'>
+                            <div className='chatrow-left'>
                             <b>{chat.otherUsername}</b>
                             <p>{chat.lastMessage.content}</p>
+                            </div>
+                            <div className='chatrow-right'>
                             <p>{formatTime(chat.lastMessage.createdAt)}</p>
+                            <p>{deliveredMessagesCount}</p>
+                            </div>
                         </div>
                     </div>
                 ))
