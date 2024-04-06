@@ -14,6 +14,7 @@ async function createContact(req, res) {
   }
 };
 
+
 async function getContactsForUser(req, res) {
   const userId = req.query.userId;
 
@@ -26,7 +27,7 @@ async function getContactsForUser(req, res) {
         return { id: user._id, username: user.username, blocked: contact.blocked };
       })
     );
-    
+
     res.status(200).json(otherUsers);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving contacts: ' + error.message });
@@ -48,21 +49,70 @@ async function blockContact(req, res) {
   const { user1Id, user2Id } = req.body;
 
   try {
-    const contact = await Contact.findOne({ user1Id: user1Id, user2Id: user2Id });
+    // Find the contact based on the user IDs
+    const contact = await Contact.findOne({ user1Id, user2Id });
+
+    // If contact doesn't exist, return 404
     if (!contact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
 
-    contact.blocked = true;
+    // Determine which user initiated the block
+    if (contact.user1Id.equals(user1Id)) {
+      // User1 blocked User2
+      contact.blockedByUser1 = true;
+    } else {
+      // User2 blocked User1
+      contact.blockedByUser2 = true;
+    }
+
+    // Save the updated contact
     await contact.save();
 
+    // Respond with success message
     res.status(200).json({ message: 'User blocked successfully' });
   } catch (error) {
+    // Handle errors
     res.status(500).json({ message: 'Error blocking user: ' + error.message });
   }
 };
 
+async function unBlockContact(req, res) {
+  const { user1Id, user2Id } = req.body;
+
+  try {
+    // Find the contact based on the user IDs
+    const contact = await Contact.findOne({ user1Id, user2Id });
+
+    // If contact doesn't exist, return 404
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
+
+    // Determine which user initiated the block
+    if (contact.user1Id.equals(user1Id)) {
+      // User1 blocked User2
+      contact.blockedByUser1 = false;
+    } else {
+      // User2 blocked User1
+      contact.blockedByUser2 = false;
+    }
+
+    // Save the updated contact
+    await contact.save();
+
+    // Respond with success message
+    res.status(200).json({ message: 'User unblocked successfully' });
+  } catch (error) {
+    // Handle errors
+    res.status(500).json({ message: 'Error unblocking user: ' + error.message });
+  }
+};
+
+
+
 module.exports = {
+  unBlockContact,
   createContact,
   getContactsForUser,
   deleteContact,

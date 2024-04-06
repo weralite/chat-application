@@ -406,6 +406,7 @@ const Chat = () => {
                         }}>Contacts</h2>
                     </div>
                     <ContactsModal
+                        userId={userId}
                         contacts={contacts}
                         modalRef={modalRef}
                         isModalVisible={isModalVisible}
