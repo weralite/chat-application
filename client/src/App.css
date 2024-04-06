@@ -8,15 +8,22 @@ h1 {
   padding: 5px;
 }
 
-h2, h3, h4, h5, h6 {
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-size: 15px;
 }
 
 body {
   display: flex;
-  justify-content: center; /* Horizontally center the chat app */
-  align-items: center; /* Vertically center the chat app */
-  height: 100vh; /* Set the height of the root container to the full viewport height */
+  justify-content: center;
+  /* Horizontally center the chat app */
+  align-items: center;
+  /* Vertically center the chat app */
+  height: 100vh;
+  /* Set the height of the root container to the full viewport height */
 }
 
 .chat-app {
@@ -57,7 +64,7 @@ body {
   overflow-y: auto;
   width: 10rem;
   text-align: center;
-  
+
 }
 
 .chat-primary-contacts {
@@ -67,9 +74,11 @@ body {
 
 .chatlist-chatrow {
   padding: 5px;
+  height: 3.5rem;
   border-bottom: 1px solid #ccc;
-display: flex;
+  display: flex;
 }
+
 .chatrow-left {
   width: 50%;
   text-align: left;
@@ -77,7 +86,10 @@ display: flex;
 
 .chatrow-right {
   width: 50%;
-  text-align: right;
+  display: flex; /* Add display flex to allow aligning items */
+  flex-direction: column; /* Arrange items in a column */
+  justify-content: flex-start; /* Align items at the start (top) of the container */
+  align-items: flex-end; 
 }
 
 .chat-message-status {
@@ -130,4 +142,18 @@ display: flex;
   height: 1rem;
   padding: 0.8rem;
   border-radius: 10px;
+}
+
+.msgcount-container {
+  text-align: center;
+  background: rgb(206, 203, 203);
+  border-radius: 20px;
+  display: inline-block; /* Change display to inline-block */
+  min-width: 24px; /* Set minimum width */
+  height: 24px;
+  padding: 0 8px; /* Adjust padding as needed */
+}
+
+.msgcount-container p {
+  margin: 0; /* Remove default margin of paragraph */
 }

@@ -3,7 +3,7 @@ const messageRouter = express.Router();
 const { getChatMessages, createMessage, deleteMessage } = require('../controllers/message.controller');
 
 
-messageRouter.get('/getMessage', getChatMessages);
+messageRouter.get('/getMessages/:chatId', getChatMessages);
 
 messageRouter.post('/sendMessage', createMessage);
 

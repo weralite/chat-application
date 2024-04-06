@@ -18,7 +18,7 @@ const Chat = () => {
     const [contacts, setContacts] = useState([]); // Add function to set contacts via name
     const [chats, setChats] = useState([]); // Add function to set chats via name
     const [chatList, setChatList] = useState([]); // Add function to set chatList via name
-    const [deliveredMessagesCount, setDeliveredMessagesCount] = useState(0);
+
     const [chatId, setChatId] = useState(null);
     const [senderId, setSenderId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
@@ -150,8 +150,6 @@ const Chat = () => {
                     return chat;
                 });
             });
-            const count = newMessages.filter(message => message.status === 'delivered' && message.senderId !== userId).length;
-            setDeliveredMessagesCount(count);
         }
     };
 
@@ -294,7 +292,7 @@ const Chat = () => {
             socket.on('receive_messages', (receivedMessages) => {
                 console.log('receivedMessages:', receivedMessages);
                 setActiveChat((prevChat) => {
-                    
+
                     // If there's no active chat, log a message to the console
                     if (!prevChat) {
                         console.log('prevChat is undefined');
@@ -328,7 +326,7 @@ const Chat = () => {
             socket.on('message_sent', (newMessage) => {
 
                 setActiveChat(prevChat => {
-            
+
                     const newChat = {
                         ...prevChat,
                         messages: [...(prevChat?.messages || []), newMessage]
@@ -389,10 +387,10 @@ const Chat = () => {
         <div className='chat-app'>
             <div className='chat-wrapper'>
 
-                <ChatList 
-                chatList={chatList} 
-                openChatByChatId={openChatByChatId} 
-                deliveredMessagesCount={deliveredMessagesCount} 
+                <ChatList
+                    chatList={chatList}
+                    openChatByChatId={openChatByChatId}
+                    userId={userId}
                 />
 
                 <div className='chat-main-window'>
@@ -415,7 +413,7 @@ const Chat = () => {
                     <h2>Logged in as: {username}</h2>
 
                     {activeChat && (
-                        
+
                         <ChatArea
                             activeChat={activeChat}
                             receiver={receiver}

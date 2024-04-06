@@ -1,8 +1,27 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const ChatList = ({ chatList, openChatByChatId, deliveredMessagesCount }) => {
+const ChatList = ({ chatList, openChatByChatId, userId }) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [deliveredMessagesCount, setDeliveredMessagesCount] = useState({});
+
+    useEffect(() => {
+        chatList.forEach(chat => {
+            const url = `http://localhost:8080/api/v1/messages/getMessages/${chat._id}`;
+
+            axios.get(url)
+                .then(response => {
+                    const data = response.data;
+                    console.log(data);
+                    const count = data.filter(message => message.receiver === userId).length;
+                    setDeliveredMessagesCount(prevState => ({
+                        ...prevState,
+                        [chat._id]: count
+                    }));
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    }, [chatList, userId]);
 
     // Sort the chat list based on the last message's timestamp
     const sortedChats = chatList.slice().sort((a, b) => {
@@ -39,21 +58,25 @@ const ChatList = ({ chatList, openChatByChatId, deliveredMessagesCount }) => {
             />
             {
                 sortedChats
-                .filter(chat => chat.otherUsername.toLowerCase().includes(searchTerm.toLowerCase())) 
-                .map((chat) => (
-                    <div key={chat._id} onClick={() => openChatByChatId(chat._id, Object.values(chat.participants))}>
-                        <div className='chatlist-chatrow'>
-                            <div className='chatrow-left'>
-                            <b>{chat.otherUsername}</b>
-                            <p>{chat.lastMessage.content}</p>
-                            </div>
-                            <div className='chatrow-right'>
-                            <p>{formatTime(chat.lastMessage.createdAt)}</p>
-                            <p>{deliveredMessagesCount}</p>
+                    .filter(chat => chat.otherUsername.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map((chat) => (
+                        <div key={chat._id} onClick={() => openChatByChatId(chat._id, Object.values(chat.participants))}>
+                            <div className='chatlist-chatrow'>
+                                <div className='chatrow-left'>
+                                    <b>{chat.otherUsername}</b>
+                                    <p>{chat.lastMessage.content}</p>
+                                </div>
+                                <div className='chatrow-right'>
+                                    <p>{formatTime(chat.lastMessage.createdAt)}</p>
+                                    {deliveredMessagesCount[chat._id] > 0 && (
+                                        <div className='msgcount-container'>
+                                            <p>{deliveredMessagesCount[chat._id]}</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))
+                    ))
             }
         </div>
     );
