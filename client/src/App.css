@@ -103,15 +103,17 @@ text-align: left;
 }
 
 .chat-input-box {
-  width: 12rem;
+  padding: 0.5rem;
+  width: 80%;
 }
 
 .chat-send-button {
-  width: 3rem;
+  width: 20%;
+  padding: 0.5rem;
 }
 
 .input-and-send-box {
-  width: 15rem;
+  width: 18rem;
 }
 
 .find-chat-input {
