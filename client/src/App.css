@@ -19,37 +19,38 @@ h6 {
 body {
   display: flex;
   justify-content: center;
-  /* Horizontally center the chat app */
   align-items: center;
-  /* Vertically center the chat app */
   height: 100vh;
-  /* Set the height of the root container to the full viewport height */
 }
 
 .chat-app {
   border: 1px solid #ccc;
   min-width: 10rem;
   max-width: 40rem;
-  height: 40rem;
 }
 
 .chat-wrapper {
   display: flex;
   flex-direction: row;
+  
 }
 
 .chat-main-window {
-  padding: 5px;
+  display: flex;
+  flex-direction: column;
   width: 20rem;
+  height: 40rem;
 }
 
-.chat-textbox {
+.chat-room-header {
   padding: 5px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
 }
-
 .chat-textbox {
-  height: 25rem;
-  width: 18rem;
+  flex-grow: 1;
+  padding: 5px;
   border: 1px solid #ccc;
   overflow-y: auto;
 }
@@ -59,7 +60,7 @@ body {
 }
 
 .chat-ongoing-chats {
-  height: 15rem;
+  height: 40rem;
   padding: 5px;
   overflow-y: auto;
   width: 10rem;
@@ -134,7 +135,7 @@ body {
 }
 
 .input-and-send-box {
-  width: 18rem;
+  width: 100%;
 }
 
 .find-chat-input {
@@ -156,4 +157,8 @@ body {
 
 .msgcount-container p {
   margin: 0; /* Remove default margin of paragraph */
+}
+
+.hamburger-button {
+  height: 100%; 
 }

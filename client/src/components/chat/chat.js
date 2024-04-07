@@ -4,6 +4,9 @@ import io from 'socket.io-client';
 import ChatList from './chatList';
 import ContactsModal from './contactsModal';
 import ChatArea from './chatArea';
+import './menu.css';
+import SidebarMenu from './menu';
+
 
 const ENDPOINT = 'http://localhost:8080';
 
@@ -18,7 +21,6 @@ const Chat = () => {
     const [contacts, setContacts] = useState([]); // Add function to set contacts via name
     const [chats, setChats] = useState([]); // Add function to set chats via name
     const [chatList, setChatList] = useState([]); // Add function to set chatList via name
-
     const [chatId, setChatId] = useState(null);
     const [senderId, setSenderId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
@@ -29,6 +31,16 @@ const Chat = () => {
     const userId = localStorage.getItem('userId');
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
     const modalRef = useRef(null); // Keeping track of the modal
+    const [isOpen, setIsOpen] = useState(false);
+
+
+    const toggleMenu = () => {
+        setIsOpen(!isOpen);
+    };
+
+    const closeMenu = () => {
+        setIsOpen(false);
+    };
 
     const fetchContacts = async () => {
         try {
@@ -386,7 +398,18 @@ const Chat = () => {
     return (
         <div className='chat-app'>
             <div className='chat-wrapper'>
-
+                <div className="menu-container">
+                    <button className="hamburger-button" onClick={toggleMenu}>
+                        ☰
+                    </button>
+                    <SidebarMenu
+                        isOpen={isOpen}
+                        username={username}
+                        closeMenu={closeMenu}
+                        setModalVisible={setModalVisible}
+                        fetchContacts={fetchContacts}
+                    />
+                </div>
                 <ChatList
                     chatList={chatList}
                     openChatByChatId={openChatByChatId}
@@ -394,13 +417,7 @@ const Chat = () => {
                 />
 
                 <div className='chat-main-window'>
-                    <h1>Chat</h1>
-                    <div className='chat-primary-contacts'>
-                        <h2 onClick={() => {
-                            setModalVisible(true);
-                            fetchContacts(); // Fetch contacts when the modal is opened
-                        }}>Contacts</h2>
-                    </div>
+
                     <ContactsModal
                         userId={userId}
                         contacts={contacts}
@@ -410,7 +427,7 @@ const Chat = () => {
                         setModalVisible={setModalVisible}
                     />
 
-                    <h2>Logged in as: {username}</h2>
+
 
                     {activeChat && (
 
