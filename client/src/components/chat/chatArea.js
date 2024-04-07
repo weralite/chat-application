@@ -13,10 +13,11 @@ const ChatArea = ({ activeChat, receiver, receiverOnline, userId, message, setMe
     return (
         <>
         <div className='chat-room-header'>
+            <b>{receiver}</b>
             {receiverOnline ? (
-                <p>{receiver} is online</p>
+                <p className='online-status'>online</p>
             ) : (
-                <p>{receiver} is offline</p>
+                <p className='online-status'>offline</p>
             )}
             </div>
             <div className='chat-textbox'>

@@ -44,9 +44,12 @@ body {
 
 .chat-room-header {
   padding: 5px;
-  border-bottom: 1px solid #ccc;
-  display: flex;
-  justify-content: space-between;
+}
+
+.online-status {
+  font-size: 14px;
+color:#9c9c9c;
+
 }
 .chat-textbox {
   flex-grow: 1;
