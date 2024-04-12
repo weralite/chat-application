@@ -400,7 +400,15 @@ const Chat = () => {
         <div className='chat-app'>
             <div className='chat-wrapper'>
                 <div className="menu-container">
-                    <button className="hamburger-button" onClick={toggleMenu}>
+                <ContactsModal
+                        userId={userId}
+                        contacts={contacts}
+                        modalRef={modalRef}
+                        isModalVisible={isModalVisible}
+                        handleContactClick={handleContactClick}
+                        setModalVisible={setModalVisible}
+                    />
+                    <button className="hamburger-button" onClick={setModalVisible}>
                         ☰
                     </button>
                     <SidebarMenu
@@ -419,14 +427,7 @@ const Chat = () => {
 
                 <div className='chat-main-window'>
 
-                    <ContactsModal
-                        userId={userId}
-                        contacts={contacts}
-                        modalRef={modalRef}
-                        isModalVisible={isModalVisible}
-                        handleContactClick={handleContactClick}
-                        setModalVisible={setModalVisible}
-                    />
+              
 
 
 
