@@ -12,7 +12,7 @@ async function createUser(req, res) {
   } catch (error) {
     console.error("Error creating user: ", error);
     if (error.message.includes('duplicate key error')) {
-      return res.status(400).send('User with that username already exists');
+      return res.status(400).send('Credential error');
     }
     res.status(500).send('An error occurred while creating the user');
 

@@ -19,16 +19,16 @@ const LoginUser = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setUsername('');
+        setPassword('');
+
         try {
             const response = await axios.post('http://localhost:8080/api/v1/auth/login', { username, password });
-            const { token, user } = response.data;
+            const { token } = response.data;
+            localStorage.setItem('token', token);
 
-            localStorage.setItem('token', token); // Store token in localStorage
-            localStorage.setItem('username', username); // Store username in localStorage
-            localStorage.setItem('userId', user._id); // Store user ID in localStorage
-
-            // Redirect to the chat page
-            navigate('/chat');
+             navigate('/chat');
             
         } catch (error) {
             console.log('Login failed:', error.response.data.message);
@@ -54,6 +54,8 @@ const LoginUser = () => {
                     onChange={handlePasswordInput}
                 />
                 <button type="submit">Login</button>
+                {error && <p>{error}</p>
+                }
             </form>
             <p>No account? <Link to="/register">Register here</Link></p>
         </div>

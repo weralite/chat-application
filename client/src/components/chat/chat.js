@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { jwtDecode } from "jwt-decode";
 import io from 'socket.io-client';
 import ChatList from './chatList';
 import ContactsModal from './contactsModal';
@@ -14,6 +15,7 @@ const ENDPOINT = 'http://localhost:8080';
 const Chat = () => {
     const [socket, setSocket] = useState(null);
     const [token, setToken] = useState('');
+    const [userId, setUserId] = useState('');
     const [connectedUsers, setConnectedUsers] = useState([]);
     const [receiverOnline, setReceiverOnline] = useState(false);
     const [username, setUsername] = useState('');
@@ -28,7 +30,6 @@ const Chat = () => {
     const [sender, setSender] = useState(''); // Add function to fetch name from senderID
     const [activeChat, setActiveChat] = useState(null);
     const [isModalVisible, setModalVisible] = useState(false);
-    const userId = localStorage.getItem('userId');
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
     const modalRef = useRef(null); // Keeping track of the modal
     const [isOpen, setIsOpen] = useState(false);
@@ -42,6 +43,27 @@ const Chat = () => {
         setIsOpen(false);
     };
 
+    useEffect(() => {
+        const decodeToken = () => {
+          const token = localStorage.getItem('token'); 
+          if (token) {
+            const decoded = jwtDecode(token);
+            setUserId(decoded.userId);
+            setUsername(decoded.username);
+            setToken(token);
+          }
+        };
+
+        decodeToken(); 
+
+        window.addEventListener('storage', decodeToken);
+        return () => {
+          window.removeEventListener('storage', decodeToken);
+        };
+      }, [userId, setUserId, setToken]);
+
+
+      // Fetch contacts for the current user
     const fetchContacts = async () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/v1/contacts/getContacts`, {
@@ -66,8 +88,6 @@ const Chat = () => {
     const handleReceivedMessages = (message) => {
         // Process received message
         if (message) {
-            // updateChatsWithNewMessage([message]);
-            const userId = localStorage.getItem('userId'); // Get the current user's ID
             // Only mark the message as read if the current user is the receiver
             if (message.status !== 'read' && message.receiver === userId) {
                 handleMessageRead(message._id);
@@ -86,8 +106,6 @@ const Chat = () => {
 
     // Open chat by clicking on a contact
     const handleContactClick = (contactId) => {
-
-        const userId = localStorage.getItem('userId'); // Get the current user's ID
         const senderId = userId;
         const receiverId = contactId;
 
@@ -117,8 +135,6 @@ const Chat = () => {
 
     // Open chat by chat ID
     const openChatByChatId = (chatId, participants) => {
-        const userId = localStorage.getItem('userId'); // Get the current user's ID
-
         // Determine sender and receiver IDs
         const senderId = userId;
         const receiverId = participants.find(id => id !== userId);
@@ -165,24 +181,9 @@ const Chat = () => {
         }
     };
 
-    // Retrieve token and username from local storage
-    useEffect(() => {
-        const storedToken = localStorage.getItem('token');
-        if (storedToken) {
-            setToken(storedToken);
-        }
-
-        const storedUsername = localStorage.getItem('username');
-        if (storedUsername) {
-            setUsername(storedUsername);
-        }
-    }, []);
-
     // Connect to Socket.IO server
     useEffect(() => {
         if (token) {
-            // Connect to Socket.IO server
-            const userId = localStorage.getItem('userId');
             const newSocket = io(ENDPOINT, {
                 query: { token, userId }
             });
@@ -193,7 +194,7 @@ const Chat = () => {
                 newSocket.disconnect();
             };
         }
-    }, [token]);
+    }, [token, userId]);
 
     // Listen for connected users
     useEffect(() => {
