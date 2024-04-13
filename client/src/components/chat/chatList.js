@@ -12,7 +12,6 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
             axios.get(url)
                 .then(response => {
                     const data = response.data;
-                    console.log(data);
                     const count = data.filter(message => message.receiver === userId).length;
                     setDeliveredMessagesCount(prevState => ({
                         ...prevState,

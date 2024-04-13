@@ -58,7 +58,6 @@ const Chat = () => {
 
             const contacts = response.data
             setContacts(contacts)
-            console.log(contacts);
         } catch (error) {
             console.error('Failed to fetch contacts:', error);
         }
@@ -224,7 +223,6 @@ const Chat = () => {
         if (!socket) return;
 
         const handleChats = (chatsWithUsernamesAndLastMessage) => {
-            console.log('chatsWithUsernamesAndLastMessage:', chatsWithUsernamesAndLastMessage);
             setChatList(chatsWithUsernamesAndLastMessage);
         };
 
@@ -243,7 +241,6 @@ const Chat = () => {
         const handleReceiveMessages = (newMessage) => {
             updateChatsWithNewMessage(newMessage);
             if (!chats.find(chat => chat._id === newMessage.chatId)) {
-                console.log('newMessage:', newMessage)
                 socket.emit('get_all_chats', { userId });
             }
         };
@@ -278,7 +275,6 @@ const Chat = () => {
         if (token && socket) {
             // Listen for 'receive_chat' event
             socket.on('receive_chats', (chat) => {
-                console.log('receive_chats:', chat);
                 // Set active chat state here
                 setActiveChat(chat);
             });
@@ -289,7 +285,6 @@ const Chat = () => {
     useEffect(() => {
         if (socket && activeChat) {
             socket.on('receive_messages', (receivedMessages) => {
-                console.log('receivedMessages:', receivedMessages);
                 setActiveChat((prevChat) => {
 
                     // If there's no active chat, log a message to the console
