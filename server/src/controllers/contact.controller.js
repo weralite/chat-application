@@ -32,15 +32,20 @@ async function getContacts(req, res) {
         select: '-password'
       });
 
-    // Filter out contacts where blockedBy matches an ID that is not userId
-    const filteredContacts = contacts.filter(contact => !contact.blockedBy || contact.blockedBy.toString() === userId);
+    // Filter out contacts where user1Id or user2Id matches the userId
+    const filteredContacts = contacts.map(contact => {
+      if (contact.user1Id._id.toString() === userId) {
+        return contact.user2Id;
+      } else {
+        return contact.user1Id;
+      }
+    });
 
     res.status(200).json(filteredContacts);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving contacts: ' + error.message });
   }
 }
-
 
 async function deleteContact(req, res) {
   const contactId = req.params.contactId;

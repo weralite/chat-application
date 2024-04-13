@@ -1,7 +1,7 @@
 // ChatArea.js
 import React from 'react';
 
-const ChatArea = ({ activeChat, receiver, receiverOnline, userId, message, setMessage, sendMessage, chatEndRef }) => {
+const ChatField = ({ activeChat, receiver, receiverOnline, userId, message, setMessage, sendMessage, chatEndRef }) => {
 
     const formatTime = (dateTimeString) => {
         const date = new Date(dateTimeString);
@@ -53,4 +53,4 @@ const ChatArea = ({ activeChat, receiver, receiverOnline, userId, message, setMe
     );
 };
 
-export default ChatArea;
+export default ChatField;

@@ -1,31 +1,22 @@
 // ContactsModal.js
 import React from 'react';
-import { blockContact, unblockContact } from './contactBlock';
+import Contacts from './contacts';
 
-const ContactsModal = ({ username, userId, contacts, modalRef, isModalVisible, handleContactClick, setModalVisible }) => {
-console.log('contacts', contacts)
+const ContactsModal = ({ username, userId, contacts, setContacts, modalRef, isModalVisible, handleContactClick, setModalVisible }) => {
     return (
         <div ref={modalRef} className={`menu-modal ${isModalVisible ? 'visible' : ''}`}>
             <div className='user-card'>
                 <h4>{username}</h4>
-
             </div>
 
-            <div className='contacts-content'>
-                <input type='text' placeholder='Search contacts' />
-                <ul>
-                    {contacts.map((contact) => (
-                    
-                        <li key={contact.id} onClick={() => handleContactClick(contact.id)}>{contact.username}
-                            <button onClick={() => blockContact(userId, contact.id)}>Block</button>
-                            <button onClick={() => unblockContact(userId, contact.id)}>Unblock</button>
-                        </li>
-                    ))}
-                    
-                </ul>
-                <button>Add contact</button>
+            <Contacts 
+            userId={userId}
+            setContacts={setContacts}
+            contacts={contacts}
+            handleContactClick={handleContactClick}
+            />
 
-            </div>
+
                 <div className='button-container'>
                 <button className='menu-button'>Logout</button>
                 <button className='menu-button' onClick={() => setModalVisible(false)}>Close</button>

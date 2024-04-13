@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import io from 'socket.io-client';
 import ChatList from './chatList';
 import MenuModal from './menuModal';
-import ChatArea from './chatArea';
+import ChatField from './chatField';
 
 
 const ENDPOINT = 'http://localhost:8080';
@@ -30,16 +30,6 @@ const Chat = () => {
     const [isModalVisible, setModalVisible] = useState(false);
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
     const modalRef = useRef(null); // Keeping track of the modal
-    const [isOpen, setIsOpen] = useState(false);
-
-
-    const toggleMenu = () => {
-        setIsOpen(!isOpen);
-    };
-
-    const closeMenu = () => {
-        setIsOpen(false);
-    };
 
     useEffect(() => {
         const decodeToken = () => {
@@ -61,20 +51,6 @@ const Chat = () => {
     }, [userId, setUserId, setToken]);
 
 
-    // Fetch contacts for the current user
-    const fetchContacts = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8080/api/v1/contacts/getContacts`, {
-                params: {
-                    userId: userId
-                }
-            });
-            const receivedContacts = response.data;
-            setContacts(receivedContacts);
-        } catch (error) {
-            console.error('Failed to fetch contacts:', error);
-        }
-    };
 
     // Emit 'message_read' event to mark a message as read
     const handleMessageRead = (messageId) => {
@@ -401,6 +377,7 @@ const Chat = () => {
                         userId={userId}
                         username={username}
                         contacts={contacts}
+                        setContacts={setContacts}
                         modalRef={modalRef}
                         isModalVisible={isModalVisible}
                         handleContactClick={handleContactClick}
@@ -409,7 +386,7 @@ const Chat = () => {
 
                     <button className="hamburger-button" onClick={() => {
                         setModalVisible(true);
-                        fetchContacts();
+                        // fetchContacts();
                     }}>
                         ☰
                     </button>
@@ -428,7 +405,7 @@ const Chat = () => {
 
                     {activeChat && (
 
-                        <ChatArea
+                        <ChatField
                             activeChat={activeChat}
                             receiver={receiver}
                             receiverOnline={receiverOnline}
