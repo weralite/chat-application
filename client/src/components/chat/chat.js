@@ -3,10 +3,8 @@ import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import io from 'socket.io-client';
 import ChatList from './chatList';
-import ContactsModal from './contactsModal';
+import MenuModal from './menuModal';
 import ChatArea from './chatArea';
-import './menu.css';
-import SidebarMenu from './menu';
 
 
 const ENDPOINT = 'http://localhost:8080';
@@ -45,25 +43,25 @@ const Chat = () => {
 
     useEffect(() => {
         const decodeToken = () => {
-          const token = localStorage.getItem('token'); 
-          if (token) {
-            const decoded = jwtDecode(token);
-            setUserId(decoded.userId);
-            setUsername(decoded.username);
-            setToken(token);
-          }
+            const token = localStorage.getItem('token');
+            if (token) {
+                const decoded = jwtDecode(token);
+                setUserId(decoded.userId);
+                setUsername(decoded.username);
+                setToken(token);
+            }
         };
 
-        decodeToken(); 
+        decodeToken();
 
         window.addEventListener('storage', decodeToken);
         return () => {
-          window.removeEventListener('storage', decodeToken);
+            window.removeEventListener('storage', decodeToken);
         };
-      }, [userId, setUserId, setToken]);
+    }, [userId, setUserId, setToken]);
 
 
-      // Fetch contacts for the current user
+    // Fetch contacts for the current user
     const fetchContacts = async () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/v1/contacts/getContacts`, {
@@ -73,7 +71,6 @@ const Chat = () => {
             });
             const receivedContacts = response.data;
             setContacts(receivedContacts);
-
         } catch (error) {
             console.error('Failed to fetch contacts:', error);
         }
@@ -400,24 +397,22 @@ const Chat = () => {
         <div className='chat-app'>
             <div className='chat-wrapper'>
                 <div className="menu-container">
-                <ContactsModal
+                    <MenuModal
                         userId={userId}
+                        username={username}
                         contacts={contacts}
                         modalRef={modalRef}
                         isModalVisible={isModalVisible}
                         handleContactClick={handleContactClick}
                         setModalVisible={setModalVisible}
                     />
-                    <button className="hamburger-button" onClick={setModalVisible}>
+
+                    <button className="hamburger-button" onClick={() => {
+                        setModalVisible(true);
+                        fetchContacts();
+                    }}>
                         ☰
                     </button>
-                    <SidebarMenu
-                        isOpen={isOpen}
-                        username={username}
-                        closeMenu={closeMenu}
-                        setModalVisible={setModalVisible}
-                        fetchContacts={fetchContacts}
-                    />
                 </div>
                 <ChatList
                     chatList={chatList}
@@ -427,7 +422,7 @@ const Chat = () => {
 
                 <div className='chat-main-window'>
 
-              
+
 
 
 
