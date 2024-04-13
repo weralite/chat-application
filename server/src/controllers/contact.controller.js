@@ -1,5 +1,4 @@
 const Contact = require('../models/contact.model');
-const User = require('../models/user.model');
 
 
 async function createContact(req, res) {
@@ -15,24 +14,33 @@ async function createContact(req, res) {
 };
 
 
-async function getContactsForUser(req, res) {
+async function getContacts(req, res) {
   const userId = req.query.userId;
 
   try {
-    const contacts = await Contact.find({ $or: [{ user1Id: userId }, { user2Id: userId }] });
-    const otherUsers = await Promise.all(
-      contacts.map(async contact => {
-        const otherUserId = contact.user1Id.toString() === userId ? contact.user2Id : contact.user1Id;
-        const user = await User.findById(otherUserId);
-        return { id: user._id, username: user.username, blocked: contact.blocked };
-      })
-    );
+    if (!userId) {
+      return res.status(404).json({ message: 'Error retrieving contacts, userId missing.' });
+    }
 
-    res.status(200).json(otherUsers);
+    const contacts = await Contact.find({ $or: [{ user1Id: userId }, { user2Id: userId }] })
+      .populate({
+        path: 'user1Id',
+        select: '-password'
+      })
+      .populate({
+        path: 'user2Id',
+        select: '-password'
+      });
+
+    // Filter out contacts where blockedBy matches an ID that is not userId
+    const filteredContacts = contacts.filter(contact => !contact.blockedBy || contact.blockedBy.toString() === userId);
+
+    res.status(200).json(filteredContacts);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving contacts: ' + error.message });
   }
-};
+}
+
 
 async function deleteContact(req, res) {
   const contactId = req.params.contactId;
@@ -46,75 +54,50 @@ async function deleteContact(req, res) {
 };
 
 async function blockContact(req, res) {
-  const { user1Id, user2Id } = req.body;
+  const { contactId, userId } = req.body;
 
   try {
-    // Find the contact based on the user IDs
-    const contact = await Contact.findOne({ user1Id, user2Id });
+    const contact = await Contact.findById(contactId);
 
-    // If contact doesn't exist, return 404
     if (!contact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
 
-    // Determine which user initiated the block
-    if (contact.user1Id.equals(user1Id)) {
-      // User1 blocked User2
-      contact.blockedByUser1 = true;
-    } else {
-      // User2 blocked User1
-      contact.blockedByUser2 = true;
+    if (contact.blockedBy && contact.blockedBy.includes(userId)) {
+      return res.status(400).json({ message: 'Contact is already blocked' });
     }
 
-    // Save the updated contact
+    contact.blockedBy = contact.blockedBy ? [...contact.blockedBy, userId] : [userId];
     await contact.save();
 
-    // Respond with success message
-    res.status(200).json({ message: 'User blocked successfully' });
+    res.status(200).json({ message: 'Contact blocked successfully' });
   } catch (error) {
-    // Handle errors
-    res.status(500).json({ message: 'Error blocking user: ' + error.message });
+    res.status(500).json({ message: 'Error blocking contact: ' + error.message });
   }
-};
-
+}
 async function unBlockContact(req, res) {
-  const { user1Id, user2Id } = req.body;
+  const { contactId } = req.body;
 
   try {
-    // Find the contact based on the user IDs
-    const contact = await Contact.findOne({ user1Id, user2Id });
-
-    // If contact doesn't exist, return 404
+    const contact = await Contact.findById(contactId);
     if (!contact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
+    contact.blockedBy = undefined; // Removes blockedBy entry
 
-    // Determine which user initiated the block
-    if (contact.user1Id.equals(user1Id)) {
-      // User1 blocked User2
-      contact.blockedByUser1 = false;
-    } else {
-      // User2 blocked User1
-      contact.blockedByUser2 = false;
-    }
-
-    // Save the updated contact
     await contact.save();
 
-    // Respond with success message
-    res.status(200).json({ message: 'User unblocked successfully' });
+    res.status(200).json({ message: 'Contact unblocked successfully' });
   } catch (error) {
-    // Handle errors
-    res.status(500).json({ message: 'Error unblocking user: ' + error.message });
+    res.status(500).json({ message: 'Error unblocking contact: ' + error.message });
   }
-};
-
+}
 
 
 module.exports = {
   unBlockContact,
   createContact,
-  getContactsForUser,
+  getContacts,
   deleteContact,
   blockContact
 };
