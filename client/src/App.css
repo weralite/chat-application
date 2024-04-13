@@ -106,6 +106,18 @@ body {
 
 }
 
+.contacts-content input[type="text"] {
+  text-align: center;
+}
+
+.contacts-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
 .menu-container {
   position: relative;
 }

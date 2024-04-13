@@ -6,24 +6,6 @@ import { useEffect } from 'react';
 const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
 
 
-        const fetchContacts = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8080/api/v1/contacts/getContacts`, {
-                    params: { userId: userId }
-                });
-
-                const contacts = response.data
-                setContacts(contacts)
-                console.log(contacts);
-            } catch (error) {
-                console.error('Failed to fetch contacts:', error);
-            }
-        };
-    
-
-   
-
-
     const blockContact = async (user1Id, user2Id) => {
         try {
             const response = await axios.put(`http://localhost:8080/api/v1/contacts/blockContact`, { user1Id, user2Id });
@@ -47,7 +29,7 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
     return (
         <div className='contacts-content'>
             <input type='text' placeholder='Search contacts' />
-            <button onClick={fetchContacts}>fetchh</button>
+            {/* <button onClick={fetchContacts}>Contacts</button> */}
             <ul>
                 {contacts.map((contact) => (
 

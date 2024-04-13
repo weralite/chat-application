@@ -50,6 +50,19 @@ const Chat = () => {
         };
     }, [userId, setUserId, setToken]);
 
+    const fetchContacts = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/v1/contacts/getContacts`, {
+                params: { userId: userId }
+            });
+
+            const contacts = response.data
+            setContacts(contacts)
+            console.log(contacts);
+        } catch (error) {
+            console.error('Failed to fetch contacts:', error);
+        }
+    };
 
 
     // Emit 'message_read' event to mark a message as read
@@ -386,7 +399,7 @@ const Chat = () => {
 
                     <button className="hamburger-button" onClick={() => {
                         setModalVisible(true);
-                        // fetchContacts();
+                        fetchContacts();
                     }}>
                         ☰
                     </button>
