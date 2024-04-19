@@ -5,6 +5,7 @@ import Contacts from './contacts';
 const ContactsModal = ({ username, userId, contacts, setContacts, modalRef, isModalVisible, handleContactClick, setModalVisible }) => {
     return (
         <div ref={modalRef} className={`menu-modal ${isModalVisible ? 'visible' : ''}`}>
+            <div className='user-contact-box'>
             <div className='user-card'>
                 <h4>{username}</h4>
             </div>
@@ -15,6 +16,7 @@ const ContactsModal = ({ username, userId, contacts, setContacts, modalRef, isMo
             contacts={contacts}
             handleContactClick={handleContactClick}
             />
+            </div>
 
 
                 <div className='button-container'>

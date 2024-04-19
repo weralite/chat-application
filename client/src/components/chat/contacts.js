@@ -28,7 +28,9 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
 
     return (
         <div className='contacts-content'>
+            <div className='contacts-header'>
             <h5>Contacts</h5>
+            </div>
             <input type='text' placeholder='Search contacts' />
             <div className='contacts-inner'>
                 <ul>
