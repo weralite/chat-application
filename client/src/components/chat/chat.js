@@ -31,6 +31,8 @@ const Chat = () => {
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
     const modalRef = useRef(null); // Keeping track of the modal
 
+
+    // Decode token and set user ID and username
     useEffect(() => {
         const decodeToken = () => {
             const token = localStorage.getItem('token');
@@ -50,6 +52,7 @@ const Chat = () => {
         };
     }, [userId, setUserId, setToken]);
 
+    // Fetch contacts
     const fetchContacts = async () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/v1/contacts/getContacts`, {
@@ -62,7 +65,6 @@ const Chat = () => {
             console.error('Failed to fetch contacts:', error);
         }
     };
-
 
     // Emit 'message_read' event to mark a message as read
     const handleMessageRead = (messageId) => {
@@ -399,6 +401,7 @@ const Chat = () => {
                         ☰
                     </button>
                 </div>
+                
                 <ChatList
                     chatList={chatList}
                     openChatByChatId={openChatByChatId}
@@ -406,13 +409,7 @@ const Chat = () => {
                 />
 
                 <div className='chat-main-window'>
-
-
-
-
-
                     {activeChat && (
-
                         <ChatField
                             activeChat={activeChat}
                             receiver={receiver}

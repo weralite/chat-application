@@ -28,18 +28,21 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
 
     return (
         <div className='contacts-content'>
+            <h5>Contacts</h5>
             <input type='text' placeholder='Search contacts' />
-            {/* <button onClick={fetchContacts}>Contacts</button> */}
-            <ul>
-                {contacts.map((contact) => (
+            <div className='contacts-inner'>
+                <ul>
+                    {contacts.map((contact) => (
 
-                    <li key={contact._id} onClick={() => handleContactClick(contact._id)}>{contact.username}
-                        {/* <button onClick={() => blockContact(userId, contact.id)}>Block</button>
+                        <li key={contact._id} onClick={() => handleContactClick(contact._id)}>
+                            {contact.username}
+                            {/* <button onClick={() => blockContact(userId, contact.id)}>Block</button>
                         <button onClick={() => unblockContact(userId, contact.id)}>Unblock</button> */}
-                    </li>
-                ))}
+                        </li>
+                    ))}
 
-            </ul>
+                </ul>
+            </div>
             <button>Add contact</button>
 
         </div>

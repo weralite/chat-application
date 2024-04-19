@@ -7,7 +7,7 @@ async function createUser(req, res) {
     const _user = req.body;
     const hashedPassword = await bcrypt.hash(_user.password, 10);
     const user = await User.create({ ..._user, password: hashedPassword });
-    console.log('User created: ', user);
+ 
     res.status(201).json(user);
   } catch (error) {
     console.error("Error creating user: ", error);

@@ -66,7 +66,7 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
                                     <p>{chat.lastMessage.content}</p>
                                 </div>
                                 <div className='chatrow-right'>
-                                <p>{chat.lastMessage.createdAt ? formatTime(chat.lastMessage.createdAt) : null}</p>
+                                    <p>{chat.lastMessage.createdAt ? formatTime(chat.lastMessage.createdAt) : null}</p>
 
                                     {deliveredMessagesCount[chat._id] > 0 && (
                                         <div className='msgcount-container'>

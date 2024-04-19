@@ -29,7 +29,6 @@ const RegisterUser = () => {
         }
     };
 
-
     return (
         <div className='chat-app'>
             <h2>User Registration</h2>

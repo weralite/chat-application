@@ -5,15 +5,10 @@ import RegisterUser from './components/registerUser';
 import LoginUser from './components/loginUser';
 import Chat from './components/chat/chat';
 
-
-
-
 function App() {
   
-
   return (
     <>
-
         <Routes>
           <Route path="/" element={<LoginUser />} />
           <Route path="/register" element={<RegisterUser />} />
