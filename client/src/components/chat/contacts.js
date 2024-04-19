@@ -68,6 +68,7 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
                 addModalRef={addModalRef}
                 isAddModalVisible={isAddModalVisible}
                 setAddModalVisible={setAddModalVisible}
+                staticUserId={userId}
 
             />
         </div>

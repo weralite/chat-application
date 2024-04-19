@@ -144,7 +144,7 @@ font-size: 18px;
   left: 50%; /* Center horizontally */
   width: 0;
   background: white;
-  height: 15rem;
+  height: 10rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -159,7 +159,7 @@ font-size: 18px;
 
 
 .contacts-modal.visible {
-  width: 12rem;
+  width: 20rem;
   opacity: 1;
   visibility: visible;
 }

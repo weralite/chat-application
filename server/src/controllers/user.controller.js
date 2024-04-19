@@ -36,7 +36,7 @@ async function getUsersByName(req, res) {
 
       if (name) {
           const regex = new RegExp(name, 'i');
-          users = await User.find({ title: regex });
+          users = await User.find({ username: regex });
       } else {
         users = await User.find();
       }
