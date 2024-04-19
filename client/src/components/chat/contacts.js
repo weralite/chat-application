@@ -1,10 +1,26 @@
 import React from 'react'
 import axios from 'axios';
-import { useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import ContactsModal from './contactsModal';
+
 
 
 const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
+    const [isAddModalVisible, setAddModalVisible] = useState(false);
+    const addModalRef = useRef(null);
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (addModalRef.current && !addModalRef.current.contains(event.target)) {
+                setAddModalVisible(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [addModalRef]);
 
     const blockContact = async (user1Id, user2Id) => {
         try {
@@ -29,7 +45,7 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
     return (
         <div className='contacts-content'>
             <div className='contacts-header'>
-            <h5>Contacts</h5>
+                <h5>Contacts</h5>
             </div>
             <input type='text' placeholder='Search contacts' />
             <div className='contacts-inner'>
@@ -45,8 +61,15 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
 
                 </ul>
             </div>
-            <button>Add contact</button>
+            <button onClick={() => {
+                setAddModalVisible(true);
+            }}>Add contact</button>
+            <ContactsModal
+                addModalRef={addModalRef}
+                isAddModalVisible={isAddModalVisible}
+                setAddModalVisible={setAddModalVisible}
 
+            />
         </div>
     )
 }

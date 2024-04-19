@@ -19,7 +19,6 @@ async function createUser(req, res) {
   }
 }
 
-
 async function getUsers(req, res) {
   try {
     const users = await User.find();
@@ -30,4 +29,24 @@ async function getUsers(req, res) {
   }
 }
 
-module.exports = { createUser, getUsers };
+async function getUsersByName(req, res) {
+  try {
+      const { name } = req.query;
+      let users;
+
+      if (name) {
+          const regex = new RegExp(name, 'i');
+          users = await User.find({ title: regex });
+      } else {
+        users = await User.find();
+      }
+
+      res.json(users);
+  } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+module.exports = { createUser, getUsers, getUsersByName };
