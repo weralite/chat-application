@@ -57,44 +57,43 @@ console.log('Is modal visible', isAddModalVisible)
 
 
     return (
-        <div ref={addModalRef} className={`contacts-modal ${isAddModalVisible ? 'visible' : ''}`}>
-            <div>
-                <h2>Add Contact</h2>
-
-           
-                <Autocomplete
-                    options={users}
-                    getOptionLabel={(option) => option.username}
-                    isOptionEqualToValue={(option, value) => option._id === value._id}
-                    onInputChange={(event, newInputValue) => {
-                        setUserName(newInputValue);
-                    }}
-                    onChange={(event, newValue) => {
-                        setUserName(newValue ? newValue.username : '');
-                        setUserId(newValue ? newValue._id : '');
-                    }}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            label={<span style={{ fontSize: '16px' }}>Username</span>}
-                            type="text"
-                            inputProps={{
-                                ...params.inputProps,
-                                style: { width: "13rem", height: '1rem' }, 
-                            }}
-                        />
-                    )}
-                />
-        
-                <DialogActions>
-                <button onClick={() => setAddModalVisible(false)}>Close</button>
-                <button onClick={handleSave}>Save</button>
-                </DialogActions>
-            </div>
-        </div>
+        <Dialog open={isAddModalVisible} onClose={() => setAddModalVisible(false)}>
+            <DialogTitle>Find contacts</DialogTitle>
+        <DialogContent>
+            <Autocomplete
+                options={users}
+                getOptionLabel={(option) => option.username}
+                isOptionEqualToValue={(option, value) => option._id === value._id}
+                onInputChange={(event, newInputValue) => {
+                    event.stopPropagation();
+                    setUserName(newInputValue);
+                }}
+                onChange={(event, newValue) => {
+                    event.stopPropagation();
+                    setUserName(newValue ? newValue.username : '');
+                    setUserId(newValue ? newValue._id : '');
+                }}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label={<span style={{ fontSize: '16px' }}>Username</span>}
+                        type="text"
+                        inputProps={{
+                            ...params.inputProps,
+                            style: { width: "13rem", height: '1rem' }, 
+                        }}
+                    />
+                )}
+            />
+        </DialogContent>
+        <DialogActions>
+            <button onClick={() => setAddModalVisible(false)}>Close</button>
+            <button onClick={handleSave}>Save</button>
+        </DialogActions>
+    </Dialog>
     )
 }
 
