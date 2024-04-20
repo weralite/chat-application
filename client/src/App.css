@@ -38,6 +38,7 @@ body {
 .chat-main-window {
   display: flex;
   flex-direction: column;
+  border-left: 1px solid #ccc;
   width: 20rem;
   height: 40rem;
 }
@@ -55,7 +56,7 @@ body {
 .chat-textbox {
   flex-grow: 1;
   padding: 5px;
-  border: 1px solid #ccc;
+ border-top: 1px solid #ccc;
   overflow-y: auto;
 }
 
@@ -65,11 +66,17 @@ body {
 
 .chat-ongoing-chats {
   height: 40rem;
-  padding: 5px;
+  padding-top: 5px;
   overflow-y: auto;
   width: 15rem;
   text-align: center;
+}
 
+.chatlist-header {
+  padding: 8px;
+  /* border-bottom: 1px solid #ccc; */
+  display: flex;
+  justify-content: center;
 }
 
 .chat-primary-contacts {
@@ -92,11 +99,8 @@ body {
 .chatrow-right {
   width: 50%;
   display: flex;
-  /* Add display flex to allow aligning items */
   flex-direction: column;
-  /* Arrange items in a column */
   justify-content: flex-start;
-  /* Align items at the start (top) of the container */
   align-items: flex-end;
 }
 

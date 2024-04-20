@@ -48,6 +48,7 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
 
     return (
         <div className='chat-ongoing-chats'>
+            <div className='chatlist-header'>
             <input
                 className='find-chat-input'
                 type='text'
@@ -55,6 +56,7 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
                 value={searchTerm}
                 onChange={handleSearch}
             />
+            </div>
             {
                 sortedChats
                     .filter(chat => chat.otherUsername.toLowerCase().includes(searchTerm.toLowerCase()))
