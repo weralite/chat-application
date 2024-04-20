@@ -79,7 +79,7 @@ console.log('Is modal visible', isAddModalVisible)
                             autoFocus
                             margin="dense"
                             id="name"
-                            label="Username"
+                            label={<span style={{ fontSize: '16px' }}>Username</span>}
                             type="text"
                             inputProps={{
                                 ...params.inputProps,

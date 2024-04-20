@@ -203,6 +203,7 @@ li {
 .user-contact-box {
   display: flex;
   flex-direction: column;
+align-items: center;
   gap: 2rem;
 }
 
