@@ -1,8 +1,24 @@
-// ContactsModal.js
 import React from 'react';
 import Contacts from './contacts';
+import { useRef, useState, useEffect } from 'react';
+import ContactsModal from './addContactsModal';
 
-const ContactsModal = ({ username, userId, contacts, setContacts, modalRef, isModalVisible, handleContactClick, setModalVisible }) => {
+const MenuModal = ({ username, userId, contacts, setContacts, modalRef, isModalVisible, handleContactClick, setModalVisible }) => {
+    const [isAddModalVisible, setAddModalVisible] = useState(false);
+    const addModalRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (addModalRef.current && !addModalRef.current.contains(event.target)) {
+                setAddModalVisible(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [addModalRef]);
+
 
     return (
         <div ref={modalRef} className={`menu-modal ${isModalVisible ? 'visible' : ''}`}>
@@ -16,15 +32,24 @@ const ContactsModal = ({ username, userId, contacts, setContacts, modalRef, isMo
                     contacts={contacts}
                     handleContactClick={handleContactClick}
                 />
+                <ContactsModal
+                    addModalRef={addModalRef}
+                    isAddModalVisible={isAddModalVisible}
+                    setAddModalVisible={setAddModalVisible}
+                    staticUserId={userId}
+                />
+                <button onClick={() => {
+                    setAddModalVisible(true);
+                    }}> Add contact
+                </button>
             </div>
 
             <div className='button-container'>
                 <button className='menu-button'>Logout</button>
                 <button className='menu-button' onClick={() => setModalVisible(false)}>Close</button>
             </div>
-
         </div>
     );
 };
 
-export default ContactsModal;
+export default MenuModal;
