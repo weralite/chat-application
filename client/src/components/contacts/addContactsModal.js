@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import CustomAutocomplete from './autoComplete';
+import CustomAutocomplete from '../autoComplete/autoComplete';
 
 
 const ContactsModal = ({ addModalRef, isAddModalVisible, setAddModalVisible, staticUserId }) => {

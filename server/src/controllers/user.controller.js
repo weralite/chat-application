@@ -30,6 +30,20 @@ async function getUsers(req, res) {
   }
 }
 
+async function getUserById(req, res) {
+  try {
+    const { id } = req.params;
+    const user = await
+    User.findById(id);
+    res.status(200).json(user);
+  }
+  catch (error) {
+    console.error("Error getting user: ", error);
+    res.status(500).send('An error occurred while getting user');
+  }
+}
+
+
 async function getUsersByName(req, res) {
   try {
       const { name } = req.query;
@@ -50,4 +64,4 @@ async function getUsersByName(req, res) {
 }
 
 
-module.exports = { createUser, getUsers, getUsersByName };
+module.exports = { createUser, getUsers, getUsersByName, getUserById };

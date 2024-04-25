@@ -3,7 +3,7 @@ import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import io from 'socket.io-client';
 import ChatList from './chatList';
-import MenuModal from './menuModal';
+import MenuModal from '../menuModal';
 import ChatField from './chatField';
 
 

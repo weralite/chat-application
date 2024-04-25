@@ -1,4 +1,5 @@
 const Contact = require('../models/contact.model');
+const User = require('../models/user.model');
 
 
 async function createContact(req, res) {
@@ -13,8 +14,25 @@ async function createContact(req, res) {
   }
 };
 
+async function getAllContacts(req, res) {
+  try {
+    const contacts = await Contact.find()
+      .populate({
+        path: 'user1Id',
+        select: '-password'
+      })
+      .populate({
+        path: 'user2Id',
+        select: '-password'
+      });
 
-async function getContacts(req, res) {
+    res.status(200).json(contacts);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving contacts: ' + error.message });
+  }
+}
+
+async function getContact(req, res) {
   const userId = req.query.userId;
 
   try {
@@ -35,9 +53,9 @@ async function getContacts(req, res) {
     // Filter out contacts where user1Id or user2Id matches the userId
     const filteredContacts = contacts.map(contact => {
       if (contact.user1Id._id.toString() === userId) {
-        return contact.user2Id;
+        return { contact: contact.user2Id, blockedBy: contact.blockedBy };
       } else {
-        return contact.user1Id;
+        return { contact: contact.user1Id, blockedBy: contact.blockedBy };
       }
     });
 
@@ -102,7 +120,8 @@ async function unBlockContact(req, res) {
 module.exports = {
   unBlockContact,
   createContact,
-  getContacts,
+  getContact,
+  getAllContacts,
   deleteContact,
   blockContact
 };

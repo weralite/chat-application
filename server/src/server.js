@@ -1,8 +1,7 @@
 const app = require("./app");
 const { connectToMongoose } = require("./config/mongoose");
-const contactsSocketController = require("./sockets/contact.socket.controller");
-const chatSocketController = require("./sockets/chat.socket.controller");
-const messageSocketController = require("./sockets/message.socket.controller");
+const chatSocketController = require("./socket.controllers/chat.socket.controller");
+const messageSocketController = require("./socket.controllers/message.socket.controller");
 const http = require("http");
 const socketIo = require("socket.io");
 const jwt = require('jsonwebtoken');

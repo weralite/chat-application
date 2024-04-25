@@ -1,7 +1,7 @@
 import React from 'react';
-import Contacts from './contacts';
+import Contacts from './contacts/contacts';
 import { useRef, useState, useEffect } from 'react';
-import ContactsModal from './addContactsModal';
+import ContactsModal from './contacts/addContactsModal';
 
 const MenuModal = ({ username, userId, contacts, setContacts, modalRef, isModalVisible, handleContactClick, setModalVisible }) => {
     const [isAddModalVisible, setAddModalVisible] = useState(false);
