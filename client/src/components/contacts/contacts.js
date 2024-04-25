@@ -36,12 +36,18 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
             <input type='text' placeholder='Search contacts' />
             <div className='contacts-inner'>
                 <ul>
-                    {contacts.map((contact) => (
+                    {contacts.map((user) => (
 
-                        <li key={contact._id} onClick={() => handleContactClick(contact._id)}>
-                            {contact.username}
-                            {/* <button onClick={() => blockContact(userId, contact.id)}>Block</button>
-                        <button onClick={() => unblockContact(userId, contact.id)}>Unblock</button> */}
+                        <li key={user.contact._id}>
+                            {user.contact.username}
+                            <button onClick={() => handleContactClick(user.contact._id)}>Open chat</button>
+
+                            {user.blockedBy && user.blockedBy.includes(userId) ?
+                                <button onClick={() => unblockContact(userId, user.contact._id)}>Unblock</button>
+                                :
+                                <button onClick={() => blockContact(userId, user.contact._id)}>Block</button>
+                            }
+                            
                         </li>
                     ))}
                 </ul>
