@@ -2,6 +2,7 @@ const app = require("./app");
 const { connectToMongoose } = require("./config/mongoose");
 const chatSocketController = require("./socket.controllers/chat.socket.controller");
 const messageSocketController = require("./socket.controllers/message.socket.controller");
+const contactsSocketController = require("./socket.controllers/contact.socket.controller");
 const http = require("http");
 const socketIo = require("socket.io");
 const jwt = require('jsonwebtoken');
@@ -19,6 +20,7 @@ const io = socketIo(server, {
 
 chatSocketController(io);
 messageSocketController(io);
+contactsSocketController(io);
 
 let connectedUsers = {};
 
@@ -42,13 +44,14 @@ io.use((socket, next) => {
 
 io.on('connection', (socket) => {
     const userId = socket.handshake.query.userId;
+    const socketId = socket.id;
     if (!userId) {
         console.error('User ID not provided in handshake query');
         return;
     }
-    connectedUsers[userId] = true;
+    connectedUsers[userId] = socketId; // Store the socket ID in your connectedUsers object
     io.emit('userConnected', userId);
-    console.log('User connected:', userId);
+    console.log('User connected:', userId, 'with socket ID:', socketId);
     io.emit('connectedUsers', Object.keys(connectedUsers));
 
 

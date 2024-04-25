@@ -387,6 +387,7 @@ const Chat = () => {
                         userId={userId}
                         username={username}
                         contacts={contacts}
+                        socket={socket}
                         setContacts={setContacts}
                         modalRef={modalRef}
                         isModalVisible={isModalVisible}
