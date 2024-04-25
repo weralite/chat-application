@@ -56,9 +56,9 @@ async function getContact(req, res) {
       }
 
       if (contact.user1Id._id.toString() === userId) {
-        return { contact: contact.user2Id, blockedBy: contact.blockedBy };
+        return {  _id: contact._id, contact: contact.user2Id, blockedBy: contact.blockedBy };
       } else {
-        return { contact: contact.user1Id, blockedBy: contact.blockedBy };
+        return {  _id: contact._id, contact: contact.user1Id, blockedBy: contact.blockedBy };
       }
     }).filter(contact => contact !== null);
 
