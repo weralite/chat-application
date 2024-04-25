@@ -5,6 +5,8 @@ import { useEffect } from 'react';
 
 const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket }) => {
 
+
+    // Listen for contactBlocked and contactUnBlocked events
     useEffect(() => {
         if (!socket) return;
 
@@ -34,16 +36,13 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
         };
     }, [socket, setContacts]);
 
-
-
+    // Emits blockContact and unblock event to server
     useEffect(() => {
         if (socket) {
             socket.on('blockContactSuccess', ({ contactId, blockedBy }) => {
-                // Update contacts state to reflect the block action
                 setContacts(prevContacts => {
                     return prevContacts.map(contact => {
                         if (contact._id === contactId) {
-                            // Update the contact's blockedBy field
                             return { ...contact, blockedBy };
                         }
                         return contact;
@@ -52,11 +51,9 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
             });
 
             socket.on('unblockContactSuccess', ({ contactId }) => {
-                // Update contacts state to reflect the unblock action
                 setContacts(prevContacts => {
                     return prevContacts.map(contact => {
                         if (contact._id === contactId) {
-                            // Set the contact's blockedBy field to null
                             return { ...contact, blockedBy: null };
                         }
                         return contact;
@@ -84,6 +81,23 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
         }
     };
 
+    // Axios delete request to delete contact
+    const deleteContact = async (contactId) => {
+        try {
+            const res = await axios.delete('http://localhost:8080/api/v1/contacts/deleteContact', {
+                params: {
+                    contactId
+                }
+            });
+            if (res.status === 200) {
+                setContacts(prevContacts => {
+                    return prevContacts.filter(contact => contact._id !== contactId);
+                });
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };    
 
     return (
         <div className='contacts-content'>
@@ -106,6 +120,7 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
                                         :
                                         <button onClick={() => blockContact(user._id)}>Block</button>
                                     }
+                                    <button onClick={() => deleteContact(user._id)}>Delete</button>
                                 </li>
                             );
                         }
