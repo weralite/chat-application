@@ -11,19 +11,16 @@ module.exports = (io) => {
                 let chat = await Chat.findOne({
                     participants: { $all: [senderId, receiverId] }
                 });
-
                 if (!chat) {
                     // Create a new chat with participants
                     chat = new Chat({ participants: [senderId, receiverId] });
                     await chat.save();
                 }
-
                 // Fetch sender and receiver details
                 const [sender, receiver] = await Promise.all([
                     User.findById(senderId),
                     User.findById(receiverId)
                 ]);
-
                 // Prepare chat object with sender and receiver usernames
                 const chatWithUsernames = {
                     ...chat._doc,
@@ -41,20 +38,16 @@ module.exports = (io) => {
 
         socket.on('get_all_chats', async ({ userId }) => {
             try {
-                // Find all chats where the specified user is a participant
                 const chats = await Chat.find({
-                    participants: userId // Finding chats where the userId is included in participants
+                    participants: userId 
                 });
-
-                // Fetch additional information for each chat
                 const chatsWithUsernamesAndLastMessage = await Promise.all(chats.map(async (chat) => {
-                    // Determine the other participant's user ID
+                    // Determine the other participants userID
                     const otherUserId = chat.participants.find(participantId => participantId.toString() !== userId);
-                    // Find the other participant's user document
+                    // Find the other participants user document
                     const otherUser = await User.findById(otherUserId);
                     // Fetch the last message of the chat
                     let lastMessage = await Message.findOne({ chatId: chat._id }).sort({ createdAt: -1 });
-
                     // If lastMessage is null, log a message to the console
                     if (!lastMessage) {
                         console.log(`Last message for chat ${chat._id} is null`);

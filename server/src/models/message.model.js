@@ -9,7 +9,7 @@ const messageSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['sent', 'delivered', 'read'],
-      default: 'sent' // Default status is "sent" when a new message is created
+      default: 'sent'
     }
   },
   {
