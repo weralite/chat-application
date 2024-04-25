@@ -81,7 +81,6 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
         }
     };
 
-    // Axios delete request to delete contact
     const deleteContact = async (contactId) => {
         try {
             const res = await axios.delete('http://localhost:8080/api/v1/contacts/deleteContact', {
