@@ -5,46 +5,37 @@ import { useEffect } from 'react';
 
 const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket }) => {
 
+    useEffect(() => {
+        if (!socket) return;
 
-    // const blockContact = async ({ userId, contactId }) => {
-    //     try {
-    //         const response = await axios.put(`http://localhost:8080/api/v1/contacts/blockContact`, { userId, contactId });
-    //         const message = response.data.message;
-    //         // Update the contacts state to reflect the change
-    //         setContacts(prevContacts => {
-    //             return prevContacts.map(contact => {
-    //                 if (contact._id === contactId) {
-    //                     return { ...contact, blockedBy: userId };
-    //                 }
-    //                 return contact;
-    //             });
-    //         });
-    //         return message; // Return message for any further handling if needed
-    //     } catch (error) {
-    //         console.error('Error blocking contact:', error);
-    //         throw new Error('Failed to block contact');
-    //     }
-    // };
+        socket.on('contactBlocked', ({ contactId, blockedBy }) => {
+            setContacts(prevContacts => {
+                return prevContacts.map(contact => {
+                    if (contact._id === contactId) {
+                        return { ...contact, blockedBy };
+                    }
+                    return contact;
+                });
+            });
+        });
+        socket.on('contactUnBlocked', ({ contactId, blockedBy }) => {
+            setContacts(prevContacts => {
+                return prevContacts.map(contact => {
+                    if (contact._id === contactId) {
+                        return { ...contact, blockedBy: null };
+                    }
+                    return contact;
+                });
+            });
+        });
+        return () => {
+            socket.off('contactBlocked');
+            socket.off('contactUnBlocked');
+        };
+    }, [socket, setContacts]);
 
-    // const unblockContact = async ({ userId, contactId }) => {
-    //     try {
-    //         const response = await axios.put(`http://localhost:8080/api/v1/contacts/unblockContact`, { userId, contactId });
-    //         const message = response.data.message;
-    //         // Update the contacts state to reflect the change
-    //         setContacts(prevContacts => {
-    //             return prevContacts.map(contact => {
-    //                 if (contact._id === contactId) {
-    //                     return { ...contact, blockedBy: null };
-    //                 }
-    //                 return contact;
-    //             });
-    //         });
-    //         return message; // Return message for any further handling if needed
-    //     } catch (error) {
-    //         console.error('Error unblocking contact:', error);
-    //         throw new Error('Failed to unblock contact');
-    //     }
-    // };
+
+
     useEffect(() => {
         if (socket) {
             socket.on('blockContactSuccess', ({ contactId, blockedBy }) => {
@@ -59,7 +50,7 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
                     });
                 });
             });
-    
+
             socket.on('unblockContactSuccess', ({ contactId }) => {
                 // Update contacts state to reflect the unblock action
                 setContacts(prevContacts => {
@@ -72,7 +63,7 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
                     });
                 });
             });
-    
+
             return () => {
                 // Clean up event listeners when component unmounts
                 socket.off('blockContactSuccess');
@@ -93,7 +84,7 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
         }
     };
 
-  
+
     return (
         <div className='contacts-content'>
             <div className='contacts-header'>
@@ -103,18 +94,21 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
             <div className='contacts-inner'>
                 <ul>
                     {contacts.map((user) => {
-                        return (
-                            <li key={user._id}>
-                                {user.contact.username}
-                                <button onClick={() => handleContactClick(user.contact._id)}>Open chat</button>
-
-                                {user.blockedBy && user.blockedBy.includes(userId) ?
-                                    <button onClick={() => unblockContact(user._id)}>Unblock</button>
-                                    :
-                                    <button onClick={() => blockContact(user._id)}>Block</button>
-                                }
-                            </li>
-                        );
+                        if (user.blockedBy && !user.blockedBy.includes(userId)) {
+                            return null; 
+                        } else {
+                            return (
+                                <li key={user._id}>
+                                    {user.contact.username}
+                                    <button onClick={() => handleContactClick(user.contact._id)}>Open chat</button>
+                                    {user.blockedBy && user.blockedBy.includes(userId) ?
+                                        <button onClick={() => unblockContact(user._id)}>Unblock</button>
+                                        :
+                                        <button onClick={() => blockContact(user._id)}>Block</button>
+                                    }
+                                </li>
+                            );
+                        }
                     })}
                 </ul>
             </div>

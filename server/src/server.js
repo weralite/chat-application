@@ -49,6 +49,9 @@ io.on('connection', (socket) => {
         console.error('User ID not provided in handshake query');
         return;
     }
+
+    socket.join(userId); // Join the user's room
+    
     connectedUsers[userId] = socketId; // Store the socket ID in your connectedUsers object
     io.emit('userConnected', userId);
     console.log('User connected:', userId, 'with socket ID:', socketId);
