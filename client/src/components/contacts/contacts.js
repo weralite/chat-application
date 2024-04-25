@@ -11,7 +11,17 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
     const blockContact = async ({ userId, contactId }) => {
         try {
             const response = await axios.put(`http://localhost:8080/api/v1/contacts/blockContact`, { userId, contactId });
-            return response.data.message;
+            const message = response.data.message;
+            // Update the contacts state to reflect the change
+            setContacts(prevContacts => {
+                return prevContacts.map(contact => {
+                    if (contact._id === contactId) {
+                        return { ...contact, blockedBy: userId };
+                    }
+                    return contact;
+                });
+            });
+            return message; // Return message for any further handling if needed
         } catch (error) {
             console.error('Error blocking contact:', error);
             throw new Error('Failed to block contact');
@@ -21,7 +31,17 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick }) => {
     const unblockContact = async ({ userId, contactId }) => {
         try {
             const response = await axios.put(`http://localhost:8080/api/v1/contacts/unblockContact`, { userId, contactId });
-            return response.data.message;
+            const message = response.data.message;
+            // Update the contacts state to reflect the change
+            setContacts(prevContacts => {
+                return prevContacts.map(contact => {
+                    if (contact._id === contactId) {
+                        return { ...contact, blockedBy: null };
+                    }
+                    return contact;
+                });
+            });
+            return message; // Return message for any further handling if needed
         } catch (error) {
             console.error('Error unblocking contact:', error);
             throw new Error('Failed to unblock contact');
