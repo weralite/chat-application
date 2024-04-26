@@ -28,29 +28,9 @@ const Chat = () => {
     const [sender, setSender] = useState(''); // Add function to fetch name from senderID
     const [activeChat, setActiveChat] = useState(null);
     const [isModalVisible, setModalVisible] = useState(false);
+
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
     const modalRef = useRef(null); // Keeping track of the modal
-
-console.log('chatlist', chatList)
-    // Decode token and set user ID and username
-    useEffect(() => {
-        const decodeToken = () => {
-            const token = localStorage.getItem('token');
-            if (token) {
-                const decoded = jwtDecode(token);
-                setUserId(decoded.userId);
-                setUsername(decoded.username);
-                setToken(token);
-            }
-        };
-
-        decodeToken();
-
-        window.addEventListener('storage', decodeToken);
-        return () => {
-            window.removeEventListener('storage', decodeToken);
-        };
-    }, [userId, setUserId, setToken]);
 
     // Fetch contacts
     const fetchContacts = async () => {
@@ -169,6 +149,27 @@ console.log('chatlist', chatList)
         }
     };
 
+
+    // Decode token and set user ID and username
+    useEffect(() => {
+        const decodeToken = () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                const decoded = jwtDecode(token);
+                setUserId(decoded.userId);
+                setUsername(decoded.username);
+                setToken(token);
+            }
+        };
+
+        decodeToken();
+
+        window.addEventListener('storage', decodeToken);
+        return () => {
+            window.removeEventListener('storage', decodeToken);
+        };
+    }, [userId, setUserId, setToken]);
+
     // Connect to Socket.IO server
     useEffect(() => {
         if (token) {
@@ -221,12 +222,12 @@ console.log('chatlist', chatList)
         };
     }, [modalRef]);
 
+    // Listen for 'requestChatUpdate' event to update chat list when user is blocked/unblocked
     useEffect(() => {
         if (socket) {
             socket.on('requestChatUpdate', ({ userId }) => {
-                // Make a request to fetch updated chats
-                // Emit the get_all_chats event to request updated chats from the server
                 socket.emit('get_all_chats', { userId });
+                setActiveChat(null);
 
             });
         }
