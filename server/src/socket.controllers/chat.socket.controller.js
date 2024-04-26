@@ -28,7 +28,6 @@ module.exports = (io) => {
                     chat = new Chat({ participants: [senderId, receiverId] });
                     await chat.save();
                 }
-                // Fetch sender and receiver details
                 const [sender, receiver] = await Promise.all([
                     User.findById(senderId),
                     User.findById(receiverId)
@@ -68,12 +67,11 @@ module.exports = (io) => {
                     if (contactPair && contactPair.blockedBy) {
                         return null;
                     }
-                    // Find the other participants user document
+
                     const otherUser = await User.findById(otherUserId);
 
-                    // Fetch the last message of the chat
                     let lastMessage = await Message.findOne({ chatId: chat._id }).sort({ createdAt: -1 });
-                    // If lastMessage is null, log a message to the console
+                    // If lastMessage is null, log a message to the console instead of crashing app
                     if (!lastMessage) {
                         console.log(`Last message for chat ${chat._id} is null`);
                         lastMessage = {};

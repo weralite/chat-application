@@ -149,7 +149,6 @@ const Chat = () => {
         }
     };
 
-
     // Decode token and set user ID and username
     useEffect(() => {
         const decodeToken = () => {
@@ -236,10 +235,8 @@ const Chat = () => {
                 console.log('Contains blocked user:', containsBlockedUser);
     
                 if (containsBlockedUser) {
-                    // Update the active chat only if it contains the blocked user
                     setActiveChat(null);
                 }
-                
                 // Fetch updated chats for the current user
                 socket.emit('get_all_chats', { userId });
             });
