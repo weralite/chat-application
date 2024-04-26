@@ -1,9 +1,9 @@
 import React from 'react';
 import Contacts from './contacts/contacts';
 import { useRef, useState, useEffect } from 'react';
-import ContactsModal from './contacts/addContactsModal';
+import AddContactsModal from './contacts/addContactsModal';
 
-const MenuModal = ({ username, userId, contacts, setContacts, chatList, setChatList, modalRef, isModalVisible, handleContactClick, setModalVisible, socket }) => {
+const MenuModal = ({ username, userId, contacts, setContacts, chatList, setChatList, modalRef, fetchContacts, isModalVisible, handleContactClick, setModalVisible, socket }) => {
     const [isAddModalVisible, setAddModalVisible] = useState(false);
     const addModalRef = useRef(null);
 
@@ -35,11 +35,14 @@ const MenuModal = ({ username, userId, contacts, setContacts, chatList, setChatL
                     handleContactClick={handleContactClick}
                     socket={socket}
                 />
-                <ContactsModal
+                <AddContactsModal
                     addModalRef={addModalRef}
                     isAddModalVisible={isAddModalVisible}
                     setAddModalVisible={setAddModalVisible}
                     staticUserId={userId}
+                    setContacts={setContacts}
+                    fetchContacts={fetchContacts}
+                    contacts={contacts}
                 />
                 <button onClick={() => {
                     setAddModalVisible(true);

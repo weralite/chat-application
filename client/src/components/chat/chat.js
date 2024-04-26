@@ -61,6 +61,7 @@ console.log('chatlist', chatList)
 
             const contacts = response.data
             setContacts(contacts)
+            console.log('contacts', contacts)
         } catch (error) {
             console.error('Failed to fetch contacts:', error);
         }
@@ -389,6 +390,7 @@ console.log('chatlist', chatList)
                         contacts={contacts}
                         socket={socket}
                         chatList={chatList}
+                        fetchContacts={fetchContacts}
                         setChatList={setChatList}
                         setContacts={setContacts}
                         modalRef={modalRef}

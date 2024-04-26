@@ -3,7 +3,7 @@ import axios from 'axios';
 import CustomAutocomplete from '../autoComplete/autoComplete';
 
 
-const ContactsModal = ({ addModalRef, isAddModalVisible, setAddModalVisible, staticUserId }) => {
+const AddContactsModal = ({ addModalRef, fetchContacts, isAddModalVisible, setAddModalVisible, staticUserId, setContacts, contacts }) => {
     const [userName, setUserName] = useState('');
     const [userId, setUserId] = useState('');
     const [users, setUsers] = useState([]);
@@ -27,10 +27,13 @@ const ContactsModal = ({ addModalRef, isAddModalVisible, setAddModalVisible, sta
     const handleAddContact = async () => {
         try {
             const body = {
-                user1Id: staticUserId, 
-                user2Id: userId 
+                user1Id: staticUserId,
+                user2Id: userId
             };
             const response = await axios.post('http://localhost:8080/api/v1/contacts/createContact', body);
+            if (response.status === 201) {
+            fetchContacts(); 
+            }
         } catch (error) {
             console.error(error);
         }
@@ -52,7 +55,7 @@ const ContactsModal = ({ addModalRef, isAddModalVisible, setAddModalVisible, sta
     }
 
     return (
-        <div ref={addModalRef} className={`contacts-modal ${isAddModalVisible ? 'visible' : ''}`}> 
+        <div ref={addModalRef} className={`contacts-modal ${isAddModalVisible ? 'visible' : ''}`}>
             <h4>Find user</h4>
             <CustomAutocomplete
                 options={users}
@@ -67,11 +70,11 @@ const ContactsModal = ({ addModalRef, isAddModalVisible, setAddModalVisible, sta
                 setClearInput={setClearInput}
             />
             <div>
-            <button onClick={handleClose}>Close</button>
-            <button onClick={handleSave}>Save</button>
+                <button onClick={handleClose}>Close</button>
+                <button onClick={handleSave}>Save</button>
             </div>
         </div>
     )
 }
 
-export default ContactsModal
+export default AddContactsModal
