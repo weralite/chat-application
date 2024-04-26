@@ -23,16 +23,20 @@ function CustomAutocomplete({ options, onInputChange, onChange, clearInput, setC
       setClearInput(false);
     }
   }, [clearInput, setClearInput]);
+  
 
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
     onInputChange(event, event.target.value);
   };
+  
 
   const handleOptionClick = (option) => {
     setInputValue(option.username);
+    setFilteredOptions([]);
     onChange(null, option);
   };
+  
 
   return (
     <div className='positions-box'>
