@@ -81,7 +81,7 @@ const Contacts = ({ userId, contacts, setContacts, setChatList, handleContactCli
                 return true;
             });
         });
-    }, [contacts]);
+    }, [contacts, setChatList, userId]);
 
     const blockContact = (contactId) => {
         if (socket) {
@@ -100,6 +100,8 @@ const Contacts = ({ userId, contacts, setContacts, setChatList, handleContactCli
     //
     // Not deleting from database ATM
     const deleteContact = async (contactId) => {
+        if (window.confirm('Are you sure you want to delete this contact?')) {
+
         try {
             console.log('contactId:', contactId);
             const res = await axios.delete(`http://localhost:8080/api/v1/contacts/deleteContact/${contactId}`);
@@ -110,6 +112,7 @@ const Contacts = ({ userId, contacts, setContacts, setChatList, handleContactCli
             }
         } catch (err) {
             console.error(err);
+        }
         }
     };  
 
