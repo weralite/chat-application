@@ -388,6 +388,7 @@ console.log('chatlist', chatList)
                         username={username}
                         contacts={contacts}
                         socket={socket}
+                        chatList={chatList}
                         setChatList={setChatList}
                         setContacts={setContacts}
                         modalRef={modalRef}
