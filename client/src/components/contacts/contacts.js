@@ -102,11 +102,7 @@ const Contacts = ({ userId, contacts, setContacts, setChatList, handleContactCli
     const deleteContact = async (contactId) => {
         try {
             console.log('contactId:', contactId);
-            const res = await axios.delete('http://localhost:8080/api/v1/contacts/deleteContact', {
-                params: {
-                    contactId
-                }
-            });
+            const res = await axios.delete(`http://localhost:8080/api/v1/contacts/deleteContact/${contactId}`);
             if (res.status === 200) {
                 setContacts(prevContacts => {
                     return prevContacts.filter(contact => contact._id !== contactId);
@@ -115,7 +111,7 @@ const Contacts = ({ userId, contacts, setContacts, setChatList, handleContactCli
         } catch (err) {
             console.error(err);
         }
-    };    
+    };  
 
     return (
         <div className='contacts-content'>

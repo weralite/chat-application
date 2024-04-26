@@ -69,10 +69,13 @@ async function getContact(req, res) {
 }
 
 async function deleteContact(req, res) {
-  const contactId = req.params.contactId;
+  const { id } = req.params;
 
   try {
-    await Contact.findByIdAndDelete(contactId);
+   const contact = await Contact.findByIdAndDelete(id);
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
     res.status(200).json({ message: 'Contact deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting contact: ' + error.message });
