@@ -3,7 +3,7 @@ import Contacts from './contacts/contacts';
 import { useRef, useState, useEffect } from 'react';
 import ContactsModal from './contacts/addContactsModal';
 
-const MenuModal = ({ username, userId, contacts, setContacts, modalRef, isModalVisible, handleContactClick, setModalVisible, socket }) => {
+const MenuModal = ({ username, userId, contacts, setContacts, setChatList, modalRef, isModalVisible, handleContactClick, setModalVisible, socket }) => {
     const [isAddModalVisible, setAddModalVisible] = useState(false);
     const addModalRef = useRef(null);
 
@@ -29,6 +29,7 @@ const MenuModal = ({ username, userId, contacts, setContacts, modalRef, isModalV
                 <Contacts
                     userId={userId}
                     setContacts={setContacts}
+                    setChatList={setChatList}
                     contacts={contacts}
                     handleContactClick={handleContactClick}
                     socket={socket}

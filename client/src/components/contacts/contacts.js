@@ -3,13 +3,11 @@ import axios from 'axios';
 import { useEffect } from 'react';
 
 
-const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket }) => {
-
+const Contacts = ({ userId, contacts, setContacts, setChatList, handleContactClick, socket }) => {
 
     // Listen for contactBlocked and contactUnBlocked events
     useEffect(() => {
         if (!socket) return;
-
         socket.on('contactBlocked', ({ contactId, blockedBy }) => {
             setContacts(prevContacts => {
                 return prevContacts.map(contact => {
@@ -20,6 +18,7 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
                 });
             });
         });
+
         socket.on('contactUnBlocked', ({ contactId, blockedBy }) => {
             setContacts(prevContacts => {
                 return prevContacts.map(contact => {
@@ -34,7 +33,7 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
             socket.off('contactBlocked');
             socket.off('contactUnBlocked');
         };
-    }, [socket, setContacts]);
+    }, [socket, setContacts, setChatList]);
 
     // Emits blockContact and unblock event to server
     useEffect(() => {
@@ -67,7 +66,22 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
                 socket.off('unblockContactSuccess');
             };
         }
-    }, [socket, setContacts]);
+    }, [socket, setContacts, setChatList, contacts]);
+
+    // Filter the chatList based on the contacts state
+    useEffect(() => {
+        setChatList(prevChats => {
+            return prevChats.filter(chat => {
+                const contact = contacts.find(c => chat.participants.includes(c._id));
+                console.log('participants:', chat.participants);
+    
+                if (contact && contact.blockedBy === userId) {
+                    return false;
+                }
+                return true;
+            });
+        });
+    }, [contacts]);
 
     const blockContact = (contactId) => {
         if (socket) {
@@ -81,8 +95,13 @@ const Contacts = ({ userId, contacts, setContacts, handleContactClick, socket })
         }
     };
 
+
+    //
+    //
+    // Not deleting from database ATM
     const deleteContact = async (contactId) => {
         try {
+            console.log('contactId:', contactId);
             const res = await axios.delete('http://localhost:8080/api/v1/contacts/deleteContact', {
                 params: {
                     contactId

@@ -31,7 +31,7 @@ const Chat = () => {
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
     const modalRef = useRef(null); // Keeping track of the modal
 
-
+console.log('chatlist', chatList)
     // Decode token and set user ID and username
     useEffect(() => {
         const decodeToken = () => {
@@ -388,6 +388,7 @@ const Chat = () => {
                         username={username}
                         contacts={contacts}
                         socket={socket}
+                        setChatList={setChatList}
                         setContacts={setContacts}
                         modalRef={modalRef}
                         isModalVisible={isModalVisible}
