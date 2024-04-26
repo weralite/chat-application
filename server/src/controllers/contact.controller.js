@@ -1,4 +1,5 @@
 const Contact = require('../models/contact.model');
+const Chat = require('../models/chat.model');
 const User = require('../models/user.model');
 
 

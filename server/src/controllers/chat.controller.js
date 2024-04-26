@@ -15,7 +15,7 @@ async function createChat(req, res) {
       res.status(200).json(existingChat);
     } else {
       // If the chat does not exist, create a new chat
-      const chat = new Chat({ participants: [senderId, receiverId]});
+      const chat = new Chat({ participants: [senderId, receiverId] });
       await chat.save();
 
       res.status(201).json(chat);
@@ -25,6 +25,20 @@ async function createChat(req, res) {
   }
 };
 
+async function deleteChat(req, res) {
+  try {
+    const { id } = req.params;
+    const chat = await Chat.deleteOne({
+      _id: id
+    });
+
+    res.status(200).json(chat);
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting chat: ' + error.message });
+  }
+}
+
 module.exports = {
   createChat,
+  deleteChat,
 };
