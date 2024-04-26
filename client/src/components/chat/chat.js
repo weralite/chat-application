@@ -225,13 +225,26 @@ const Chat = () => {
     // Listen for 'requestChatUpdate' event to update chat list when user is blocked/unblocked
     useEffect(() => {
         if (socket) {
-            socket.on('requestChatUpdate', ({ userId }) => {
+            socket.on('requestChatUpdate', ({ userId, blockedUserId }) => {
+                console.log('Active chat:', activeChat);
+                console.log('Blocked user ID:', blockedUserId);
+                console.log('Active chat participants:', activeChat ? activeChat.participants : null);
+                console.log('User ID:', userId)
+                
+                // Check if the active chat contains the blocked user ID
+                const containsBlockedUser = activeChat && activeChat.participants.includes(blockedUserId);
+                console.log('Contains blocked user:', containsBlockedUser);
+    
+                if (containsBlockedUser) {
+                    // Update the active chat only if it contains the blocked user
+                    setActiveChat(null);
+                }
+                
+                // Fetch updated chats for the current user
                 socket.emit('get_all_chats', { userId });
-                setActiveChat(null);
-
             });
         }
-    }, [socket, userId]);
+    }, [socket, userId, activeChat]);
 
     // Effect for fetching chats and updating chat list
     useEffect(() => {

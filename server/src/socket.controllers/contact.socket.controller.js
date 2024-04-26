@@ -9,13 +9,16 @@ module.exports = (io) => {
                     io.to(userId).emit('blockContactError', 'Contact not found');
                     return;
                 }
+
+                const blockedUserId = userId === contact.user1Id.toString() ? contact.user2Id : contact.user1Id;
+
                 
                 contact.blockedBy = contact.blockedBy ? [...contact.blockedBy, userId] : [userId];
                 await contact.save();
 
                 socket.emit('blockContactSuccess', { contactId, blockedBy: userId });
                 io.emit('contactBlocked', { contactId, blockedBy: userId });
-                io.emit('requestChatUpdate', { userId });
+                io.emit('requestChatUpdate', { userId, blockedUserId });
                 // io.to(contactId).emit('contactBlocked', { contactId, blockedBy: userId });
                 
             } catch (error) {
@@ -37,7 +40,7 @@ module.exports = (io) => {
 
                 socket.emit('unblockContactSuccess', { contactId, blockedBy: userId });
                 io.emit('contactUnBlocked', { contactId, blockedBy: userId });
-                io.emit('requestChatUpdate', { userId });
+                io.emit('requestChatUpdate', { userId, blockedUserId: contactId });
             } catch (error) {
                 console.error('Error unblocking contact:', error);
                 io.to(userId).emit('unblockContactError', 'Error unblocking contact');
