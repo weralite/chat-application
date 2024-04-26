@@ -68,20 +68,6 @@ const Contacts = ({ userId, contacts, setContacts, chatList, setChatList, handle
         }
     }, [socket, setContacts, setChatList, contacts]);
 
-    // Filter the chatList based on the contacts state
-    useEffect(() => {
-        setChatList(prevChats => {
-            return prevChats.filter(chat => {
-                const contact = contacts.find(c => chat.participants.includes(c._id));
-                if (contact && contact.blockedBy === userId) {
-                    return false;
-                }
-                return true;
-            });
-            
-        });
-        
-    }, [contacts, setChatList, userId]);
 
     const blockContact = (contactId) => {
         if (socket) {
@@ -96,8 +82,6 @@ const Contacts = ({ userId, contacts, setContacts, chatList, setChatList, handle
     };
 
 
-    //
-    //
     // Not deleting from database ATM
     const deleteContact = async (contactId) => {
         if (window.confirm('Are you sure you want to delete this contact? Chat conversation will be deleted as well.')) {

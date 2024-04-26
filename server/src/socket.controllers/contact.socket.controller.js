@@ -15,6 +15,7 @@ module.exports = (io) => {
 
                 socket.emit('blockContactSuccess', { contactId, blockedBy: userId });
                 io.emit('contactBlocked', { contactId, blockedBy: userId });
+                io.emit('requestChatUpdate', { userId });
                 // io.to(contactId).emit('contactBlocked', { contactId, blockedBy: userId });
                 
             } catch (error) {
@@ -36,6 +37,7 @@ module.exports = (io) => {
 
                 socket.emit('unblockContactSuccess', { contactId, blockedBy: userId });
                 io.emit('contactUnBlocked', { contactId, blockedBy: userId });
+                io.emit('requestChatUpdate', { userId });
             } catch (error) {
                 console.error('Error unblocking contact:', error);
                 io.to(userId).emit('unblockContactError', 'Error unblocking contact');

@@ -221,6 +221,17 @@ console.log('chatlist', chatList)
         };
     }, [modalRef]);
 
+    useEffect(() => {
+        if (socket) {
+            socket.on('requestChatUpdate', ({ userId }) => {
+                // Make a request to fetch updated chats
+                // Emit the get_all_chats event to request updated chats from the server
+                socket.emit('get_all_chats', { userId });
+
+            });
+        }
+    }, [socket, userId]);
+
     // Effect for fetching chats and updating chat list
     useEffect(() => {
         if (!socket) return;
