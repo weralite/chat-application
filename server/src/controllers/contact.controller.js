@@ -1,6 +1,7 @@
 const Contact = require('../models/contact.model');
 const Chat = require('../models/chat.model');
 const User = require('../models/user.model');
+const deleteChat = require('../controllers/chat.controller').deleteChat;
 
 
 async function createContact(req, res) {
@@ -53,13 +54,13 @@ async function getContact(req, res) {
 
     const filteredContacts = contacts.map(contact => {
       if (contact.blockedBy && contact.blockedBy.toString() !== userId) {
-        return null; 
+        return null;
       }
 
       if (contact.user1Id._id.toString() === userId) {
-        return {  _id: contact._id, contact: contact.user2Id, blockedBy: contact.blockedBy };
+        return { _id: contact._id, contact: contact.user2Id, blockedBy: contact.blockedBy };
       } else {
-        return {  _id: contact._id, contact: contact.user1Id, blockedBy: contact.blockedBy };
+        return { _id: contact._id, contact: contact.user1Id, blockedBy: contact.blockedBy };
       }
     }).filter(contact => contact !== null);
 
@@ -73,15 +74,32 @@ async function deleteContact(req, res) {
   const { id } = req.params;
 
   try {
-   const contact = await Contact.findByIdAndDelete(id);
+    const contact = await Contact.findById(id);
+
     if (!contact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
-    res.status(200).json({ message: 'Contact deleted successfully' });
+
+    // Extract the two user IDs from the contact
+    const { user1Id, user2Id } = contact;
+
+    // Find the chat where the participants match the two user IDs
+    const chat = await Chat.findOne({
+      participants: { $all: [user1Id, user2Id] }
+    });
+    // If a chat with matching participants is found, delete it
+    if (chat) {
+      await Chat.findByIdAndDelete(chat._id);
+    }
+
+    // Delete the contact
+    await Contact.findByIdAndDelete(id);
+
+    res.status(200).json({ message: 'Contact and associated chat deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting contact: ' + error.message });
   }
-};
+}
 
 async function blockContact(req, res) {
   const { contactId, userId } = req.body;

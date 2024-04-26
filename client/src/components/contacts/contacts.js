@@ -100,7 +100,7 @@ const Contacts = ({ userId, contacts, setContacts, setChatList, handleContactCli
     //
     // Not deleting from database ATM
     const deleteContact = async (contactId) => {
-        if (window.confirm('Are you sure you want to delete this contact?')) {
+        if (window.confirm('Are you sure you want to delete this contact? Chat conversation will be deleted as well.')) {
 
         try {
             console.log('contactId:', contactId);
