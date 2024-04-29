@@ -1,0 +1,35 @@
+.icon {
+    position: relative;
+}
+
+.icon:hover {
+    cursor: pointer;
+}
+.context-menu {
+    position: absolute;
+    z-index: 99;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 5px 0;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    top: calc(100% + 5px);
+    overflow: visible;
+}
+
+.context-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    text-align: left;
+}
+
+.context-menu button:hover {
+    background-color: #f0f0f0;
+}

@@ -139,10 +139,16 @@ font-size: 18px;
 }
 
 .contacts-inner {
+  position: relative;
   border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
   display: flex;
   flex-direction: column;
-  padding: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  height: 20rem;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .contacts-modal {
@@ -204,6 +210,11 @@ font-size: 18px;
 li {
   list-style-type: none;
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  left: 20px;
+  gap: 3px;
+  padding: 5px;
 }
 
 .user-contact-box {
