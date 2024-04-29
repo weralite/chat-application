@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import '../styles/login.style.css';
 
 const LoginUser = () => {
     const [username, setUsername] = useState('');
@@ -28,8 +29,8 @@ const LoginUser = () => {
             const { token } = response.data;
             localStorage.setItem('token', token);
 
-             navigate('/chat');
-            
+            navigate('/chat');
+
         } catch (error) {
             console.log('Login failed:', error.response.data.message);
             setError(error.response.data.message);
@@ -38,26 +39,37 @@ const LoginUser = () => {
 
     return (
         <div className='chat-app'>
-            <h1>Login User</h1>
-            
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={handleUsernameInput}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={handlePasswordInput}
-                />
-                <button type="submit">Login</button>
-                {error && <p>{error}</p>
-                }
-            </form>
-            <p>No account? <Link to="/register">Register here</Link></p>
+            <div className='login-body'>
+                <h1>Login User</h1>
+
+                <form onSubmit={handleSubmit}>
+                    <div>
+                        <input
+                            type="text"
+                            placeholder="Username"
+                            value={username}
+                            required={true}
+                            onChange={handleUsernameInput}
+                        />
+                    </div>
+                    <div>
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            required={true}
+                            onChange={handlePasswordInput}
+                        />
+                    </div>
+                    <div className='button-box'>
+                        <button type="submit">Login</button>
+                    </div>
+                    {error && <p>{error}</p>
+                    }
+
+                </form>
+                <p>No account? <Link to="/register">Register here</Link></p>
+            </div>
         </div>
     );
 };

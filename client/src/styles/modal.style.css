@@ -1,0 +1,22 @@
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100%
+}
+
+.input-box {
+    height: 2rem;
+}
+
+.modal-button-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    gap: 1rem;
+}
+
+.modal-button-box button {
+    width: 5.5rem;
+}

@@ -53,6 +53,7 @@ io.on('connection', (socket) => {
     socket.join(userId); // Join the user's room
     
     connectedUsers[userId] = socketId; // Store the socket ID in your connectedUsers object
+    console.log('Connected users:', connectedUsers);
     io.emit('userConnected', userId);
     console.log('User connected:', userId, 'with socket ID:', socketId);
     io.emit('connectedUsers', Object.keys(connectedUsers));

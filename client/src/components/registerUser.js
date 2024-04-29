@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../styles/register.style.css';
 
 const RegisterUser = () => {
     const [username, setUsername] = useState('');
@@ -29,30 +30,39 @@ const RegisterUser = () => {
         }
     };
 
+    const exitForm = () => {
+        navigate('/');
+    }
+
     return (
         <div className='chat-app'>
+            <div className='registration-body'>
             <h2>User Registration</h2>
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label htmlFor="username">Username:</label>
                     <input
                         type="text"
                         id="username"
                         value={username}
+                        placeholder='Username'
                         onChange={handleUsernameInput}
                     />
                 </div>
                 <div>
-                    <label htmlFor="password">Password:</label>
                     <input
                         type="password"
                         id="password"
                         value={password}
+                        placeholder='Password'
                         onChange={handlePasswordInput}
                     />
                 </div>
+                <div className='button-box'>
+                <button onClick={exitForm}>Back</button>
                 <button type="submit">Register</button>
+                </div>
             </form>
+            </div>
         </div>
     );
 };

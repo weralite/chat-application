@@ -32,8 +32,8 @@ function CustomAutocomplete({ options, onInputChange, onChange, clearInput, setC
   
 
   const handleOptionClick = (option) => {
-    setInputValue(option.username);
     setFilteredOptions([]);
+    setInputValue(option.username);
     onChange(null, option);
   };
   

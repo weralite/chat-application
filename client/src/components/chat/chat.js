@@ -189,10 +189,9 @@ const Chat = () => {
 
         if (!socket) return;
 
-        socket.on('connectedUsers', (users) => {
-            setConnectedUsers(users);
+        socket.on('connectedUsers', (users, socketId) => {
+            setConnectedUsers(users, socketId);
         });
-
         socket.on('userConnected', (users) => {
             setConnectedUsers(users);
         });
@@ -229,11 +228,11 @@ const Chat = () => {
                 console.log('Blocked user ID:', blockedUserId);
                 console.log('Active chat participants:', activeChat ? activeChat.participants : null);
                 console.log('User ID:', userId)
-                
+
                 // Check if the active chat contains the blocked user ID
                 const containsBlockedUser = activeChat && activeChat.participants.includes(blockedUserId);
                 console.log('Contains blocked user:', containsBlockedUser);
-    
+
                 if (containsBlockedUser) {
                     setActiveChat(null);
                 }
@@ -428,7 +427,7 @@ const Chat = () => {
                         ☰
                     </button>
                 </div>
-                
+
                 <ChatList
                     chatList={chatList}
                     openChatByChatId={openChatByChatId}

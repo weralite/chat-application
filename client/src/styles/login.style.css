@@ -1,0 +1,43 @@
+.login-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    min-width: 20rem;
+    min-height: 10rem;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+form div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+form div label {
+    font-size: 1rem;
+}
+
+form div input {
+    font-size: 1rem;
+    text-align: center;
+}
+
+.button-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    gap: 1rem;
+}
+
+.button-box button {
+    width: 100%;
+}

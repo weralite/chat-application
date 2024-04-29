@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CustomAutocomplete from '../autoComplete/autoComplete';
+import '../../styles/modal.style.css';
 
 
 const AddContactsModal = ({ addModalRef, fetchContacts, isAddModalVisible, setAddModalVisible, staticUserId, setContacts, contacts }) => {
@@ -56,7 +57,9 @@ const AddContactsModal = ({ addModalRef, fetchContacts, isAddModalVisible, setAd
 
     return (
         <div ref={addModalRef} className={`contacts-modal ${isAddModalVisible ? 'visible' : ''}`}>
+            <div className='modal-body'>
             <h4>Find user</h4>
+            <div className='input-box'>
             <CustomAutocomplete
                 options={users}
                 onInputChange={(event, newInputValue) => {
@@ -69,9 +72,11 @@ const AddContactsModal = ({ addModalRef, fetchContacts, isAddModalVisible, setAd
                 clearInput={clearInput}
                 setClearInput={setClearInput}
             />
-            <div>
+            </div>
+            <div className='modal-button-box'>
                 <button onClick={handleClose}>Close</button>
                 <button onClick={handleSave}>Save</button>
+            </div>
             </div>
         </div>
     )
