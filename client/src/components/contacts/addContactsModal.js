@@ -16,6 +16,21 @@ const AddContactsModal = ({ addModalRef, fetchContacts, isAddModalVisible, setAd
         }
     }, [userName]);
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (addModalRef.current && !addModalRef.current.contains(event.target)) {
+                setAddModalVisible(false);
+                setUserName('');
+                setUserId('');
+                setClearInput(true);
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [addModalRef, setAddModalVisible]);
+
     async function getUsers() {
         try {
             const response = await axios.get(`http://localhost:8080/api/v1/users/users?name=${userName}`);
@@ -54,6 +69,7 @@ const AddContactsModal = ({ addModalRef, fetchContacts, isAddModalVisible, setAd
         setClearInput(true);
         setAddModalVisible(false);
     }
+
 
     return (
         <div ref={addModalRef} className={`contacts-modal ${isAddModalVisible ? 'visible' : ''}`}>

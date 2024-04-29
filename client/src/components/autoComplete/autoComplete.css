@@ -12,9 +12,10 @@
 }
 
 .option-item {
+  text-align: center;
   background-color: #fff;
   color: #000;
-  margin: auto;
+  /* margin: auto; */
   padding: 5px;
   cursor: pointer;
   border-bottom: 1px solid #e0e0e0;
