@@ -56,13 +56,16 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
             </div>
             {
                 sortedChats
-                    .filter(chat => chat.otherUsername.toLowerCase().includes(searchTerm.toLowerCase()))
+                .filter(chat => {
+                    const otherUsername = chat.otherUsername || '';
+                    return otherUsername.toLowerCase().includes((searchTerm || '').toLowerCase());
+                })
                     .map((chat) => (
                         <div key={chat._id} onClick={() => openChatByChatId(chat._id, Object.values(chat.participants))}>
                             <div className='chatlist-chatrow'>
                                 <div className='chatrow-left'>
                                     <b>{chat.otherUsername}</b>
-                                    <p>
+                                    <p className='paragraph'>
                                         {chat.lastMessage.content && chat.lastMessage.content.length > 20
                                             ? `${chat.lastMessage.content.slice(0, 15)}...`
                                             : chat.lastMessage.content || '(empty)'}

@@ -266,6 +266,10 @@ align-items: center;
   margin: 0;
 }
 
+.paragraph {
+  white-space: nowrap;
+}
+
 .hamburger-button {
   height: 100%;
 }
