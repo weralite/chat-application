@@ -45,6 +45,7 @@ const RegisterUser = () => {
                         id="username"
                         value={username}
                         placeholder='Username'
+                        required={true}
                         onChange={handleUsernameInput}
                     />
                 </div>
@@ -54,6 +55,7 @@ const RegisterUser = () => {
                         id="password"
                         value={password}
                         placeholder='Password'
+                        required={true}
                         onChange={handlePasswordInput}
                     />
                 </div>
