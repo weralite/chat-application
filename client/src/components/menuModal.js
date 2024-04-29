@@ -1,11 +1,14 @@
 import React from 'react';
 import Contacts from './contacts/contacts';
 import { useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AddContactsModal from './contacts/addContactsModal';
 
 const MenuModal = ({ username, userId, contacts, setContacts, chatList, setChatList, modalRef, fetchContacts, isModalVisible, handleContactClick, setModalVisible, socket }) => {
     const [isAddModalVisible, setAddModalVisible] = useState(false);
+
     const addModalRef = useRef(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -18,6 +21,11 @@ const MenuModal = ({ username, userId, contacts, setContacts, chatList, setChatL
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [addModalRef]);
+
+    const logout = () => {
+        localStorage.removeItem('token');
+        navigate('/');
+    };
 
 
     return (
@@ -51,7 +59,7 @@ const MenuModal = ({ username, userId, contacts, setContacts, chatList, setChatL
             </div>
 
             <div className='button-container'>
-                <button className='menu-button'>Logout</button>
+                <button className='menu-button' onClick={logout}>Logout</button>
                 <button className='menu-button' onClick={() => setModalVisible(false)}>Close</button>
             </div>
         </div>

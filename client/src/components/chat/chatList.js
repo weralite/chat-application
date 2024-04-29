@@ -49,13 +49,13 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
     return (
         <div className='chat-ongoing-chats'>
             <div className='chatlist-header'>
-            <input
-                className='find-chat-input'
-                type='text'
-                placeholder='Search'
-                value={searchTerm}
-                onChange={handleSearch}
-            />
+                <input
+                    className='find-chat-input'
+                    type='text'
+                    placeholder='Search'
+                    value={searchTerm}
+                    onChange={handleSearch}
+                />
             </div>
             {
                 sortedChats
@@ -65,7 +65,7 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
                             <div className='chatlist-chatrow'>
                                 <div className='chatrow-left'>
                                     <b>{chat.otherUsername}</b>
-                                    <p>{chat.lastMessage.content}</p>
+                                    <p>{chat.lastMessage.content.length > 20 ? `${chat.lastMessage.content.slice(0, 15)}...` : chat.lastMessage.content}</p>
                                 </div>
                                 <div className='chatrow-right'>
                                     <p>{chat.lastMessage.createdAt ? formatTime(chat.lastMessage.createdAt) : null}</p>
