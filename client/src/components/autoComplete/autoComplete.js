@@ -10,7 +10,7 @@ function CustomAutocomplete({ options, onInputChange, onChange, clearInput, setC
     if (inputValue) {
       const filtered = options.filter((option) =>
         option.username.toLowerCase().includes(inputValue.toLowerCase())
-      );
+      ).filter(option => option.username !== inputValue); // Exclude selected option
       setFilteredOptions(filtered);
     } else {
       setFilteredOptions([]);
@@ -32,9 +32,9 @@ function CustomAutocomplete({ options, onInputChange, onChange, clearInput, setC
   
 
   const handleOptionClick = (option) => {
-    setFilteredOptions([]);
     setInputValue(option.username);
     onChange(null, option);
+    setFilteredOptions([]);
   };
   
 
