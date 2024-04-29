@@ -414,6 +414,7 @@ const Chat = () => {
                         fetchContacts={fetchContacts}
                         setChatList={setChatList}
                         setContacts={setContacts}
+                        setActiveChat={setActiveChat}
                         modalRef={modalRef}
                         isModalVisible={isModalVisible}
                         handleContactClick={handleContactClick}

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useEffect } from 'react';
 
 
-const Contacts = ({ userId, contacts, setContacts, chatList, setChatList, handleContactClick, socket }) => {
+const Contacts = ({ userId, contacts, setContacts, setActiveChat, chatList, setChatList, handleContactClick, socket }) => {
 
     // Listen for contactBlocked and contactUnBlocked events
     useEffect(() => {
@@ -92,6 +92,8 @@ const Contacts = ({ userId, contacts, setContacts, chatList, setChatList, handle
                 setContacts(prevContacts => {
                     return prevContacts.filter(contact => contact._id !== contactId);
                 });
+                socket.emit('get_all_chats', { userId });
+                setActiveChat(null);
             }
         } catch (err) {
             console.error(err);

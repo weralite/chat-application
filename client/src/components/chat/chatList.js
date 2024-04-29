@@ -22,7 +22,6 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
         });
     }, [chatList, userId]);
 
-    // Sort the chat list based on the last message's timestamp
     const sortedChats = chatList.slice().sort((a, b) => {
         const lastMessageA = a.lastMessage;
         const lastMessageB = b.lastMessage;
@@ -30,11 +29,9 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
         // Ensure that lastMessage exists for both chats
         if (!lastMessageA || !lastMessageB) return 0;
 
-        // Compare timestamps to determine sorting order
         return new Date(lastMessageB.createdAt) - new Date(lastMessageA.createdAt);
     });
 
-    // Format the time to display in the chat list
     const formatTime = (dateTimeString) => {
         const date = new Date(dateTimeString);
         const hours = date.getHours().toString().padStart(2, '0');
@@ -65,7 +62,11 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
                             <div className='chatlist-chatrow'>
                                 <div className='chatrow-left'>
                                     <b>{chat.otherUsername}</b>
-                                    <p>{chat.lastMessage.content.length > 20 ? `${chat.lastMessage.content.slice(0, 15)}...` : chat.lastMessage.content}</p>
+                                    <p>
+                                        {chat.lastMessage.content && chat.lastMessage.content.length > 20
+                                            ? `${chat.lastMessage.content.slice(0, 15)}...`
+                                            : chat.lastMessage.content || '(empty)'}
+                                    </p>
                                 </div>
                                 <div className='chatrow-right'>
                                     <p>{chat.lastMessage.createdAt ? formatTime(chat.lastMessage.createdAt) : null}</p>

@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddContactsModal from './contacts/addContactsModal';
 
-const MenuModal = ({ username, userId, contacts, setContacts, chatList, setChatList, modalRef, fetchContacts, isModalVisible, handleContactClick, setModalVisible, socket }) => {
+const MenuModal = ({ username, userId, setActiveChat, contacts, setContacts, chatList, setChatList, modalRef, fetchContacts, isModalVisible, handleContactClick, setModalVisible, socket }) => {
     const [isAddModalVisible, setAddModalVisible] = useState(false);
 
     const addModalRef = useRef(null);
@@ -40,6 +40,7 @@ const MenuModal = ({ username, userId, contacts, setContacts, chatList, setChatL
                     setChatList={setChatList}
                     chatList={chatList}
                     contacts={contacts}
+                    setActiveChat={setActiveChat}
                     handleContactClick={handleContactClick}
                     socket={socket}
                 />
