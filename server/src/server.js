@@ -18,11 +18,20 @@ const io = socketIo(server, {
     }
 });
 
+let connectedUsers = {};
+
+const emitToUser = (userID, eventName, data) => {
+    const socketID = connectedUsers[userID];
+    if (socketID) {
+        io.to(socketID).emit(eventName, data);
+    } else {
+        console.log(`User with ID ${userID} is not connected.`);
+    }
+};
+
 chatSocketController(io);
 messageSocketController(io);
-contactsSocketController(io);
-
-let connectedUsers = {};
+contactsSocketController(io, emitToUser);
 
 io.use((socket, next) => {
     if (socket.handshake.query && socket.handshake.query.token) {
@@ -42,6 +51,7 @@ io.use((socket, next) => {
     }
 });
 
+
 io.on('connection', (socket) => {
     const userId = socket.handshake.query.userId;
     const socketId = socket.id;
@@ -50,8 +60,6 @@ io.on('connection', (socket) => {
         return;
     }
 
-    socket.join(userId); // Join the user's room
-    
     connectedUsers[userId] = socketId; // Store the socket ID in your connectedUsers object
     console.log('Connected users:', connectedUsers);
     io.emit('userConnected', userId);
@@ -67,6 +75,7 @@ io.on('connection', (socket) => {
             io.emit('connectedUsers', Object.keys(connectedUsers));
         }
     });
+    
 });
 
 app.get('/isUserConnected/:userId', (req, res) => {
