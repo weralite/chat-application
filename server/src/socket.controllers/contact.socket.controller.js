@@ -1,12 +1,12 @@
 const Contact = require('../models/contact.model');
 
-module.exports = (io, emitToUser) => {
+module.exports = (io, emitToUsers) => {
     io.on('connection', (socket) => {
         socket.on('blockContact', async ({ contactId, userId }) => {
             try {
                 const contact = await Contact.findById(contactId);
                 if (!contact) {
-                    emitToUser(userId, 'blockContactError', 'Contact not found');
+                    socket.emit(userId, 'blockContactError', 'Contact not found');
                     return;
                 }
 
@@ -16,16 +16,17 @@ module.exports = (io, emitToUser) => {
                 contact.blockedBy = contact.blockedBy ? [...contact.blockedBy, userId] : [userId];
                 await contact.save();
 
-                emitToUser(blockedUserId, 'contactBlocked', { contactId, blockedBy: userId });
-                emitToUser(blockedUserId, 'requestChatUpdate', { userId, blockedUserId });
-                emitToUser(blockedUserId, 'blockContactSuccess', { contactId, blockedBy: userId });
-                emitToUser(userId, 'contactBlocked', { contactId, blockedBy: userId });
-                emitToUser(userId, 'requestChatUpdate', { userId, blockedUserId });
-                emitToUser(userId, 'blockContactSuccess', { contactId, blockedBy: userId });
+                const events = [
+                    { eventName: 'contactBlocked', eventData: { contactId, blockedBy: userId } },
+                    { eventName: 'requestChatUpdate', eventData: { userId, blockedUserId } },
+                    { eventName: 'blockContactSuccess', eventData: { contactId, blockedBy: userId } },
+                ];
+                
+                emitToUsers([blockedUserId, userId], events);
 
             } catch (error) {
                 console.error('Error blocking contact:', error);
-                emitToUser(userId, 'blockContactError', 'Error blocking contact');
+                socket.emit(userId, 'blockContactError', 'Error blocking contact');
             }
         });
 
@@ -33,7 +34,7 @@ module.exports = (io, emitToUser) => {
             try {
                 const contact = await Contact.findById(contactId);
                 if (!contact) {
-                    emitToUser(userId, 'unblockContactError', 'Contact not found');
+                    socket.emit(userId, 'unblockContactError', 'Contact not found');
                     return;
                 }
                 const unBlockedUserId = userId === contact.user1Id.toString() ? contact.user2Id : contact.user1Id;
@@ -42,16 +43,17 @@ module.exports = (io, emitToUser) => {
                 contact.blockedBy = undefined;
                 await contact.save();
 
-                emitToUser(unBlockedUserId, 'contactUnblocked', { contactId, unblockedBy: userId });
-                emitToUser(unBlockedUserId, 'requestChatUpdate', { userId, blockedUserId: contactId });
-                emitToUser(unBlockedUserId, 'unblockContactSuccess', { contactId, unblockedBy: userId });
-                emitToUser(userId, 'contactUnblocked', { contactId, unblockedBy: userId });
-                emitToUser(userId, 'requestChatUpdate', { userId, blockedUserId: contactId });
-                emitToUser(userId, 'unblockContactSuccess', { contactId, unblockedBy: userId });
+                const events = [
+                    { eventName: 'contactUnblocked', eventData: { contactId, unblockedBy: userId } },
+                    { eventName: 'requestChatUpdate', eventData: { userId, blockedUserId: contactId } },
+                    { eventName: 'unblockContactSuccess', eventData: { contactId, unblockedBy: userId } },
+                ];
+                
+                emitToUsers([unBlockedUserId, userId], events);
 
             } catch (error) {
                 console.error('Error unblocking contact:', error);
-                emitToUser(userId, 'unblockContactError', 'Error unblocking contact');
+                socket.emit(userId, 'unblockContactError', 'Error unblocking contact');
             }
         });
 

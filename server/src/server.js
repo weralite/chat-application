@@ -29,9 +29,17 @@ const emitToUser = (userID, eventName, data) => {
     }
 };
 
+const emitToUsers = (userIDs, events) => {
+    userIDs.forEach(userID => {
+        events.forEach(event => {
+            emitToUser(userID, event.eventName, event.eventData);
+        });
+    });
+};
+
 chatSocketController(io, emitToUser);
 messageSocketController(io, emitToUser);
-contactsSocketController(io, emitToUser);
+contactsSocketController(io, emitToUsers);
 
 io.use((socket, next) => {
     if (socket.handshake.query && socket.handshake.query.token) {
