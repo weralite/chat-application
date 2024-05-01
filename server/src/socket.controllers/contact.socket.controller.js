@@ -12,16 +12,13 @@ module.exports = (io, emitToUser) => {
 
                 const blockedUserId = userId === contact.user1Id.toString() ? contact.user2Id : contact.user1Id;
 
-                // Add the current user to the blockedBy array if not already present
+                // Add the current user to the blockedBy field if not already present
                 contact.blockedBy = contact.blockedBy ? [...contact.blockedBy, userId] : [userId];
                 await contact.save();
 
-                // Emit events to both users involved in the contact
                 emitToUser(blockedUserId, 'contactBlocked', { contactId, blockedBy: userId });
-                emitToUser(userId, 'requestChatUpdate', { userId, blockedUserId });
                 emitToUser(blockedUserId, 'requestChatUpdate', { userId, blockedUserId });
-
-                // Emit success event to the user who initiated the block operation
+                emitToUser(userId, 'requestChatUpdate', { userId, blockedUserId });
                 emitToUser(userId, 'blockContactSuccess', { contactId, blockedBy: userId });
 
             } catch (error) {
@@ -43,12 +40,9 @@ module.exports = (io, emitToUser) => {
                 contact.blockedBy = undefined;
                 await contact.save();
 
-                // Emit events to both users involved in the contact
                 emitToUser(unBlockedUserId, 'contactUnblocked', { contactId, unblockedBy: userId });
-                emitToUser(userId, 'requestChatUpdate', { userId, blockedUserId: contactId });
                 emitToUser(unBlockedUserId, 'requestChatUpdate', { userId, blockedUserId: contactId });
-
-                // Emit success event to the user who initiated the unblock operation
+                emitToUser(userId, 'requestChatUpdate', { userId, blockedUserId: contactId });
                 emitToUser(userId, 'unblockContactSuccess', { contactId, unblockedBy: userId });
 
             } catch (error) {
