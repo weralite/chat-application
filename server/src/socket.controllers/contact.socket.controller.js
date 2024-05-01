@@ -1,6 +1,7 @@
+const { emit } = require('../app');
 const Contact = require('../models/contact.model');
 
-module.exports = (io, emitEventsToUsers) => {
+module.exports = (io, emitToUser) => {
     io.on('connection', (socket) => {
         socket.on('blockContact', async ({ contactId, userId }) => {
             try {
@@ -16,13 +17,19 @@ module.exports = (io, emitEventsToUsers) => {
                 contact.blockedBy = contact.blockedBy ? [...contact.blockedBy, userId] : [userId];
                 await contact.save();
 
+                const users = [blockedUserId, userId];
+
                 const events = [
                     { eventName: 'contactBlocked', eventData: { contactId, blockedBy: userId } },
                     { eventName: 'requestChatUpdate', eventData: { userId, blockedUserId } },
                     { eventName: 'blockContactSuccess', eventData: { contactId, blockedBy: userId } },
                 ];
                 
-                emitEventsToUsers([blockedUserId, userId], events);
+                users.forEach(user => {
+                    events.forEach(event => {
+                        emitToUser(user, event.eventName, event.eventData);
+                    });
+                });
 
             } catch (error) {
                 console.error('Error blocking contact:', error);
@@ -42,14 +49,20 @@ module.exports = (io, emitEventsToUsers) => {
                 // Reset the blockedBy field
                 contact.blockedBy = undefined;
                 await contact.save();
- 
+
+                const users = [unBlockedUserId, userId];
+
                 const events = [
                     { eventName: 'contactUnblocked', eventData: { contactId } },
-                    { eventName: 'requestChatUpdate', eventData: { userId, unBlockedUserId } },
+                    { eventName: 'requestChatUpdate', eventData: { userIds: [userId, unBlockedUserId]} },
                     { eventName: 'unblockContactSuccess', eventData: { contactId, unblockedBy: userId } },
                 ];
-                emitEventsToUsers([unBlockedUserId, userId], events);
-
+                
+                users.forEach(user => {
+                    events.forEach(event => {
+                        emitToUser(user, event.eventName, event.eventData);
+                    });
+                });
             } catch (error) {
                 console.error('Error unblocking contact:', error);
                 socket.emit(userId, 'unblockContactError', 'Error unblocking contact');

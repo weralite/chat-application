@@ -223,7 +223,7 @@ const Chat = () => {
     // Listen for 'requestChatUpdate' event to update chat list when user is blocked/unblocked
     useEffect(() => {
         if (socket) {
-            socket.on('requestChatUpdate', ({ userId, blockedUserId }) => {
+            socket.on('requestChatUpdate', ({ blockedUserId }) => {
 
                 // Check if the active chat contains the blocked user ID
                 const containsBlockedUser = activeChat && activeChat.participants.includes(blockedUserId);
