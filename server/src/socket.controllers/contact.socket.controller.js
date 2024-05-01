@@ -55,7 +55,7 @@ module.exports = (io, emitToUser) => {
                 const events = [
                     { eventName: 'contactUnblocked', eventData: { contactId } },
                     { eventName: 'requestChatUpdate', eventData: { userIds: [userId, unBlockedUserId]} },
-                    { eventName: 'unblockContactSuccess', eventData: { contactId, unblockedBy: userId } },
+                    { eventName: 'unblockContactSuccess', eventData: { contactId } },
                 ];
                 
                 users.forEach(user => {
