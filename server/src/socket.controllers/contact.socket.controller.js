@@ -19,6 +19,7 @@ module.exports = (io, emitToUser) => {
                 emitToUser(blockedUserId, 'contactBlocked', { contactId, blockedBy: userId });
                 emitToUser(blockedUserId, 'requestChatUpdate', { userId, blockedUserId });
                 emitToUser(blockedUserId, 'blockContactSuccess', { contactId, blockedBy: userId });
+                emitToUser(userId, 'contactBlocked', { contactId, blockedBy: userId });
                 emitToUser(userId, 'requestChatUpdate', { userId, blockedUserId });
                 emitToUser(userId, 'blockContactSuccess', { contactId, blockedBy: userId });
 
@@ -44,6 +45,7 @@ module.exports = (io, emitToUser) => {
                 emitToUser(unBlockedUserId, 'contactUnblocked', { contactId, unblockedBy: userId });
                 emitToUser(unBlockedUserId, 'requestChatUpdate', { userId, blockedUserId: contactId });
                 emitToUser(unBlockedUserId, 'unblockContactSuccess', { contactId, unblockedBy: userId });
+                emitToUser(userId, 'contactUnblocked', { contactId, unblockedBy: userId });
                 emitToUser(userId, 'requestChatUpdate', { userId, blockedUserId: contactId });
                 emitToUser(userId, 'unblockContactSuccess', { contactId, unblockedBy: userId });
 
