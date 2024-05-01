@@ -1,8 +1,6 @@
 const User = require('../models/user.model');
-const Contact = require('../models/contact.model');
 const bcrypt = require('bcrypt');
 
-// User registration controller
 async function createUser(req, res) {
   try {
     const _user = req.body;

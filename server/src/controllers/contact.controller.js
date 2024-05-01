@@ -1,6 +1,5 @@
 const Contact = require('../models/contact.model');
 const Chat = require('../models/chat.model');
-const User = require('../models/user.model');
 const deleteChat = require('../controllers/chat.controller').deleteChat;
 
 
@@ -79,20 +78,15 @@ async function deleteContact(req, res) {
     if (!contact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
-
-    // Extract the two user IDs from the contact
     const { user1Id, user2Id } = contact;
 
-    // Find the chat where the participants match the two user IDs
     const chat = await Chat.findOne({
       participants: { $all: [user1Id, user2Id] }
     });
-    // If a chat with matching participants is found, delete it
+
     if (chat) {
       await Chat.findByIdAndDelete(chat._id);
     }
-
-    // Delete the contact
     await Contact.findByIdAndDelete(id);
 
     res.status(200).json({ message: 'Contact and associated chat deleted successfully' });
@@ -101,52 +95,12 @@ async function deleteContact(req, res) {
   }
 }
 
-async function blockContact(req, res) {
-  const { contactId, userId } = req.body;
 
-  try {
-    const contact = await Contact.findById(contactId);
-
-    if (!contact) {
-      return res.status(404).json({ message: 'Contact not found' });
-    }
-
-    if (contact.blockedBy && contact.blockedBy.includes(userId)) {
-      return res.status(400).json({ message: 'Contact is already blocked' });
-    }
-
-    contact.blockedBy = contact.blockedBy ? [...contact.blockedBy, userId] : [userId];
-    await contact.save();
-
-    res.status(200).json({ message: 'Contact blocked successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error blocking contact: ' + error.message });
-  }
-}
-async function unBlockContact(req, res) {
-  const { contactId } = req.body;
-
-  try {
-    const contact = await Contact.findById(contactId);
-    if (!contact) {
-      return res.status(404).json({ message: 'Contact not found' });
-    }
-    contact.blockedBy = undefined; // Removes blockedBy entry
-
-    await contact.save();
-
-    res.status(200).json({ message: 'Contact unblocked successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error unblocking contact: ' + error.message });
-  }
-}
 
 
 module.exports = {
-  unBlockContact,
   createContact,
   getContact,
   getAllContacts,
   deleteContact,
-  blockContact
 };
