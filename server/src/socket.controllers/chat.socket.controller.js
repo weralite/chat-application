@@ -23,6 +23,7 @@ module.exports = (io) => {
                 let chat = await Chat.findOne({
                     participants: { $all: [senderId, receiverId] }
                 });
+                
                 if (!chat) {
                     // Create a new chat with participants
                     chat = new Chat({ participants: [senderId, receiverId] });

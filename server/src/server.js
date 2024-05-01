@@ -29,8 +29,8 @@ const emitToUser = (userID, eventName, data) => {
     }
 };
 
-chatSocketController(io);
-messageSocketController(io);
+chatSocketController(io, emitToUser);
+messageSocketController(io, emitToUser);
 contactsSocketController(io, emitToUser);
 
 io.use((socket, next) => {
