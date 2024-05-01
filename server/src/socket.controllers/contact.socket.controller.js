@@ -1,6 +1,6 @@
 const Contact = require('../models/contact.model');
 
-module.exports = (io, emitToUsers) => {
+module.exports = (io, emitEventsToUsers) => {
     io.on('connection', (socket) => {
         socket.on('blockContact', async ({ contactId, userId }) => {
             try {
@@ -22,7 +22,7 @@ module.exports = (io, emitToUsers) => {
                     { eventName: 'blockContactSuccess', eventData: { contactId, blockedBy: userId } },
                 ];
                 
-                emitToUsers([blockedUserId, userId], events);
+                emitEventsToUsers([blockedUserId, userId], events);
 
             } catch (error) {
                 console.error('Error blocking contact:', error);
@@ -49,7 +49,7 @@ module.exports = (io, emitToUsers) => {
                     { eventName: 'unblockContactSuccess', eventData: { contactId, unblockedBy: userId } },
                 ];
                 
-                emitToUsers([unBlockedUserId, userId], events);
+                emitEventsToUsers([unBlockedUserId, userId], events);
 
             } catch (error) {
                 console.error('Error unblocking contact:', error);
