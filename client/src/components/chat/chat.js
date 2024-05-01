@@ -244,7 +244,7 @@ const Chat = () => {
         const handleChats = (chatsWithUsernamesAndLastMessage) => {
             setChatList(chatsWithUsernamesAndLastMessage);
         };
-console.log('chatlsit', chatList)
+
         socket.emit('get_all_chats', { userId });
         socket.on('chats', handleChats);
 

@@ -42,13 +42,12 @@ module.exports = (io, emitEventsToUsers) => {
                 // Reset the blockedBy field
                 contact.blockedBy = undefined;
                 await contact.save();
-
+ 
                 const events = [
-                    { eventName: 'contactUnblocked', eventData: { contactId, unblockedBy: userId } },
-                    { eventName: 'requestChatUpdate', eventData: { userId, blockedUserId: contactId } },
+                    { eventName: 'contactUnblocked', eventData: { contactId } },
+                    { eventName: 'requestChatUpdate', eventData: { userId } },
                     { eventName: 'unblockContactSuccess', eventData: { contactId, unblockedBy: userId } },
                 ];
-                
                 emitEventsToUsers([unBlockedUserId, userId], events);
 
             } catch (error) {

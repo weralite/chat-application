@@ -38,7 +38,7 @@ const Contacts = ({ userId, contacts, setContacts, setActiveChat, chatList, setC
             });
         });
 
-        socket.on('contactUnBlocked', ({ contactId, blockedBy }) => {
+        socket.on('contactUnBlocked', ({ contactId }) => {
             setContacts(prevContacts => {
                 return prevContacts.map(contact => {
                     if (contact._id === contactId) {
