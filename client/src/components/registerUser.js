@@ -21,7 +21,6 @@ const RegisterUser = () => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:8080/api/v1/users/register', { username, password });
-            console.log('Registration successful:', response.data);
             setUsername('');
             setPassword('');
             navigate('/');

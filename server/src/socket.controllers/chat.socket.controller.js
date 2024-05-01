@@ -74,7 +74,6 @@ module.exports = (io) => {
                     let lastMessage = await Message.findOne({ chatId: chat._id }).sort({ createdAt: -1 });
                     // If lastMessage is null, log a message to the console instead of crashing app
                     if (!lastMessage) {
-                        console.log(`Last message for chat ${chat._id} is null`);
                         lastMessage = {};
                     }
 
