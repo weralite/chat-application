@@ -224,6 +224,7 @@ const Chat = () => {
     useEffect(() => {
         if (socket) {
             socket.on('requestChatUpdate', ({ userId, blockedUserId }) => {
+
                 // Check if the active chat contains the blocked user ID
                 const containsBlockedUser = activeChat && activeChat.participants.includes(blockedUserId);
                 console.log('Contains blocked user:', containsBlockedUser);
@@ -233,10 +234,10 @@ const Chat = () => {
                 }
                 // Fetch updated chats for the current user
                 socket.emit('get_all_chats', { userId });
+                console.log('Requesting chat update for user:', userId);
             });
         }
     }, [socket, userId, activeChat]);
-
     // Effect for fetching chats and updating chat list
     useEffect(() => {
         if (!socket) return;
