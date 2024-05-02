@@ -1,10 +1,10 @@
 const Message = require('../models/message.model');
 
 
-module.exports = (io, emitToUser) => {
+
+module.exports = (io, emitToUser, connectedUsers) => {
     io.on('connection', (socket) => {
 
-        // Emits all messages in a chat to the user who requested them
         socket.on('get_messages', async ({ chatId }) => {
             try {
                 const messages = await Message.find({ chatId });
@@ -20,44 +20,41 @@ module.exports = (io, emitToUser) => {
             try {
                 const message = new Message({ chatId, sender, receiver, content });
                 await message.save();
-
-                // message.status = 'delivered';
-                // await message.save();
-
+        
+                if (connectedUsers[receiver]) {
+                    message.status = 'delivered';
+                    await message.save();
+                }
+        
                 const users = [sender, receiver];
-
+        
                 const events = [
                     { eventName: 'message', eventData: [message] },
                     { eventName: 'message_status_updated', eventData: message },
                 ];
-
+        
                 users.forEach(user => {
                     events.forEach(event => {
                         emitToUser(user, event.eventName, event.eventData);
                     });
                 });
-
+        
             } catch (error) {
                 console.error('Error sending message:', error);
                 socket.emit('error', 'Failed to send message');
             }
         });
 
-
-        socket.on('message_delivered', async (messageId) => {
+        socket.on('userConnected', async (userId) => {
             try {
-                const message = await Message.findById(messageId);
-                message.status = 'delivered';
-                await message.save();
-
-                const users = [message.sender, message.receiver];
-
-                const event = { eventName: 'message_status_updated', eventData: message };
-
-                users.forEach(user => {
-                    emitToUser(user, event.eventName, event.eventData);
-                });
-
+                const messages = await Message.find({ receiver: userId, status: 'sent' });
+        
+                for (let message of messages) {
+                    message.status = 'delivered';
+                    await message.save();
+        
+                    emitToUser(message.sender, 'message_status_updated', message);
+                }
             } catch (error) {
                 console.error('Error updating message status:', error);
                 socket.emit('error', 'Failed to update message status');

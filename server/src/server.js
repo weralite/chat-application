@@ -30,7 +30,7 @@ const emitToUser = (userID, eventName, data) => {
 };
 
 chatSocketController(io, emitToUser);
-messageSocketController(io, emitToUser);
+messageSocketController(io, emitToUser, connectedUsers);
 contactsSocketController(io, emitToUser);
 
 io.use((socket, next) => {

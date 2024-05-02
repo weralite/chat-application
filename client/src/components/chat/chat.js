@@ -185,6 +185,8 @@ const Chat = () => {
             setConnectedUsers(users, socketId);
         });
         socket.on('userConnected', (users) => {
+            socket.emit('userConnected', userId);
+            console.log('User connected:', userId);
             setConnectedUsers(users);
         });
 
