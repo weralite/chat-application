@@ -33,3 +33,8 @@
 .context-menu button:hover {
     background-color: #f0f0f0;
 }
+
+.context-menu li:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}

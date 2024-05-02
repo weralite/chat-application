@@ -16,8 +16,6 @@ async function getChatMessages(req, res) {
   }
 }
 
-
-
 async function deleteMessage(req, res) {
   try {
     const { id } = req.params;
