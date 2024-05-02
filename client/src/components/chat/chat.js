@@ -10,6 +10,7 @@ import ChatField from './chatField';
 const ENDPOINT = 'http://localhost:8080';
 
 
+
 const Chat = () => {
     const [socket, setSocket] = useState(null);
     const [token, setToken] = useState('');
@@ -21,11 +22,8 @@ const Chat = () => {
     const [contacts, setContacts] = useState([]); // Add function to set contacts via name
     const [chats, setChats] = useState([]); // Add function to set chats via name
     const [chatList, setChatList] = useState([]); // Add function to set chatList via name
-    const [chatId, setChatId] = useState(null);
-    const [senderId, setSenderId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
     const [receiver, setReceiver] = useState(''); // Add function to fetch name from recieverID
-    const [sender, setSender] = useState(''); // Add function to fetch name from senderID
     const [activeChat, setActiveChat] = useState(null);
     const [isModalVisible, setModalVisible] = useState(false);
 
@@ -47,12 +45,12 @@ const Chat = () => {
         }
     };
 
-    // Emit 'message_read' event to mark a message as read
+    // Function to emit message_read event to server
     const handleMessageRead = (messageId) => {
         socket.emit('message_read', messageId);
     }
 
-    // Handle received messages
+    // Function to separete received messages from sent messages
     const handleReceivedMessages = (message) => {
         // Process received message
         if (message) {
@@ -63,7 +61,7 @@ const Chat = () => {
         }
     };
 
-    // Send message
+    // Function to send messages
     const sendMessage = (content) => {
         if (activeChat) {
             const message = { chatId: activeChat._id, sender: userId, receiver: receiverId, content };
@@ -72,7 +70,7 @@ const Chat = () => {
         }
     };
 
-    // Open chat by clicking on a contact
+    // Function to activate chat when a contact is clicked
     const handleContactClick = (contactId) => {
         const senderId = userId;
         const receiverId = contactId;
@@ -86,8 +84,6 @@ const Chat = () => {
             const onReceiveChats = (chats) => {
                 // Assuming chats is an array and the chat you're interested in is the first one
                 const chatId = chats._id;
-                setChatId(chatId); // Set chatId state
-                setSender(chats.senderUsername);
                 setReceiver(chats.receiverUsername);
                 socket.emit('get_messages', { chatId });
 
@@ -97,11 +93,10 @@ const Chat = () => {
 
             socket.once('receive_chats', onReceiveChats);
         }
-        setSenderId(senderId);
         setReceiverId(receiverId);
     };
 
-    // Open chat by chat ID
+    // Function to activate chat when a chat is clicked
     const openChatByChatId = (chatId, participants) => {
         // Determine sender and receiver IDs
         const senderId = userId;
@@ -114,8 +109,6 @@ const Chat = () => {
             const onReceiveChats = (chats) => {
                 // Assuming chats is an array and the chat you're interested in is the first one
                 const chatId = chats._id;
-                setChatId(chatId); // Set chatId state
-                setSender(chats.senderUsername);
                 setReceiver(chats.receiverUsername);
                 socket.emit('get_messages', { chatId });
 
@@ -127,11 +120,10 @@ const Chat = () => {
         }
 
         // Update sender and receiver states
-        setSenderId(senderId);
         setReceiverId(receiverId);
     };
 
-    // Update chats with new message
+    // Function to update active chat with messages
     const updateChatsWithNewMessage = (newMessages) => {
         if (newMessages.length > 0) {
             setChats((prevChats) => {
@@ -206,21 +198,41 @@ const Chat = () => {
         setReceiverOnline(connectedUsers.includes(receiverId));
     }, [connectedUsers, receiverId]);
 
-    // Close modal when clicked outside
+    // Effect for fetching a users chatlist with usernames and last message
     useEffect(() => {
-        function handleClickOutside(event) {
-            if (modalRef.current && !modalRef.current.contains(event.target)) {
-                setModalVisible(false);
-            }
-        }
+        if (!socket) return;
 
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
+        const handleChats = (chatsWithUsernamesAndLastMessage) => {
+            setChatList(chatsWithUsernamesAndLastMessage);
         };
-    }, [modalRef]);
 
-    // Listen for 'requestChatUpdate' event to update chat list when user is blocked/unblocked
+        socket.emit('get_all_chats', { userId });
+        socket.on('chats', handleChats);
+
+        return () => {
+            socket.off('chats', handleChats);
+        };
+    }, [socket, userId]);
+
+    // Effect for continued updates to the chatlist
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleReceiveMessages = (newMessage) => {
+            updateChatsWithNewMessage(newMessage);
+            if (newMessage.length > 0) {
+                socket.emit('get_all_chats', { userId });
+            }
+        };
+
+        socket.on('message', handleReceiveMessages);
+
+        return () => {
+            socket.off('message', handleReceiveMessages);
+        };
+    }, [socket, userId, chats, updateChatsWithNewMessage]);
+
+    // Effect for updating chat list when user is blocked/unblocked
     useEffect(() => {
         if (socket) {
             socket.on('requestChatUpdate', ({ blockedUserId }) => {
@@ -238,57 +250,6 @@ const Chat = () => {
             });
         }
     }, [socket, userId, activeChat]);
-    // Effect for fetching chats and updating chat list
-    useEffect(() => {
-        if (!socket) return;
-
-        const handleChats = (chatsWithUsernamesAndLastMessage) => {
-            setChatList(chatsWithUsernamesAndLastMessage);
-        };
-
-        socket.emit('get_all_chats', { userId });
-        socket.on('chats', handleChats);
-
-        return () => {
-            socket.off('chats', handleChats);
-        };
-    }, [socket, userId]);
-
-    // Effect for updating chat list when new messages are received
-    useEffect(() => {
-        if (!socket) return;
-
-        const handleReceiveMessages = (newMessage) => {
-            updateChatsWithNewMessage(newMessage);
-            if (!chats.find(chat => chat._id === newMessage.chatId)) {
-                socket.emit('get_all_chats', { userId });
-            }
-        };
-
-        socket.on('receive_messages', handleReceiveMessages);
-
-        return () => {
-            socket.off('receive_messages', handleReceiveMessages);
-        };
-    }, [socket, userId, chats, updateChatsWithNewMessage]);
-
-    // Effect for updating chat list when a message is sent
-    useEffect(() => {
-        if (!socket) return;
-
-        const handleMessageSent = (newMessage) => {
-            updateChatsWithNewMessage(newMessage);
-            if (!chats.find(chat => chat._id === newMessage.chatId)) {
-                socket.emit('get_all_chats', { userId });
-            }
-        };
-
-        socket.on('message_sent', handleMessageSent);
-
-        return () => {
-            socket.off('message_sent', handleMessageSent);
-        };
-    }, [socket, userId, chats, updateChatsWithNewMessage]);
 
     // Activates a chat when a chat is received from get_chats request
     useEffect(() => {
@@ -301,10 +262,10 @@ const Chat = () => {
         }
     }, [token, socket]);
 
-    // Update the active chat with received messages and message receipts
+    // Update the active chat with messages
     useEffect(() => {
         if (socket && activeChat) {
-            socket.on('receive_messages', (receivedMessages) => {
+            socket.on('message', (receivedMessages) => {
                 setActiveChat((prevChat) => {
 
                     // If there's no active chat, log a message to the console
@@ -329,32 +290,10 @@ const Chat = () => {
                 });
             });
             return () => {
-                socket.off('receive_messages');
+                socket.off('message');
             };
         }
     }, [socket, activeChat, handleReceivedMessages]);
-
-    // Update the active chat with sent messages
-    useEffect(() => {
-        if (socket && activeChat) {
-            socket.on('message_sent', (newMessage) => {
-
-                setActiveChat(prevChat => {
-
-                    const newChat = {
-                        ...prevChat,
-                        messages: [...(prevChat?.messages || []), newMessage]
-                    };
-
-                    return newChat;
-                });
-            });
-
-            return () => {
-                socket.off('message_sent');
-            };
-        }
-    }, [socket, activeChat]);
 
     // Update the active chat with updated message status
     useEffect(() => {
@@ -396,6 +335,20 @@ const Chat = () => {
             chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [activeChat]);
+
+    // Close modal when clicked outside
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (modalRef.current && !modalRef.current.contains(event.target)) {
+                setModalVisible(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [modalRef]);
 
     return (
         <div className='chat-app'>

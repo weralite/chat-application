@@ -4,12 +4,11 @@ const Message = require('../models/message.model');
 module.exports = (io, emitToUser) => {
     io.on('connection', (socket) => {
 
-
         // Emits all messages in a chat to the user who requested them
         socket.on('get_messages', async ({ chatId }) => {
             try {
                 const messages = await Message.find({ chatId });
-                socket.emit('receive_messages', messages);
+                socket.emit('message', messages);
             } catch (error) {
                 console.error('Error fetching messages:', error);
                 socket.emit('error', 'Failed to fetch messages');
@@ -22,17 +21,13 @@ module.exports = (io, emitToUser) => {
                 const message = new Message({ chatId, sender, receiver, content });
                 await message.save();
 
+                // message.status = 'delivered';
+                // await message.save();
 
-                ///// Convert the following code to use emitToUser, similar to the code above.???????????????
-                // socket.emit('message_sent', message);
-             
-                message.status = 'delivered';
-                await message.save();
-                
                 const users = [sender, receiver];
 
                 const events = [
-                    { eventName: 'receive_messages', eventData: [message] },
+                    { eventName: 'message', eventData: [message] },
                     { eventName: 'message_status_updated', eventData: message },
                 ];
 
@@ -48,20 +43,41 @@ module.exports = (io, emitToUser) => {
             }
         });
 
+
+        socket.on('message_delivered', async (messageId) => {
+            try {
+                const message = await Message.findById(messageId);
+                message.status = 'delivered';
+                await message.save();
+
+                const users = [message.sender, message.receiver];
+
+                const event = { eventName: 'message_status_updated', eventData: message };
+
+                users.forEach(user => {
+                    emitToUser(user, event.eventName, event.eventData);
+                });
+
+            } catch (error) {
+                console.error('Error updating message status:', error);
+                socket.emit('error', 'Failed to update message status');
+            }
+        });
+
         socket.on('message_read', async (messageId) => {
             try {
                 const message = await Message.findById(messageId);
                 message.status = 'read';
                 await message.save();
-                socket.emit('message_status_updated', message);
 
-//// Convert the following code to use emitToUser, similar to the code above.
+                const users = [message.sender, message.receiver];
 
-                //// Ids might have to be converted into strings?
+                const event = { eventName: 'message_status_updated', eventData: message };
 
-                console.log('receiver', message.receiver);
-                console.log('sender', message.sender);
-                socket.broadcast.emit('message_status_updated', message);
+                users.forEach(user => {
+                    emitToUser(user, event.eventName, event.eventData);
+                });
+
             } catch (error) {
                 console.error('Error updating message status:', error);
                 socket.emit('error', 'Failed to update message status');
