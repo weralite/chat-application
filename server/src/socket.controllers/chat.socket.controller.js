@@ -14,7 +14,7 @@ module.exports = (io) => {
                         { user1Id: receiverId, user2Id: senderId }
                     ]
                 });
-        
+
                 // If either user has blocked the other, don't return the chatroom
                 if (contactPair && contactPair.blockedBy && (contactPair.blockedBy.toString() === senderId || contactPair.blockedBy.toString() === receiverId)) {
                     return;
@@ -23,7 +23,7 @@ module.exports = (io) => {
                 let chat = await Chat.findOne({
                     participants: { $all: [senderId, receiverId] }
                 });
-                
+
                 if (!chat) {
                     // Create a new chat with participants
                     chat = new Chat({ participants: [senderId, receiverId] });
@@ -51,19 +51,19 @@ module.exports = (io) => {
         socket.on('get_all_chats', async ({ userId }) => {
             try {
                 const chats = await Chat.find({
-                    participants: userId 
+                    participants: userId
                 });
                 const chatsWithUsernamesAndLastMessage = await Promise.all(chats.map(async (chat) => {
                     // Determine the other participants userID
                     const otherUserId = chat.participants.find(participantId => participantId.toString() !== userId);
-                   
+
                     const contactPair = await Contact.findOne({
                         $or: [
                             { user1Id: userId, user2Id: otherUserId },
                             { user1Id: otherUserId, user2Id: userId }
                         ]
                     });
-        
+
                     // If the user is blocked, don't return the chat
                     if (contactPair && contactPair.blockedBy) {
                         return null;

@@ -20,25 +20,25 @@ module.exports = (io, emitToUser, connectedUsers) => {
             try {
                 const message = new Message({ chatId, sender, receiver, content });
                 await message.save();
-        
+
                 if (connectedUsers[receiver]) {
                     message.status = 'delivered';
                     await message.save();
                 }
-        
+
                 const users = [sender, receiver];
-        
+
                 const events = [
                     { eventName: 'message', eventData: [message] },
                     { eventName: 'message_status_updated', eventData: message },
                 ];
-        
+
                 users.forEach(user => {
                     events.forEach(event => {
                         emitToUser(user, event.eventName, event.eventData);
                     });
                 });
-        
+
             } catch (error) {
                 console.error('Error sending message:', error);
                 socket.emit('error', 'Failed to send message');
@@ -48,11 +48,11 @@ module.exports = (io, emitToUser, connectedUsers) => {
         socket.on('userConnected', async (userId) => {
             try {
                 const messages = await Message.find({ receiver: userId, status: 'sent' });
-        
+
                 for (let message of messages) {
                     message.status = 'delivered';
                     await message.save();
-        
+
                     emitToUser(message.sender, 'message_status_updated', message);
                 }
             } catch (error) {
