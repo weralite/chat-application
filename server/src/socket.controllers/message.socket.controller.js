@@ -3,6 +3,9 @@ const Message = require('../models/message.model');
 
 module.exports = (io, emitToUser) => {
     io.on('connection', (socket) => {
+
+
+        // Emits all messages in a chat to the user who requested them
         socket.on('get_messages', async ({ chatId }) => {
             try {
                 const messages = await Message.find({ chatId });
@@ -18,7 +21,10 @@ module.exports = (io, emitToUser) => {
             try {
                 const message = new Message({ chatId, sender, receiver, content });
                 await message.save();
-                socket.emit('message_sent', message);
+
+
+                ///// Convert the following code to use emitToUser, similar to the code above.???????????????
+                // socket.emit('message_sent', message);
              
                 message.status = 'delivered';
                 await message.save();
