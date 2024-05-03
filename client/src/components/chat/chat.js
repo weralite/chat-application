@@ -12,23 +12,23 @@ const ENDPOINT = 'http://localhost:8080';
 
 
 const Chat = () => {
-    const [socket, setSocket] = useState(null); 
-    const [token, setToken] = useState(''); 
-    const [userId, setUserId] = useState(''); 
-    const [connectedUsers, setConnectedUsers] = useState([]); 
+    const [socket, setSocket] = useState(null);
+    const [token, setToken] = useState('');
+    const [userId, setUserId] = useState('');
+    const [connectedUsers, setConnectedUsers] = useState([]);
     const [receiverId, setReceiverId] = useState(null); // Storing receiver ID
-    const [receiverOnline, setReceiverOnline] = useState(false); 
+    const [receiverOnline, setReceiverOnline] = useState(false);
     const [receiver, setReceiver] = useState(''); // Add function to fetch name from recieverID
-    const [username, setUsername] = useState(''); 
-    const [message, setMessage] = useState(''); 
-    const [contacts, setContacts] = useState([]); 
+    const [username, setUsername] = useState('');
+    const [message, setMessage] = useState('');
+    const [contacts, setContacts] = useState([]);
     const [chats, setChats] = useState([]); // Used for setting a chat as active
     const [chatList, setChatList] = useState([]); // Used for listing all chats with usernames and last message
     const [activeChat, setActiveChat] = useState(null); // Keep track of which chat is currently open
     const [isModalVisible, setModalVisible] = useState(false);
 
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
-    
+
     const modalRef = useRef(null); // Keeping track of the modal
 
     // Fetch contacts
@@ -327,13 +327,26 @@ const Chat = () => {
         }
     }, [socket, activeChat]);
 
-    // Update the chat list and active chat state when a chat is deleted
+    // Update the chat list when a chat is deleted
     useEffect(() => {
-        if (socket && activeChat) {
+        if (socket) {
             socket.on('chatDeleted', (chatId) => {
                 const updatedChats = chatList.filter(chat => chat._id !== chatId);
                 setChatList(updatedChats);
+                socket.emit('get_all_chats', { userId });
+            });
 
+            return () => {
+                socket.off('chatDeleted');
+            };
+        }
+    }, [chatList,]);
+
+
+    // Update the active chat state when a chat is deleted
+    useEffect(() => {
+        if (socket && activeChat) {
+            socket.on('chatDeleted', (chatId) => {
                 if (activeChat && chatId === activeChat._id) {
                     setActiveChat(null);
                 }
@@ -344,6 +357,20 @@ const Chat = () => {
             };
         }
     }, [chatList, activeChat]);
+
+    // Update the chatlist when a message is deleted
+    useEffect(() => {
+        if (socket) {
+            socket.on('messageDeleted', () => {
+                socket.emit('get_all_chats', { userId });
+            });
+
+            return () => {
+                socket.off('messageDeleted');
+            };
+        }
+    }, [socket]);
+
 
     // Update the active chat state when a message is deleted
     useEffect(() => {

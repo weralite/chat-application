@@ -51,6 +51,7 @@ const AddContactsModal = ({ addModalRef, fetchContacts, isAddModalVisible, setAd
             const response = await axios.post('http://localhost:8080/api/v1/contacts/createContact', body);
             if (response.status === 201) {
                 fetchContacts();
+                return response.status;
             }
         } catch (error) {
             console.error(error.response.data.message);
