@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './autoComplete.css';
 
-function CustomAutocomplete({ options, onInputChange, onChange, clearInput, setClearInput }) {
+function CustomAutocomplete({ options, onInputChange, onChange, clearInput, setClearInput, setErrorMessage }) {
   const [inputValue, setInputValue] = useState('');
   const [filteredOptions, setFilteredOptions] = useState([]);
 
@@ -10,7 +10,7 @@ function CustomAutocomplete({ options, onInputChange, onChange, clearInput, setC
     if (inputValue) {
       const filtered = options.filter((option) =>
         option.username.toLowerCase().includes(inputValue.toLowerCase())
-      ).filter(option => option.username !== inputValue); // Exclude selected option
+      ).filter(option => option.username !== inputValue); // Exclude selected option -- this is not working properly
       setFilteredOptions(filtered);
     } else {
       setFilteredOptions([]);
@@ -33,6 +33,7 @@ function CustomAutocomplete({ options, onInputChange, onChange, clearInput, setC
 
   const handleOptionClick = (option) => {
     setInputValue(option.username);
+    setErrorMessage('');
     onChange(null, option);
     setFilteredOptions([]);
   };

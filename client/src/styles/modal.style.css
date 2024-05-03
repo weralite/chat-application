@@ -7,16 +7,26 @@
 }
 
 .input-box {
-    height: 2rem;
+    height: 1.5rem;
 }
 
 .modal-button-box {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
+    padding: 0.5rem;
     gap: 1rem;
 }
 
 .modal-button-box button {
     width: 5.5rem;
+}
+
+.error-message {
+    color: red;
+    height: 20px;
+}
+
+.error-message.invisible {
+    color: transparent;
 }

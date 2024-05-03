@@ -9,6 +9,8 @@ const AddContactsModal = ({ addModalRef, fetchContacts, isAddModalVisible, setAd
     const [userId, setUserId] = useState('');
     const [users, setUsers] = useState([]);
     const [clearInput, setClearInput] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
 
     useEffect(() => {
         if (userName) {
@@ -48,24 +50,35 @@ const AddContactsModal = ({ addModalRef, fetchContacts, isAddModalVisible, setAd
             };
             const response = await axios.post('http://localhost:8080/api/v1/contacts/createContact', body);
             if (response.status === 201) {
-            fetchContacts(); 
+                fetchContacts();
             }
         } catch (error) {
-            console.error(error);
+            console.error(error.response.data.message);
+            setErrorMessage(error.response.data.message);
+            return error.response.status;
         }
     };
 
-    const handleSave = () => {
-        handleAddContact();
-        setUserName('');
-        setUserId('');
-        setClearInput(true);
-        setAddModalVisible(false);
+    const handleSave = async () => {
+        if (!userName || !userId) {
+            setErrorMessage('Valid user required.');
+            return;
+        }
+
+        const status = await handleAddContact();
+        if (status === 201) {
+            setUserName('');
+            setUserId('');
+            setErrorMessage('');
+            setClearInput(true);
+            setAddModalVisible(false);
+        }
     };
 
     const handleClose = () => {
         setUserName('');
         setUserId('');
+        setErrorMessage('');
         setClearInput(true);
         setAddModalVisible(false);
     }
@@ -74,25 +87,29 @@ const AddContactsModal = ({ addModalRef, fetchContacts, isAddModalVisible, setAd
     return (
         <div ref={addModalRef} className={`contacts-modal ${isAddModalVisible ? 'visible' : ''}`}>
             <div className='modal-body'>
-            <h4>Find user</h4>
-            <div className='input-box'>
-            <CustomAutocomplete
-                options={users}
-                onInputChange={(event, newInputValue) => {
-                    setUserName(newInputValue);
-                }}
-                onChange={(event, newValue) => {
-                    setUserName(newValue ? newValue.username : '');
-                    setUserId(newValue ? newValue._id : '');
-                }}
-                clearInput={clearInput}
-                setClearInput={setClearInput}
-            />
-            </div>
-            <div className='modal-button-box'>
-                <button onClick={handleClose}>Close</button>
-                <button onClick={handleSave}>Save</button>
-            </div>
+                <h4>Find user</h4>
+                <div className='input-box'>
+                    <CustomAutocomplete
+                        setErrorMessage={setErrorMessage}
+                        options={users}
+                        onInputChange={(event, newInputValue) => {
+                            setUserName(newInputValue);
+                        }}
+                        onChange={(event, newValue) => {
+                            setUserName(newValue ? newValue.username : '');
+                            setUserId(newValue ? newValue._id : '');
+                        }}
+                        clearInput={clearInput}
+                        setClearInput={setClearInput}
+                    />
+                </div>
+                <p className={`error-message ${errorMessage ? 'visible' : 'invisible'}`}>
+                    {errorMessage || ' '}
+                </p>
+                <div className='modal-button-box'>
+                    <button onClick={handleClose}>Close</button>
+                    <button onClick={handleSave}>Save</button>
+                </div>
             </div>
         </div>
     )

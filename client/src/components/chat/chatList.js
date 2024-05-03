@@ -1,9 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 const ChatList = ({ chatList, openChatByChatId, userId }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [deliveredMessagesCount, setDeliveredMessagesCount] = useState({});
+    const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
+    const [selectedChat, setSelectedChat] = useState(null);
+
+    const contextMenuRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
+                // Click was outside the context menu, close it
+                setContextMenu(prevState => ({ ...prevState, visible: false }));
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     useEffect(() => {
         chatList.forEach(chat => {
@@ -43,6 +62,22 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
         setSearchTerm(event.target.value);
     };
 
+    const handleContextMenu = (event, chat) => {
+        event.preventDefault();
+        setSelectedChat(chat);
+        setContextMenu({ visible: true, x: event.clientX, y: event.clientY });
+    };
+
+    const handleClick = () => {
+        setContextMenu({ visible: false, x: 0, y: 0 });
+    };
+
+    const handleDeleteChat = (chat) => {
+        console.log(chat);
+        setContextMenu({ visible: false, x: 0, y: 0 });
+    }
+
+
     return (
         <div className='chat-ongoing-chats'>
             <div className='chatlist-header'>
@@ -56,12 +91,19 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
             </div>
             {
                 sortedChats
-                .filter(chat => {
-                    const otherUsername = chat.otherUsername || '';
-                    return otherUsername.toLowerCase().includes((searchTerm || '').toLowerCase());
-                })
+                    .filter(chat => {
+                        const otherUsername = chat.otherUsername || '';
+                        return otherUsername.toLowerCase().includes((searchTerm || '').toLowerCase());
+                    })
                     .map((chat) => (
-                        <div key={chat._id} onClick={() => openChatByChatId(chat._id, Object.values(chat.participants))}>
+                        <div
+                            key={chat._id}
+                            onClick={(event) => {
+                                openChatByChatId(chat._id, Object.values(chat.participants));
+                                handleClick(event);
+                            }}
+                            onContextMenu={(event) => handleContextMenu(event, chat)}
+                        >
                             <div className='chatlist-chatrow'>
                                 <div className='chatrow-left'>
                                     <b>{chat.otherUsername}</b>
@@ -83,7 +125,23 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
                             </div>
                         </div>
                     ))
+
             }
+            {contextMenu.visible && (
+                <div
+                    ref={contextMenuRef}
+                    className='context-menu'
+                    style={{
+                        top: contextMenu.y,
+                        left: contextMenu.x,
+                        boxShadow: '0px 1px 1px rgba(0, 0, 0, 0.08), 0px 0px 1px rgba(0, 0, 0, 0.08)'
+                    }}
+                >
+                    <ul>
+                        <li onClick={() => handleDeleteChat(selectedChat)}>Delete chat</li>
+                    </ul>
+                </div>
+            )}
         </div>
     );
 };

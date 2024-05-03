@@ -1,10 +1,27 @@
 // ChatArea.js
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const ChatField = ({ activeChat, receiver, receiverOnline, userId, message, setMessage, sendMessage, chatEndRef }) => {
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [selectedMessage, setSelectedMessage] = useState(null);
+
+    const contextMenuRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
+                // Click was outside the context menu, close it
+                setContextMenu(prevState => ({ ...prevState, visible: false }));
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const formatTime = (dateTimeString) => {
         const date = new Date(dateTimeString);
@@ -50,7 +67,9 @@ const ChatField = ({ activeChat, receiver, receiverOnline, userId, message, setM
                     ))
                 )}
                 {contextMenu.visible && (
-                    <div className='context-menu'
+                    <div
+                        ref={contextMenuRef}
+                        className='context-menu'
                         style={{
                             top: contextMenu.y,
                             left: contextMenu.x,

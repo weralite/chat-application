@@ -165,7 +165,6 @@ const Contacts = ({ userId, contacts, setContacts, setActiveChat, chatList, setC
                                                 :
                                                 <button onClick={() => blockContact(user._id)}>Block</button>
                                             }
-                                            <button onClick={() => deleteContact(user._id)}>Delete chat</button>
                                             <button onClick={() => deleteContact(user._id)}>Delete contact</button>
                                         </div>
                                     )}

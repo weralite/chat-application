@@ -8,6 +8,17 @@ async function createContact(req, res) {
 
   try {
     const newContact = new Contact({ user1Id, user2Id });
+
+    const existingContact = await Contact.findOne({ $or: [{ user1Id, user2Id }, { user1Id: user2Id, user2Id: user1Id }] });
+    if (existingContact) {
+      return res.status(400).json({ message: 'Contact already exists.' });
+    }
+
+    // check if user1Id and user2Id is the same
+    if (user1Id.toString() === user2Id.toString()) {
+      return res.status(405).json({ message: 'Cannot add self as contact.' });
+    }
+
     await newContact.save();
     res.status(201).json(newContact);
   } catch (error) {
