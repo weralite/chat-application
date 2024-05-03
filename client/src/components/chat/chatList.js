@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-const ChatList = ({ chatList, openChatByChatId, userId }) => {
+const ChatList = ({ socket, chatList, setChatList, activeChat, setActiveChat, openChatByChatId, userId }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [deliveredMessagesCount, setDeliveredMessagesCount] = useState({});
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
@@ -74,8 +74,14 @@ const ChatList = ({ chatList, openChatByChatId, userId }) => {
 
     const handleDeleteChat = (chat) => {
         console.log(chat);
+        deleteChat(chat._id);
         setContextMenu({ visible: false, x: 0, y: 0 });
     }
+
+    const deleteChat = (chatId) => {
+        socket.emit('delete_chat', { chatId });
+    };
+
 
 
     return (

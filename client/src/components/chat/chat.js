@@ -327,9 +327,29 @@ const Chat = () => {
 
             return () => {
                 socket.off('message_status_updated');
+                
             };
         }
     }, [socket, activeChat]);
+
+    // Update the chat list and active chat state when a chat is deleted
+    useEffect(() => {
+        if (socket && activeChat) {
+            socket.on('chatDeleted', (chatId) => {
+                const updatedChats = chatList.filter(chat => chat._id !== chatId);
+                setChatList(updatedChats);
+
+                if (activeChat && chatId === activeChat._id) {
+                    setActiveChat(null);
+                }
+            });
+
+            // Clean up the listener when the component unmounts
+            return () => {
+                socket.off('chatDeleted');
+            };
+        }
+    }, [chatList, activeChat]);
 
     // Scroll to the end of the chat
     useEffect(() => {
@@ -381,7 +401,11 @@ const Chat = () => {
                 </div>
 
                 <ChatList
+                    socket={socket}
+                    setChatList={setChatList}
                     chatList={chatList}
+                    setActiveChat={setActiveChat}
+                    activeChat={activeChat}
                     openChatByChatId={openChatByChatId}
                     userId={userId}
                 />

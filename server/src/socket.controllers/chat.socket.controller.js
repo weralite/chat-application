@@ -3,7 +3,7 @@ const User = require('../models/user.model');
 const Message = require('../models/message.model');
 const Contact = require('../models/contact.model');
 
-module.exports = (io) => {
+module.exports = (io, emitToUser) => {
     io.on('connection', (socket) => {
 
         socket.on('get_chats', async ({ senderId, receiverId }) => {
@@ -90,6 +90,21 @@ module.exports = (io) => {
                 console.error('Error fetching chats:', error);
                 socket.emit('error', 'Failed to fetch chats');
             }
+        });
+
+        socket.on('delete_chat', async ({ chatId }) => {
+            const chat = await Chat.findById(chatId);
+            if (!chat) {
+                console.error(`No chat found with ID: ${chatId}`);
+                return;
+            }
+            const participants = chat.participants;
+            await Chat.deleteOne({ _id: chatId });
+            await Message.deleteMany({ chatId });
+
+            participants.forEach(participant => {
+                emitToUser(participant, 'chatDeleted', chatId);
+            });
         });
 
     });
