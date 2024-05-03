@@ -4,8 +4,11 @@ const { createUser, getUsers, getUsersByName, getUserById } = require('../contro
 
 
 userRouter.post('/register', createUser);
+
 userRouter.get('/allusers', getUsers);
+
 userRouter.get('/users', getUsersByName);
+
 userRouter.get('/user/:id', getUserById);
 
 

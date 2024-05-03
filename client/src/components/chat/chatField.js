@@ -41,7 +41,6 @@ const ChatField = ({ socket, activeChat, receiver, receiverOnline, userId, messa
     };
 
     const handleDeleteMessage = (message) => {
-        console.log(message);
         deleteMessage(message);
         setContextMenu({ visible: false, x: 0, y: 0 });
     }

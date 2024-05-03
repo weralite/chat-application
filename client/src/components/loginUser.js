@@ -32,7 +32,6 @@ const LoginUser = () => {
             navigate('/chat');
 
         } catch (error) {
-            console.log('Login failed:', error.response.data.message);
             setError(error.response.data.message);
         }
     };

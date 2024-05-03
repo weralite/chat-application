@@ -1,7 +1,5 @@
 const Contact = require('../models/contact.model');
 const Chat = require('../models/chat.model');
-const deleteChat = require('../controllers/chat.controller').deleteChat;
-
 
 async function createContact(req, res) {
   const { user1Id, user2Id } = req.body;

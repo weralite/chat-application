@@ -73,7 +73,6 @@ const ChatList = ({ socket, chatList, setChatList, activeChat, setActiveChat, op
     };
 
     const handleDeleteChat = (chat) => {
-        console.log(chat);
         deleteChat(chat._id);
         setContextMenu({ visible: false, x: 0, y: 0 });
     }

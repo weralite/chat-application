@@ -25,7 +25,7 @@ const RegisterUser = () => {
             setPassword('');
             navigate('/');
         } catch (error) {
-            console.log('Registration failed');
+            return console.error('Error:', error);
         }
     };
 

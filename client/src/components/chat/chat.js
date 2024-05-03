@@ -12,22 +12,23 @@ const ENDPOINT = 'http://localhost:8080';
 
 
 const Chat = () => {
-    const [socket, setSocket] = useState(null);
-    const [token, setToken] = useState('');
-    const [userId, setUserId] = useState('');
-    const [connectedUsers, setConnectedUsers] = useState([]);
-    const [receiverOnline, setReceiverOnline] = useState(false);
-    const [username, setUsername] = useState('');
-    const [message, setMessage] = useState('');
-    const [contacts, setContacts] = useState([]); // Add function to set contacts via name
-    const [chats, setChats] = useState([]); // Add function to set chats via name
-    const [chatList, setChatList] = useState([]); // Add function to set chatList via name
-    const [receiverId, setReceiverId] = useState(null);
+    const [socket, setSocket] = useState(null); 
+    const [token, setToken] = useState(''); 
+    const [userId, setUserId] = useState(''); 
+    const [connectedUsers, setConnectedUsers] = useState([]); 
+    const [receiverId, setReceiverId] = useState(null); // Storing receiver ID
+    const [receiverOnline, setReceiverOnline] = useState(false); 
     const [receiver, setReceiver] = useState(''); // Add function to fetch name from recieverID
-    const [activeChat, setActiveChat] = useState(null);
+    const [username, setUsername] = useState(''); 
+    const [message, setMessage] = useState(''); 
+    const [contacts, setContacts] = useState([]); 
+    const [chats, setChats] = useState([]); // Used for setting a chat as active
+    const [chatList, setChatList] = useState([]); // Used for listing all chats with usernames and last message
+    const [activeChat, setActiveChat] = useState(null); // Keep track of which chat is currently open
     const [isModalVisible, setModalVisible] = useState(false);
 
     const chatEndRef = useRef(null); // Keeping track of the end of the chat
+    
     const modalRef = useRef(null); // Keeping track of the modal
 
     // Fetch contacts
@@ -39,7 +40,6 @@ const Chat = () => {
 
             const contacts = response.data
             setContacts(contacts)
-            console.log('contacts', contacts)
         } catch (error) {
             console.error('Failed to fetch contacts:', error);
         }
@@ -186,7 +186,6 @@ const Chat = () => {
         });
         socket.on('userConnected', (users) => {
             socket.emit('userConnected', userId);
-            console.log('User connected:', userId);
             setConnectedUsers(users);
         });
 
@@ -200,7 +199,7 @@ const Chat = () => {
         setReceiverOnline(connectedUsers.includes(receiverId));
     }, [connectedUsers, receiverId]);
 
-    // Effect for fetching a users chatlist with usernames and last message
+    // Effect for the initial fetching of a users chatlist with usernames and last message
     useEffect(() => {
         if (!socket) return;
 
@@ -241,14 +240,12 @@ const Chat = () => {
 
                 // Check if the active chat contains the blocked user ID
                 const containsBlockedUser = activeChat && activeChat.participants.includes(blockedUserId);
-                console.log('Contains blocked user:', containsBlockedUser);
 
                 if (containsBlockedUser) {
                     setActiveChat(null);
                 }
                 // Fetch updated chats for the current user
                 socket.emit('get_all_chats', { userId });
-                console.log('Requesting chat update for user:', userId);
             });
         }
     }, [socket, userId, activeChat]);
@@ -256,9 +253,7 @@ const Chat = () => {
     // Activates a chat when a chat is received from get_chats request
     useEffect(() => {
         if (token && socket) {
-            // Listen for 'receive_chat' event
             socket.on('receive_chats', (chat) => {
-                // Set active chat state here
                 setActiveChat(chat);
             });
         }
@@ -270,9 +265,9 @@ const Chat = () => {
             socket.on('message', (receivedMessages) => {
                 setActiveChat((prevChat) => {
 
-                    // If there's no active chat, log a message to the console
+                    // If there's no active chat, do nothing
                     if (!prevChat) {
-                        console.log('prevChat is undefined');
+                        return prevChat;
                     }
 
                     // When recieving a chat from a non active chat, do not force open the chat.
@@ -304,7 +299,7 @@ const Chat = () => {
                 setActiveChat(prevChat => {
                     // If there's no active chat, log a message to the console
                     if (!prevChat) {
-                        console.log('prevChat is undefined');
+                        return prevChat;
                     }
 
                     // When recieving a chat from a non active chat, do not force open an active chat.
@@ -375,7 +370,7 @@ const Chat = () => {
         }
     }, [activeChat]);
 
-    // Close modal when clicked outside
+    // Close menu modal when clicked outside
     useEffect(() => {
         function handleClickOutside(event) {
             if (modalRef.current && !modalRef.current.contains(event.target)) {

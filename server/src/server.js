@@ -41,7 +41,6 @@ io.use((socket, next) => {
                 return next(new Error('Authentication error'));
             }
             socket.decoded = decoded;
-            console.log('Token verified, establishing connection');
             next();
         });
     }
@@ -61,28 +60,29 @@ io.on('connection', (socket) => {
     }
 
     connectedUsers[userId] = socketId; // Store the socket ID in your connectedUsers object
-    console.log('Connected users:', connectedUsers);
     io.emit('userConnected', userId);
-    console.log('User connected:', userId, 'with socket ID:', socketId);
     io.emit('connectedUsers', Object.keys(connectedUsers));
+    console.log('User connected:', userId);
 
 
     socket.on('disconnect', () => {
         if (connectedUsers[userId]) {
             delete connectedUsers[userId];
             io.emit('userDisconnected', userId);
-            console.log('User disconnected:', userId);
             io.emit('connectedUsers', Object.keys(connectedUsers));
         }
     });
     
 });
 
-app.get('/isUserConnected/:userId', (req, res) => {
-    const userId = req.params.userId;
-    const isConnected = !!connectedUsers[userId];
-    res.send(isConnected);
-});
+
+// I dont know what this was doing here
+
+// app.get('/isUserConnected/:userId', (req, res) => {
+//     const userId = req.params.userId;
+//     const isConnected = !!connectedUsers[userId];
+//     res.send(isConnected);
+// });
 
 
 server.listen(port, () => {
