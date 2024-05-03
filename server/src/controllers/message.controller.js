@@ -1,5 +1,7 @@
 const Message = require('../models/message.model');
+const Chat = require('../models/chat.model');
 const { Types: { ObjectId } } = require('mongoose');
+const mongoose = require('mongoose');
 
 async function getChatMessages(req, res) {
   const { chatId } = req.params;
@@ -30,4 +32,15 @@ async function deleteMessage(req, res) {
   }
 }
 
-module.exports = { getChatMessages, deleteMessage };
+async function deleteChatMessages({ chatId }) {
+  try {
+    const chatObjectId = new mongoose.Types.ObjectId(chatId);
+    const messages = await Message.deleteMany({ chatId: chatObjectId });
+    return messages;
+  } catch (error) {
+    console.error('Error deleting messages:', error);
+    throw error;
+  }
+}
+
+module.exports = { getChatMessages, deleteMessage, deleteChatMessages };

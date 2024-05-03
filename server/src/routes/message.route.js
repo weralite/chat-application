@@ -5,6 +5,8 @@ const { getChatMessages, deleteMessage } = require('../controllers/message.contr
 
 messageRouter.get('/getMessages/:chatId', getChatMessages);
 
-messageRouter.post('/deleteMessage', deleteMessage);
+messageRouter.delete('/deleteMessage/:id', deleteMessage);
+
+
 
 module.exports = messageRouter;
