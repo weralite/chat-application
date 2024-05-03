@@ -2,7 +2,7 @@
 import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 
-const ChatField = ({ activeChat, receiver, receiverOnline, userId, message, setMessage, sendMessage, chatEndRef }) => {
+const ChatField = ({ socket, activeChat, receiver, receiverOnline, userId, message, setMessage, sendMessage, chatEndRef }) => {
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [selectedMessage, setSelectedMessage] = useState(null);
 
@@ -42,8 +42,13 @@ const ChatField = ({ activeChat, receiver, receiverOnline, userId, message, setM
 
     const handleDeleteMessage = (message) => {
         console.log(message);
+        deleteMessage(message);
         setContextMenu({ visible: false, x: 0, y: 0 });
     }
+
+    const deleteMessage = (message) => {
+        socket.emit('delete_message', message);
+    };
 
 
     return (

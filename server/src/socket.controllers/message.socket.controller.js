@@ -1,3 +1,4 @@
+const { deleteOne } = require('../models/chat.model');
 const Message = require('../models/message.model');
 
 
@@ -78,6 +79,25 @@ module.exports = (io, emitToUser, connectedUsers) => {
             } catch (error) {
                 console.error('Error updating message status:', error);
                 socket.emit('error', 'Failed to update message status');
+            }
+        });
+
+        socket.on('delete_message', async (messageData) => {
+            try {
+                const message = await Message.findById(messageData._id);
+        
+                if (!message) {
+                    console.error(`No message found with ID: ${messageData._id}`);
+                    return;
+                }
+        
+                await Message.deleteOne({ _id: messageData._id });
+        
+                emitToUser(message.sender, 'messageDeleted', messageData._id);
+                emitToUser(message.receiver, 'messageDeleted', messageData._id);
+            } catch (error) {
+                console.error('Error deleting message:', error);
+                socket.emit('error', 'Failed to delete message');
             }
         });
 

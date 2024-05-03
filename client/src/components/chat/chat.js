@@ -327,7 +327,7 @@ const Chat = () => {
 
             return () => {
                 socket.off('message_status_updated');
-                
+
             };
         }
     }, [socket, activeChat]);
@@ -344,12 +344,29 @@ const Chat = () => {
                 }
             });
 
-            // Clean up the listener when the component unmounts
             return () => {
                 socket.off('chatDeleted');
             };
         }
     }, [chatList, activeChat]);
+
+    // Update the active chat state when a message is deleted
+    useEffect(() => {
+        if (socket && activeChat) {
+            socket.on('messageDeleted', (messageId) => {
+                const updatedMessages = activeChat.messages.filter(message => message._id !== messageId);
+                setActiveChat({
+                    ...activeChat,
+                    messages: updatedMessages,
+                });
+                socket.emit('get_all_chats', { userId });
+            });
+
+            return () => {
+                socket.off('messageDeleted');
+            };
+        }
+    }, [socket, activeChat]);
 
     // Scroll to the end of the chat
     useEffect(() => {
@@ -413,6 +430,7 @@ const Chat = () => {
                 <div className='chat-main-window'>
                     {activeChat && (
                         <ChatField
+                            socket={socket}
                             activeChat={activeChat}
                             receiver={receiver}
                             receiverOnline={receiverOnline}
