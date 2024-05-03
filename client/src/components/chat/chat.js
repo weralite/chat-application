@@ -329,18 +329,23 @@ const Chat = () => {
 
     // Update the chat list when a chat is deleted
     useEffect(() => {
+        let isMounted = true; // Flag to track if component is mounted
+    
         if (socket) {
             socket.on('chatDeleted', (chatId) => {
-                const updatedChats = chatList.filter(chat => chat._id !== chatId);
-                setChatList(updatedChats);
-                socket.emit('get_all_chats', { userId });
+                if (isMounted) {
+                    setChatList(prevChatList => {
+                        return prevChatList.filter(chat => chat._id !== chatId);
+                    });
+                }
             });
-
+    
             return () => {
+                isMounted = false; // Cleanup flag when component is unmounted
                 socket.off('chatDeleted');
             };
         }
-    }, [chatList,]);
+    }, [chatList]);
 
 
     // Update the active chat state when a chat is deleted
