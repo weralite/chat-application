@@ -3,13 +3,12 @@ const { connectToMongoose } = require("./config/mongoose");
 const chatSocketController = require("./socket.controllers/chat.socket.controller");
 const messageSocketController = require("./socket.controllers/message.socket.controller");
 const contactsSocketController = require("./socket.controllers/contact.socket.controller");
+const socketAuth = require('./socketHelpers/socketAuth');
 const http = require("http");
 const socketIo = require("socket.io");
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const port = process.env.PORT || 8000
-
 const server = http.createServer(app)
 const io = socketIo(server, {
     cors: {
@@ -33,23 +32,7 @@ chatSocketController(io, emitToUser);
 messageSocketController(io, emitToUser, connectedUsers);
 contactsSocketController(io, emitToUser);
 
-io.use((socket, next) => {
-    if (socket.handshake.query && socket.handshake.query.token) {
-        jwt.verify(socket.handshake.query.token, process.env.JWT_SECRET, function (err, decoded) {
-            if (err) {
-                console.log('Token verification failed:', err);
-                return next(new Error('Authentication error'));
-            }
-            socket.decoded = decoded;
-            next();
-        });
-    }
-    else {
-        console.log('No token provided');
-        next(new Error('Authentication error'));
-    }
-});
-
+io.use(socketAuth);
 
 io.on('connection', (socket) => {
     const userId = socket.handshake.query.userId;
@@ -74,16 +57,6 @@ io.on('connection', (socket) => {
     });
     
 });
-
-
-// I dont know what this was doing here
-
-// app.get('/isUserConnected/:userId', (req, res) => {
-//     const userId = req.params.userId;
-//     const isConnected = !!connectedUsers[userId];
-//     res.send(isConnected);
-// });
-
 
 server.listen(port, () => {
     console.log("Server running on ", port)
