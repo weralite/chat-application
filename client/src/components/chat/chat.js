@@ -454,6 +454,7 @@ const Chat = () => {
                         <ChatField
                             socket={socket}
                             activeChat={activeChat}
+                            setActiveChat={setActiveChat}
                             receiver={receiver}
                             receiverOnline={receiverOnline}
                             userId={userId}

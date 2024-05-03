@@ -1,8 +1,9 @@
 // ChatArea.js
 import React from 'react';
 import { useState, useEffect, useRef } from 'react';
+import { Icon } from '@iconify/react';
 
-const ChatField = ({ socket, activeChat, receiver, receiverOnline, userId, message, setMessage, sendMessage, chatEndRef }) => {
+const ChatField = ({ socket, activeChat, setActiveChat, receiver, receiverOnline, userId, message, setMessage, sendMessage, chatEndRef }) => {
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [selectedMessage, setSelectedMessage] = useState(null);
 
@@ -40,6 +41,10 @@ const ChatField = ({ socket, activeChat, receiver, receiverOnline, userId, messa
         setContextMenu({ visible: false, x: 0, y: 0 });
     };
 
+    const closeActiveChat = () => {
+        setActiveChat(null);
+    };
+
     const handleDeleteMessage = (message) => {
         deleteMessage(message);
         setContextMenu({ visible: false, x: 0, y: 0 });
@@ -53,12 +58,19 @@ const ChatField = ({ socket, activeChat, receiver, receiverOnline, userId, messa
     return (
         <>
             <div className='chat-room-header'>
+                <div>
                 <b>{receiver}</b>
                 {receiverOnline ? (
                     <p className='online-status'>online</p>
                 ) : (
                     <p className='online-status'>offline</p>
                 )}
+                </div>
+                <div className='active-chat-icons'>
+                {/* <Icon icon="mi:search" width="25" height="25"  style={{color: "#726565"}} /> */}
+                <Icon onClick={(closeActiveChat)} icon="formkit:minimize" width="25" height="25"  style={{color: "#726565"}} />
+                </div>
+
             </div>
             <div className='chat-textbox'>
                 {activeChat && activeChat.messages && (
