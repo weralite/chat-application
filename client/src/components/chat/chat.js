@@ -203,10 +203,11 @@ const Chat = () => {
     useEffect(() => {
         if (!socket) return;
 
-        const handleChats = (chatsWithUsernamesAndLastMessage) => {
-            setChatList(chatsWithUsernamesAndLastMessage);
+        const handleChats = (chats) => {
+            console.log('chatlist:', chats);
+            setChatList(chats);
         };
-
+     
         socket.emit('get_all_chats', { userId });
         socket.on('chats', handleChats);
 

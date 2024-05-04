@@ -97,8 +97,8 @@ const ChatList = ({ socket, chatList, setChatList, activeChat, setActiveChat, op
             {
                 sortedChats
                     .filter(chat => {
-                        const otherUsername = chat.otherUsername || '';
-                        return otherUsername.toLowerCase().includes((searchTerm || '').toLowerCase());
+                        const receiver = chat.receiver || '';
+                        return receiver.toLowerCase().includes((searchTerm || '').toLowerCase());
                     })
                     .map((chat) => (
                         <div
@@ -111,7 +111,7 @@ const ChatList = ({ socket, chatList, setChatList, activeChat, setActiveChat, op
                         >
                             <div className='chatlist-chatrow'>
                                 <div className='chatrow-left'>
-                                    <b>{chat.otherUsername}</b>
+                                    <b>{chat.receiver}</b>
                                     <p className='paragraph'>
                                         {chat.lastMessage.content && chat.lastMessage.content.length > 20
                                             ? `${chat.lastMessage.content.slice(0, 15)}...`

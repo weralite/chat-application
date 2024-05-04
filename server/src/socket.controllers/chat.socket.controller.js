@@ -1,44 +1,27 @@
 const Chat = require('../models/chat.model');
 const User = require('../models/user.model');
-const Message = require('../models/message.model');
 const Contact = require('../models/contact.model');
+const Message = require('../models/message.model');
+const chatService = require('../socketHelpers/chatService');
 
 module.exports = (io, emitToUser) => {
     io.on('connection', (socket) => {
 
         socket.on('get_chats', async ({ senderId, receiverId }) => {
             try {
-                const contactPair = await Contact.findOne({
-                    $or: [
-                        { user1Id: senderId, user2Id: receiverId },
-                        { user1Id: receiverId, user2Id: senderId }
-                    ]
-                });
+                const contactPair = await chatService.getContactPair(senderId, receiverId);
 
-                // If either user has blocked the other, don't return the chatroom
-                if (contactPair && contactPair.blockedBy && (contactPair.blockedBy.toString() === senderId || contactPair.blockedBy.toString() === receiverId)) {
+                if (chatService.isBlocked(contactPair, senderId, receiverId)) {
                     return;
                 }
-                // Find a chat where both sender and receiver are participants
-                let chat = await Chat.findOne({
-                    participants: { $all: [senderId, receiverId] }
-                });
+
+                let chat = await chatService.getChat(senderId, receiverId);
 
                 if (!chat) {
-                    // Create a new chat with participants
-                    chat = new Chat({ participants: [senderId, receiverId] });
-                    await chat.save();
+                    chat = await chatService.createChat(senderId, receiverId);
                 }
-                const [sender, receiver] = await Promise.all([
-                    User.findById(senderId),
-                    User.findById(receiverId)
-                ]);
-                // Prepare chat object with sender and receiver usernames
-                const chatWithUsernames = {
-                    ...chat._doc,
-                    senderUsername: sender ? sender.username : null,
-                    receiverUsername: receiver ? receiver.username : null
-                };
+
+                const chatWithUsernames = await chatService.prepareChatWithUsernames(chat, senderId, receiverId);
 
                 socket.emit('receive_chats', chatWithUsernames);
             } catch (error) {
@@ -53,14 +36,14 @@ module.exports = (io, emitToUser) => {
                 const chats = await Chat.find({
                     participants: userId
                 });
-                const chatsWithUsernamesAndLastMessage = await Promise.all(chats.map(async (chat) => {
+                const chatObject = await Promise.all(chats.map(async (chat) => {
                     // Determine the other participants userID
-                    const otherUserId = chat.participants.find(participantId => participantId.toString() !== userId);
+                    const receiverId = chat.participants.find(participantId => participantId.toString() !== userId);
 
                     const contactPair = await Contact.findOne({
                         $or: [
-                            { user1Id: userId, user2Id: otherUserId },
-                            { user1Id: otherUserId, user2Id: userId }
+                            { user1Id: userId, user2Id: receiverId },
+                            { user1Id: receiverId, user2Id: userId }
                         ]
                     });
 
@@ -69,7 +52,7 @@ module.exports = (io, emitToUser) => {
                         return null;
                     }
 
-                    const otherUser = await User.findById(otherUserId);
+                    const receiver = await User.findById(receiverId);
 
                     let lastMessage = await Message.findOne({ chatId: chat._id }).sort({ createdAt: -1 });
                     // If lastMessage is null, log a message to the console instead of crashing app
@@ -79,11 +62,11 @@ module.exports = (io, emitToUser) => {
 
                     return {
                         ...chat._doc,
-                        otherUsername: otherUser ? otherUser.username : null,
+                        receiver: receiver ? receiver.username : null,
                         lastMessage
                     };
                 }));
-                const filteredChats = chatsWithUsernamesAndLastMessage.filter(chat => chat !== null);
+                const filteredChats = chatObject.filter(chat => chat !== null);
 
                 socket.emit('chats', filteredChats);
             } catch (error) {
