@@ -41,7 +41,7 @@ module.exports = (io, emitToUser, connectedUsers) => {
                 });
 
             } catch (error) {
-                console.error('Error sending message:', error);
+                console.error('Error sending message:', error.message);
                 socket.emit('error', 'Failed to send message');
             }
         });
