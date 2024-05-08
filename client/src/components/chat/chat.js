@@ -204,7 +204,6 @@ const Chat = () => {
         if (!socket) return;
 
         const handleChats = (chats) => {
-            console.log('chatlist:', chats);
             setChatList(chats);
         };
      

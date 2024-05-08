@@ -87,6 +87,18 @@ const Contacts = ({ userId, contacts, setContacts, setActiveChat, chatList, setC
         }
     }, [socket, setContacts, setChatList, contacts]);
 
+    useEffect(() => {
+        if (socket) {
+            socket.on('deleteContact', (contactId) => {
+                setContacts(prevContacts => {
+                    return prevContacts.filter(contact => contact._id !== contactId);
+                });
+            });
+            return () => {
+                socket.off('deleteContact');
+            };
+        }
+    }, [socket]);
 
     const blockContact = (contactId) => {
         setActiveContextMenu(null);
@@ -102,23 +114,22 @@ const Contacts = ({ userId, contacts, setContacts, setActiveChat, chatList, setC
         }
     };
 
-   
-    const deleteContact = async (contactId) => {
+    const handleDeleteContact = (contactId) => {
         if (window.confirm('Are you sure you want to delete this contact? Chat conversation will be deleted as well.')) {
+            socket.emit('delete_contact_chat', { contactId });
+            deleteContact(contactId);
+        }
+    };
 
-            try {
-                const res = await axios.delete(`http://localhost:8080/api/v1/contacts/deleteContact/${contactId}`);
-                if (res.status === 200) {
-                    setContacts(prevContacts => {
-                        return prevContacts.filter(contact => contact._id !== contactId);
-                    });
-                    socket.emit('get_all_chats', { userId });
-                    setActiveChat(null);
-                    setActiveContextMenu(null);
-                }
-            } catch (err) {
-                console.error(err);
+    const deleteContact = async (contactId) => {
+        try {
+            const res = await axios.delete(`http://localhost:8080/api/v1/contacts/deleteContact/${contactId}`);
+            if (res.status === 200) {
+                setActiveChat(null);
+                setActiveContextMenu(null);
             }
+        } catch (err) {
+            console.error(err);
         }
     };
 
@@ -152,7 +163,7 @@ const Contacts = ({ userId, contacts, setContacts, setActiveChat, chatList, setC
                             return null;
                         } else {
                             return (
-                                <li key={user._id} style={{ position: 'relative'}}>
+                                <li key={user._id} style={{ position: 'relative' }}>
                                     <Icon icon="gg:more-o" className='icon' width="18" height="18" style={{ color: "#726565" }}
                                         onClick={() => { openContextMenu(user._id); }} />
                                     {user.contact.username}
@@ -165,7 +176,7 @@ const Contacts = ({ userId, contacts, setContacts, setActiveChat, chatList, setC
                                                 :
                                                 <button onClick={() => blockContact(user._id)}>Block</button>
                                             }
-                                            <button onClick={() => deleteContact(user._id)}>Delete contact</button>
+                                            <button onClick={() => handleDeleteContact(user._id)}>Delete contact</button>
                                         </div>
                                     )}
                                 </li>

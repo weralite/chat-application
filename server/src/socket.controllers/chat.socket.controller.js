@@ -90,5 +90,43 @@ module.exports = (io, emitToUser) => {
             });
         });
 
+        socket.on('delete_contact_chat', async ({ contactId }) => {
+            const contact = await Contact.findById(contactId);
+            if (!contact) {
+                console.error(`No contact found with ID: ${contactId}`);
+                return;
+            }
+
+            const chat = await Chat.findOne({
+                participants: {
+                    $all: [contact.user1Id._id, contact.user2Id._id]
+                }
+            });
+
+            if (!chat) {
+                console.error(`No chat found with contact ID: ${contactId}`);
+                return;
+            }
+
+            const chatId = chat._id;
+            const participants = chat.participants;
+            await Chat.deleteOne({ _id: chatId });
+            await Message.deleteMany({ chatId });
+
+            const events = [
+                { eventName: 'chatDeleted', eventData: chatId },
+                { eventName: 'deleteContact', eventData: contactId }
+            ];
+
+            participants.forEach(participant => {
+                events.forEach(event => {
+                    emitToUser(participant, event.eventName, event.eventData);
+                });
+
+            });
+
+
+        });
+
     });
 };
