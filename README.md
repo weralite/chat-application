@@ -47,6 +47,10 @@ This is a simple chat application built with Node.js and Socket.io. It allows us
    JWT_SECRET=mysecretkey
 
 
+
+
+
+
 **Usage**
 Visit the application in your web browser.
 Register and login, add a contact by searching for a username.
