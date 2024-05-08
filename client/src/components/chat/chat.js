@@ -6,10 +6,7 @@ import ChatList from './chatList';
 import MenuModal from '../menuModal';
 import ChatField from './chatField';
 
-
 const ENDPOINT = 'http://localhost:8080';
-
-
 
 const Chat = () => {
     const [socket, setSocket] = useState(null);
@@ -347,7 +344,6 @@ const Chat = () => {
         }
     }, [chatList]);
 
-
     // Update the active chat state when a chat is deleted
     useEffect(() => {
         if (socket && activeChat) {
@@ -375,7 +371,6 @@ const Chat = () => {
             };
         }
     }, [socket]);
-
 
     // Update the active chat state when a message is deleted
     useEffect(() => {
