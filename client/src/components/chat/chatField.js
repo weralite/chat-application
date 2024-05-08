@@ -68,7 +68,9 @@ const ChatField = ({ socket, activeChat, setActiveChat, receiver, receiverOnline
                 </div>
                 <div className='active-chat-icons'>
                 {/* <Icon icon="mi:search" width="25" height="25"  style={{color: "#726565"}} /> */}
+                <div className='minimize-icon-box'>
                 <Icon onClick={(closeActiveChat)} icon="formkit:minimize" width="25" height="25"  style={{color: "#726565"}} />
+                </div>
                 </div>
 
             </div>
