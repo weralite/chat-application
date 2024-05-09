@@ -33,7 +33,7 @@ This is a simple chat application built with Node.js and Socket.io. It allows us
 
    ## Environment Variables
 
-# The application relies on several environment variables for configuration. These variables should be set  in a `.env` inside server folder.
+# The application relies on environment variables for configuration. These variables should be set  in a `.env` inside server folder.
 
 ## Required Variables
 
