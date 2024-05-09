@@ -9,7 +9,7 @@ This is a simple chat application built with Node.js and Socket.io. It allows us
    ```bash
    git clone https://github.com/your-username/chat-application.git
 
- ## Server - cd server
+ ## Server
    
 2. **Install dependencies:**
 
@@ -20,7 +20,7 @@ This is a simple chat application built with Node.js and Socket.io. It allows us
    ```bash
    npm run dev
 
-  ## Client - cd client
+  ## Client
    
 4. **Install dependencies:**
 
@@ -45,10 +45,12 @@ This is a simple chat application built with Node.js and Socket.io. It allows us
    MONGODB_URI=mongodb://localhost:27017/chatapp
 
    JWT_SECRET=mysecretkey
+   ```
 
 
 
  # About
+ 
 **Usage**
 Visit the application in your web browser.
 Register and login, add a contact by searching for a username.
