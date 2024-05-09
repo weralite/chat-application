@@ -35,7 +35,7 @@ This is a simple chat application built with Node.js and Socket.io. It allows us
 
 # The application relies on several environment variables for configuration. These variables should be set  in a `.env` inside server folder.
 
-### Required Variables
+## Required Variables
 
  **`PORT`**: Specifies the port on which the server will listen for incoming connections. Frontend is currently listening to server port 8000 in ENDPOINT variable inside chat.js
 
@@ -48,9 +48,7 @@ This is a simple chat application built with Node.js and Socket.io. It allows us
 
 
 
-
-
-
+ # About
 **Usage**
 Visit the application in your web browser.
 Register and login, add a contact by searching for a username.
