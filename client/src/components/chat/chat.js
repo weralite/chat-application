@@ -450,7 +450,7 @@ const Chat = () => {
                 />
 
                 <div className='chat-main-window'>
-                    {activeChat && (
+                    {activeChat ? (
                         <ChatField
                             socket={socket}
                             activeChat={activeChat}
@@ -463,6 +463,10 @@ const Chat = () => {
                             sendMessage={sendMessage}
                             chatEndRef={chatEndRef}
                         />
+                    ) : (
+                        <div className='empty-chat-msg-box'>
+                        <p>Select a chat to start messaging</p>
+                        </div>
                     )}
                 </div>
             </div>

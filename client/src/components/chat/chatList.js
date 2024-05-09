@@ -1,13 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { Icon } from '@iconify/react';
 
 const ChatList = ({ socket, chatList, setChatList, activeChat, setActiveChat, openChatByChatId, userId }) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [showSearchModal, setShowSearchModal] = useState(false);
     const [deliveredMessagesCount, setDeliveredMessagesCount] = useState({});
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [selectedChat, setSelectedChat] = useState(null);
 
     const contextMenuRef = useRef(null);
+
+    const searchIconRef = useRef(null);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth > 768) { 
+                setShowSearchModal(false);
+            }
+        };
+    
+        window.addEventListener('resize', handleResize);
+    
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+    
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showSearchModal]);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -40,6 +65,23 @@ const ChatList = ({ socket, chatList, setChatList, activeChat, setActiveChat, op
                 .catch(error => console.error('Error:', error));
         });
     }, [chatList, userId]);
+    
+    const handleClickOutside = (event) => {
+        if (showSearchModal && !event.target.closest('.search-modal-box') && event.target !== searchIconRef.current) {
+            setShowSearchModal(false);
+        }
+    };
+
+    const toggleSearchModal = (event) => {
+        event.stopPropagation();
+        setShowSearchModal((prevShowSearchModal) => {
+            if (prevShowSearchModal === true) {
+                return false;
+            } else {
+                return true;
+            }
+        });
+    };
 
     const sortedChats = chatList.slice().sort((a, b) => {
         const lastMessageA = a.lastMessage;
@@ -81,18 +123,36 @@ const ChatList = ({ socket, chatList, setChatList, activeChat, setActiveChat, op
         socket.emit('delete_chat', { chatId });
     };
 
-
-
     return (
         <div className='chat-ongoing-chats'>
             <div className='chatlist-header'>
-                <input
-                    className='find-chat-input'
-                    type='text'
-                    placeholder='Search'
-                    value={searchTerm}
-                    onChange={handleSearch}
-                />
+                <div className='small-screen-search'>
+                    <Icon icon="mi:search" width="25" height="25" style={{ color: "#726565" }} onMouseDown={toggleSearchModal}  />
+                </div>
+                    <div className={showSearchModal ? 'search-modal show' : 'search-modal'}>
+                        <div className='search-modal-box'>
+                        <input
+                            className='modal-find-chat-input-field'
+                            type='text'
+                            placeholder='Search'
+                            value={searchTerm}
+                            onChange={handleSearch}
+                        />
+                        <div className='close-search-modal'>
+                        <Icon onClick={() => setShowSearchModal(false)} icon="material-symbols-light:close" width="30" height="30"  style={{color: "#726565"}} />
+                        </div>
+                        </div>
+                    </div>
+  
+                <div className='large-screen-search'>
+                    <input
+                        className='find-chat-input'
+                        type='text'
+                        placeholder='Search'
+                        value={searchTerm}
+                        onChange={handleSearch}
+                    />
+                </div>
             </div>
             {
                 sortedChats
@@ -100,36 +160,41 @@ const ChatList = ({ socket, chatList, setChatList, activeChat, setActiveChat, op
                         const receiver = chat.receiver || '';
                         return receiver.toLowerCase().includes((searchTerm || '').toLowerCase());
                     })
-                    .map((chat) => (
-                        <div
-                            key={chat._id}
-                            onClick={(event) => {
-                                openChatByChatId(chat._id, Object.values(chat.participants));
-                                handleClick(event);
-                            }}
-                            onContextMenu={(event) => handleContextMenu(event, chat)}
-                        >
-                            <div className='chatlist-chatrow'>
-                                <div className='chatrow-left'>
-                                    <b>{chat.receiver}</b>
-                                    <p className='paragraph'>
-                                        {chat.lastMessage.content && chat.lastMessage.content.length > 20
-                                            ? `${chat.lastMessage.content.slice(0, 15)}...`
-                                            : chat.lastMessage.content || '(empty)'}
-                                    </p>
-                                </div>
-                                <div className='chatrow-right'>
-                                    <p>{chat.lastMessage.createdAt ? formatTime(chat.lastMessage.createdAt) : null}</p>
+                    .map((chat) => {
+                        const firstLetter = chat.receiver.charAt(0);
+                        return (
 
-                                    {deliveredMessagesCount[chat._id] > 0 && (
-                                        <div className='msgcount-container'>
-                                            <p>{deliveredMessagesCount[chat._id]}</p>
-                                        </div>
-                                    )}
+                            <div
+                                key={chat._id}
+                                onClick={(event) => {
+                                    openChatByChatId(chat._id, Object.values(chat.participants));
+                                    handleClick(event);
+                                }}
+                                onContextMenu={(event) => handleContextMenu(event, chat)}
+                            >
+                                <div className='chatlist-chatrow'>
+                                    <div className='chatrow-left'>
+                                        <b className="receiver-full-name">{chat.receiver}</b>
+                                        <span className="receiver-first-letter">{firstLetter}</span>
+                                        <p className='paragraph'>
+                                            {chat.lastMessage.content && chat.lastMessage.content.length > 20
+                                                ? `${chat.lastMessage.content.slice(0, 15)}...`
+                                                : chat.lastMessage.content || '(empty)'}
+                                        </p>
+                                    </div>
+                                    <div className='chatrow-right'>
+                                        <p className='last-message-timestamp'>{chat.lastMessage.createdAt ? formatTime(chat.lastMessage.createdAt) : null}</p>
+
+                                        {deliveredMessagesCount[chat._id] > 0 && (
+                                            <div className='msgcount-container'>
+                                                <p>{deliveredMessagesCount[chat._id]}</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
 
             }
             {contextMenu.visible && (

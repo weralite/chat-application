@@ -19,23 +19,25 @@ h4 {
   font-size: 20px;
 }
 
+html,
 body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .chat-app {
   border: 1px solid #ccc;
-  min-width: 20rem;
-  min-height: 10rem;
-  max-width: 40rem;
+  width: 100%;
+  height: 100%;
+  display: flex;
 }
 
 .chat-wrapper {
   display: flex;
   flex-direction: row;
+  flex-grow: 1;
 
 }
 
@@ -43,8 +45,15 @@ body {
   display: flex;
   flex-direction: column;
   border-left: 1px solid #ccc;
-  width: 20rem;
-  height: 40rem;
+  /* width: 20rem; */
+  flex-grow: 1;
+}
+
+.empty-chat-msg-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
 .chat-room-header {
@@ -89,48 +98,63 @@ body {
   overflow-y: auto;
 }
 
-.find-chat-input {
-  width: 5rem;
-}
+@media (min-width: 768px) {
 
-.chat-ongoing-chats {
-  height: 40rem;
-  padding-top: 5px;
-  overflow-y: auto;
-  width: 15rem;
-  text-align: center;
-}
+  .chat-ongoing-chats {
+    padding-top: 5px;
+    overflow-y: auto;
+    min-width: 20rem;
+    text-align: center;
+  }
 
-.chatlist-header {
-  padding: 8px;
-  display: flex;
-  justify-content: center;
-}
+  .chatlist-header {
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+  }
 
-.chat-primary-contacts {
-  padding: 5px;
-  height: 2rem;
-}
+  .small-screen-search {
+    display: none;
+  }
 
-.chatlist-chatrow {
-  padding: 5px;
-  height: 3.5rem;
-  border-bottom: 1px solid #ccc;
-  display: flex;
-  cursor: default;
-}
+  .search-modal {
+    display: none;
+    opacity: 0;
+  }
 
-.chatrow-left {
-  width: 50%;
-  text-align: left;
-}
+  .search-modal.show {
+    opacity: 0;
+  }
 
-.chatrow-right {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-end;
+  .chat-primary-contacts {
+    padding: 5px;
+    height: 2rem;
+  }
+
+  .chatlist-chatrow {
+    padding: 5px;
+    height: 3.5rem;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    cursor: default;
+  }
+
+  .chatrow-left {
+    width: 50%;
+    text-align: left;
+  }
+
+  .receiver-first-letter {
+    display: none;
+  }
+
+  .chatrow-right {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
+  }
 }
 
 .chat-message-status {
@@ -173,7 +197,7 @@ h5 {
   flex-direction: column;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  height: 20rem;
+  height: 10rem;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -211,6 +235,7 @@ h5 {
 
 .menu-modal {
   position: absolute;
+  z-index: 99;
   left: 100%;
   width: 0;
   height: 100%;
@@ -229,7 +254,7 @@ h5 {
 
 .menu-modal.visible {
   left: 0;
-  width: 11rem;
+  width: 13rem;
   opacity: 1;
   visibility: visible;
 }
@@ -281,10 +306,13 @@ li {
 }
 
 .find-chat-input {
-  width: 9rem;
+  text-align: center;
+  width: 15rem;
   height: 1rem;
   padding: 0.8rem;
-  border-radius: 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
 }
 
 .msgcount-container {
@@ -313,5 +341,165 @@ li {
   width: 11rem;
   display: flex;
   flex-direction: column;
+
+}
+
+
+
+@media (max-width: 768px) {
+
+  .chat-ongoing-chats {
+    min-width: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 5px;
+  }
+
+  .chatlist-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* padding: 8px; */
+    /* border-bottom: 1px solid #ccc; */
+  }
+
+  .large-screen-search {
+    display: none;
+  }
+
+  .small-screen-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* background-color: #f2f2f2; */
+    height: 48px;
+    width: 48px;
+    /* padding: 10px; */
+    border-radius: 24px;
+    transition: background-color 0.3s ease;
+  }
+
+  .small-screen-search:hover {
+    cursor: pointer;
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.1);
+    background-color: #f2f2f2;
+    border-radius: 24px;
+  }
+
+  .search-modal {
+    position: absolute;
+    height: 2rem;
+    top: 2rem;
+    left: 4rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5);
+    width: 0;
+    opacity: 0;
+    transition: width 0.2s ease-out, opacity 0.2s ease-in-out, visibility 0.2s ease-out;
+  }
+
+  .search-modal.show {
+    width: 14rem;
+    height: 2rem;
+    opacity: 1;
+  }
+
+  .search-modal-box {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .modal-find-chat-input-field {
+    width: 80%;
+    height: 100%;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 14px;
+    border: none;
+    outline: none;
+  }
+
+  .close-search-modal {
+    height: 30px;
+    width: 32px;
+    /* background-color: #f2f2f2; */
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    transition: background-color 0.3s ease;
+  }
+
+  .close-search-modal:hover {
+    cursor: pointer;
+    background-color: #ccc;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  .find-chat-input {
+    display: none;
+  }
+
+  .chatlist-chatrow {
+    display: flex;
+    justify-content: center;
+  }
+
+  .chatrow-left {
+    background-color: #f1eaea;
+    border-radius: 24px;
+    width: 48px;
+    height: 48px;
+    padding: 0 16px;
+    cursor: default;
+  }
+
+  .receiver-first-letter {
+    font-size: 32px;
+    margin: 0;
+  }
+
+  .chatrow-left p {
+    display: none;
+  }
+
+  .receiver-full-name {
+    display: none;
+  }
+
+  .chatrow-right {
+    position: relative;
+  }
+
+  .last-message-timestamp {
+    display: none;
+  }
+
+  .msgcount-container {
+    position: absolute;
+    right: 0px;
+    top: 35px;
+    text-align: center;
+    background: rgb(206, 203, 203);
+    border-radius: 20px;
+    display: inline-block;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+  }
+
+  .msgcount-container p {
+    margin: 0;
+    font-size: 12px;
+  }
+
+  .paragraph {
+    white-space: nowrap;
+  }
 
 }
