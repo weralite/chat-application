@@ -345,7 +345,7 @@ li {
 }
 
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
 
   .chat-ongoing-chats {
     min-width: 3.5rem;

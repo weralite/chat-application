@@ -15,7 +15,7 @@ const ChatList = ({ socket, chatList, setChatList, activeChat, setActiveChat, op
 
     useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth > 768) { 
+            if (Math.round(window.innerWidth) >= 769) { 
                 setShowSearchModal(false);
             }
         };
