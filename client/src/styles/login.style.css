@@ -5,6 +5,7 @@
     align-items: center;
     min-width: 20rem;
     min-height: 10rem;
+    max-height: 50rem;
     gap: 1rem;
     padding: 1rem;
 }

@@ -36,7 +36,7 @@ const RegisterUser = () => {
     return (
         <div className='chat-app'>
             <div className='registration-body'>
-            <h2>User Registration</h2>
+            <h2>Register</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <input

@@ -39,7 +39,7 @@ const LoginUser = () => {
     return (
         <div className='chat-app'>
             <div className='login-body'>
-                <h1>Login User</h1>
+                <h1>Login</h1>
 
                 <form onSubmit={handleSubmit}>
                     <div>
