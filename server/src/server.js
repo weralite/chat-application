@@ -50,6 +50,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         if (connectedUsers[userId]) {
+            console.log('User disconnected:', userId);
             delete connectedUsers[userId];
             io.emit('userDisconnected', userId);
             io.emit('connectedUsers', Object.keys(connectedUsers));

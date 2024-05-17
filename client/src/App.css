@@ -99,7 +99,7 @@ body {
   overflow-y: auto;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 769px) {
 
   .chat-ongoing-chats {
     padding-top: 5px;
@@ -490,6 +490,7 @@ li {
   .msgcount-container p {
     margin: 0;
     font-size: 12px;
+    font-weight: 600;
   }
 
   .paragraph {
