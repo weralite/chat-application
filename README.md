@@ -60,14 +60,14 @@ Start chatting with other users in real-time!
 
 
 **Dependencies**
-bcrypt: For password hashing.
-crypto: For cryptographic functions.
-express: Web framework for Node.js.
-jsonwebtoken: For generating and verifying JSON web tokens.
-mongoose: MongoDB object modeling tool.
-nodemon: Utility that automatically restarts the server when changes are detected.
-socket.io: Real-time bidirectional event-based communication library.
 
+- **bcrypt**: For password hashing.
+- **crypto**: For cryptographic functions.
+- **express**: Web framework for Node.js.
+- **jsonwebtoken**: For generating and verifying JSON web tokens.
+- **mongoose**: MongoDB object modeling tool.
+- **nodemon**: Utility that automatically restarts the server when changes are detected.
+- **socket.io**: Real-time bidirectional event-based communication library.
 
 
 
