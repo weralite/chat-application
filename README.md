@@ -53,6 +53,7 @@ This is a simple chat application built with Node.js and Socket.io. It allows us
  ![Chatapp](https://github.com/weralite/chat-application/assets/58389432/551cb35b-35c9-434a-a2bb-5b22186c2d45)
 
 **Usage**
+
 Visit the application in your web browser.
 Register and login, add a contact by searching for a username.
 Engage in conversation via dropdown menu of added contact.
